@@ -1,0 +1,760 @@
+<title>Bridge Modules</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+:root{
+  --ground:#F5F7F6; --surface:#FFFFFF; --surface-2:#EDF1F0;
+  --ink:#16232A; --ink-soft:#55676F; --ink-faint:#84969C;
+  --rule:#DCE3E2; --rule-strong:#C3CFCD;
+  --accent:#0E7C86; --accent-soft:#E0EFEF;
+  --accent-2:#B4652A; --accent-2-soft:#F4E8DC;
+  --shadow:0 1px 2px rgba(22,35,42,.05), 0 8px 24px -16px rgba(22,35,42,.18);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#101619; --surface:#172024; --surface-2:#1D282C;
+    --ink:#E4EBE9; --ink-soft:#A3B3B8; --ink-faint:#7D8F95;
+    --rule:#2A373C; --rule-strong:#3B4B50;
+    --accent:#4FBCC4; --accent-soft:#123336;
+    --accent-2:#DFA160; --accent-2-soft:#33261A;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -16px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#101619; --surface:#172024; --surface-2:#1D282C;
+  --ink:#E4EBE9; --ink-soft:#A3B3B8; --ink-faint:#7D8F95;
+  --rule:#2A373C; --rule-strong:#3B4B50;
+  --accent:#4FBCC4; --accent-soft:#123336;
+  --accent-2:#DFA160; --accent-2-soft:#33261A;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -16px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Source Serif 4",Georgia,"Times New Roman",serif;
+  font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased;}
+.shell{max-width:1240px;margin:0 auto;padding:0 28px 96px;
+  display:grid;grid-template-columns:196px minmax(0,1fr);gap:0 56px;align-items:start;}
+.rail{position:sticky;top:0;padding:44px 0;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11.5px;line-height:1.5;display:flex;flex-direction:column;gap:2px;
+  max-height:100vh;overflow-y:auto;}
+.rail a{color:var(--ink-soft);text-decoration:none;padding:5px 8px 5px 10px;
+  border-left:2px solid transparent;display:flex;gap:8px;transition:color .15s,border-color .15s;}
+.rail a:hover,.rail a:focus-visible{color:var(--accent);border-left-color:var(--accent);}
+.rail a .n{color:var(--ink-faint);min-width:24px;}
+.rail .rail-head{text-transform:uppercase;letter-spacing:.12em;color:var(--ink-faint);
+  padding:14px 0 6px 10px;font-size:10px;}
+main{padding:44px 0 0;min-width:0;}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--accent);margin:0 0 10px;}
+h1{font-family:"IBM Plex Sans Condensed","Arial Narrow",sans-serif;font-weight:700;
+  font-size:clamp(36px,5.6vw,58px);line-height:1.02;letter-spacing:-.015em;margin:0 0 16px;text-wrap:balance;}
+h2{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:clamp(24px,3.2vw,31px);
+  line-height:1.12;letter-spacing:-.01em;margin:0 0 8px;text-wrap:balance;}
+h3{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:19px;line-height:1.25;
+  margin:0 0 6px;text-wrap:balance;}
+h4{font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:600;font-size:11.5px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 10px;}
+p{margin:0 0 15px;} .prose{max-width:68ch;}
+.lede{font-size:20px;line-height:1.55;color:var(--ink-soft);max-width:64ch;margin-bottom:24px;}
+a{color:var(--accent);} strong{font-weight:600;}
+code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.87em;
+  background:var(--surface-2);padding:1px 5px;border-radius:2px;}
+section{padding:50px 0;border-top:1px solid var(--rule);}
+section:first-of-type{border-top:none;}
+.sec-head{margin-bottom:26px;max-width:70ch;}
+.sec-head p{color:var(--ink-soft);margin-bottom:0;}
+.masthead{padding:0 0 40px;border:none;}
+.mast-meta{display:flex;flex-wrap:wrap;gap:0 28px;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11.5px;color:var(--ink-faint);letter-spacing:.06em;text-transform:uppercase;
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:12px 0;margin-top:26px;}
+.mast-meta span b{color:var(--ink-soft);font-weight:500;}
+
+.modhead{background:var(--surface);border:1px solid var(--rule);border-top:3px solid var(--accent);
+  border-radius:0 0 3px 3px;padding:24px 26px;margin-bottom:26px;box-shadow:var(--shadow);}
+.modhead .mh-top{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:10px;}
+.modhead .mh-id{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;
+  color:var(--accent);letter-spacing:.08em;}
+.modhead .mh-time{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-faint);
+  margin-left:auto;letter-spacing:.06em;}
+.modhead h2{margin-bottom:10px;}
+.modhead p{color:var(--ink-soft);font-size:16px;margin:0;max-width:70ch;}
+
+.topic{margin:0 0 32px;background:var(--surface);border:1px solid var(--rule);
+  border-radius:3px;padding:22px 24px;box-shadow:var(--shadow);}
+.topic-head{display:flex;align-items:baseline;gap:12px;padding-bottom:9px;margin-bottom:14px;
+  border-bottom:1px solid var(--rule);flex-wrap:wrap;}
+.topic-head h3{margin:0;}
+.tid{font-family:"IBM Plex Mono",monospace;font-size:12.5px;font-weight:600;color:var(--accent);}
+.topic p{font-size:16px;line-height:1.6;color:var(--ink-soft);max-width:70ch;}
+.topic p strong{color:var(--ink);}
+.eq{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:13.5px;line-height:1.75;
+  background:var(--surface-2);border:1px solid var(--rule);border-radius:3px;
+  padding:13px 17px;margin:12px 0;overflow-x:auto;white-space:pre;color:var(--ink);}
+.uses{background:var(--accent-soft);border-left:2px solid var(--accent);
+  padding:12px 16px;border-radius:0 2px 2px 0;margin:14px 0;font-size:15px;line-height:1.55;}
+.uses b{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--accent);display:block;margin-bottom:4px;font-weight:600;}
+.trap{background:var(--accent-2-soft);border-left:2px solid var(--accent-2);
+  padding:12px 16px;border-radius:0 2px 2px 0;margin:14px 0;font-size:15px;line-height:1.55;}
+.trap b{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--accent-2);display:block;margin-bottom:4px;font-weight:600;}
+.rd{font-size:14.5px;color:var(--ink-soft);margin:14px 0 0;padding-top:12px;
+  border-top:1px solid var(--rule);}
+.rd b{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink-faint);display:block;margin-bottom:5px;font-weight:600;}
+.check{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--rule);}
+.check b{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink-faint);display:block;margin-bottom:7px;font-weight:600;}
+.check ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;
+  font-size:15px;line-height:1.5;color:var(--ink-soft);}
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);border-radius:3px;
+  background:var(--surface);margin-bottom:10px;}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:15px;}
+th{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink-faint);font-weight:500;text-align:left;
+  padding:12px 14px;border-bottom:1px solid var(--rule-strong);background:var(--surface-2);white-space:nowrap;}
+td{padding:11px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.45;}
+tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:var(--surface-2);}
+td.mono{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink-soft);white-space:nowrap;}
+.note{border-left:2px solid var(--accent);background:var(--accent-soft);padding:16px 20px;
+  border-radius:0 3px 3px 0;margin:22px 0;font-size:15.5px;max-width:74ch;}
+.note p:last-child{margin-bottom:0;} .note h4{color:var(--accent);margin-bottom:8px;}
+.note.staff{border-left-color:var(--accent-2);background:var(--accent-2-soft);}
+.note.staff h4{color:var(--accent-2);}
+ul.plain{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:9px;}
+ul.plain li{padding-left:18px;position:relative;font-size:15.5px;line-height:1.5;}
+ul.plain li::before{content:"";position:absolute;left:0;top:.62em;width:6px;height:6px;
+  background:var(--accent);border-radius:1px;}
+footer{margin-top:44px;padding-top:22px;border-top:1px solid var(--rule);
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;color:var(--ink-faint);}
+@media (max-width:880px){
+  .shell{grid-template-columns:1fr;}
+  .rail{position:static;max-height:none;padding:24px 0 0;
+    flex-direction:row;flex-wrap:wrap;border-bottom:1px solid var(--rule);}
+  .rail .rail-head{display:none;}
+}
+</style>
+
+<div class="shell">
+<nav class="rail" aria-label="Contents">
+  <div class="rail-head">General</div>
+  <a href="#how"><span class="n">00</span>How these work</a>
+  <a href="#skip"><span class="n">01</span>What to skip</a>
+  <div class="rail-head">Module A</div>
+  <a href="#a1"><span class="n">A1</span>Camera model</a>
+  <a href="#a2"><span class="n">A2</span>Two-view geometry</a>
+  <a href="#a3"><span class="n">A3</span>Stereo and depth</a>
+  <a href="#a4"><span class="n">A4</span>Features</a>
+  <a href="#a5"><span class="n">A5</span>RANSAC</a>
+  <a href="#a6"><span class="n">A6</span>Triangulation to BA</a>
+  <div class="rail-head">Module B</div>
+  <a href="#b1"><span class="n">B1</span>Autograd</a>
+  <a href="#b2"><span class="n">B2</span>CNNs</a>
+  <a href="#b3"><span class="n">B3</span>Attention</a>
+  <a href="#b4"><span class="n">B4</span>Training</a>
+  <div class="rail-head">Assessment</div>
+  <a href="#diag"><span class="n">02</span>Diagnostic</a>
+  <a href="#more"><span class="n">03</span>Going deeper</a>
+</nav>
+
+<main>
+<header class="masthead">
+  <p class="eyebrow">ROB 498 / 599 &middot; Fall 2026 &middot; Unit 0</p>
+  <h1>Bridge modules</h1>
+  <p class="lede">Everything this course assumes from classical computer vision and deep
+  learning. This material is <strong>taught in class</strong>, across the first five lectures;
+  these notes are the written reference that goes with them, the full derivations, the
+  traps, and the self-checks the diagnostic is built from.</p>
+  <div class="mast-meta">
+    <span><b>Taught</b> L01 &ndash; L05, weeks 1&ndash;3</span>
+    <span><b>Quiz 1 due</b> Sun Sep 13</span>
+    <span><b>Quiz 2 due</b> Sun Sep 20</span>
+    <span><b>Retakeable to</b> Sun Sep 27</span>
+    <span><b>Weight</b> 5%</span>
+  </div>
+</header>
+
+<section id="how">
+  <div class="sec-head">
+    <p class="eyebrow">00 &middot; How these work</p>
+    <h2>Read for the interface, not for the derivation</h2>
+  </div>
+  <div class="prose">
+    <p>These modules are not a computer vision course in miniature. They cover the specific
+    results this course <em>uses</em>, and each topic says plainly where it gets used, which lecture, which lab, which line of the starter code. If a classical result does not
+    show up later, it is not here, however beautiful it is.</p>
+    <p>Every topic has the same four parts: the content, a <strong>Used by</strong> box tying it
+    to something concrete in this course, a <strong>Trap</strong> box for the mistake people
+    actually make, and two or three self-checks. The self-checks are the diagnostic's
+    difficulty. If you can answer them without looking anything up, you are ready.</p>
+    <p>These notes were previously assigned as asynchronous modules. They are now
+    <strong>lectured</strong>, and the notes are what you read alongside: self-contained, with the
+    derivations worked at a pace a slide cannot manage. Where a lecture moves faster than you
+    want, the corresponding topic below is the place to slow down.</p>
+  </div>
+  <div class="note">
+    <h4>Which lecture covers what</h4>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Lecture</th><th>Topics</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">L01 &middot; Mon Aug 31</td><td>A1, pinhole camera, intrinsics and extrinsics, the camera matrix, distortion, calibration as estimation</td></tr>
+          <tr><td class="mono">L02 &middot; Wed Sep 2</td><td>Rigid-body state on SE(3). Not a module topic, but the conventions fixed here are assumed by all of them</td></tr>
+          <tr><td class="mono">L03 &middot; Wed Sep 9</td><td>A2, A4, A5, A6, epipolar geometry, features and matching, RANSAC, triangulation and bundle adjustment</td></tr>
+          <tr><td class="mono">L04 &middot; Mon Sep 14</td><td>A3, stereo and the depth-error law, in the wider context of how each sensing modality fails</td></tr>
+          <tr><td class="mono">L05 &middot; Wed Sep 16</td><td>B1&ndash;B4, autograd, convolution and why 3D breaks it, attention, training practicalities</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-bottom:0;">If you have taken EECS&nbsp;442, CMU&nbsp;16-385, or an equivalent,
+    read for the <strong>Used by</strong> and <strong>Trap</strong> boxes. They are the
+    parts a general vision course would not have told you. If you have not, read the topic before
+    or after its lecture rather than the night before the quiz. Module&nbsp;A carries Lab&nbsp;1
+    almost entirely.</p>
+  </div>
+</section>
+
+<section id="skip">
+  <div class="sec-head">
+    <p class="eyebrow">01 &middot; What to skip</p>
+    <h2>If you took EECS 442</h2>
+    <p>Fall 2025 mapping. Where a topic is covered, the module is revision and you can go
+    straight to the self-checks; where it is not, read it properly.</p>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Bridge topic</th><th>EECS 442 (F25)</th><th>Read it?</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">A1 Camera model, calibration</td><td>Lec 5, Image formation</td><td>Skim. 442 does not cover distortion estimation or extrinsic calibration; A1's second half is new.</td></tr>
+        <tr><td class="mono">A2 Two-view geometry</td><td>Lec 6, Multi-view geometry</td><td>Skim.</td></tr>
+        <tr><td class="mono">A3 Stereo and depth error</td><td>Lec 6, Stereo vision</td><td><strong>Read the error analysis.</strong> The <em>Z</em>&sup2; result is what Lab 1 Part D is built on and 442 does not dwell on it.</td></tr>
+        <tr><td class="mono">A4 Features and descriptors</td><td>Lec 7, Lec 9, Correspondences, keypoints</td><td>Skim.</td></tr>
+        <tr><td class="mono">A5 RANSAC</td><td>Lec 7, Fitting geometric models</td><td>Skim.</td></tr>
+        <tr><td class="mono">A6 Triangulation, PnP, BA</td><td>Lec 7, Lec 8, Triangulation, SfM, visual SLAM</td><td><strong>Read the factor-graph framing.</strong> It is how Lab 1 Part E is posed.</td></tr>
+        <tr><td class="mono">B1 Autograd and backprop</td><td>Lec 13, Optimization</td><td>Skim.</td></tr>
+        <tr><td class="mono">B2 CNNs</td><td>Lec 14, Convolutional networks</td><td><strong>Read the sparse-convolution part.</strong> Dense 3D convolution is not viable at the resolutions Lab 2 uses.</td></tr>
+        <tr><td class="mono">B3 Attention and transformers</td><td>Lec 18, Transformer</td><td><strong>Read the permutation-equivariance part.</strong> It is why transformers took over point-cloud processing.</td></tr>
+        <tr><td class="mono">B4 Training practicalities</td><td>Lec 11&ndash;13, Sec 8, SGD, PyTorch</td><td>Skim, then read the reproducibility part, the labs grade you on it.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:14.5px;color:var(--ink-faint);max-width:70ch;">Nothing in Module A or B
+  requires 442. The mapping exists so that people who took it do not sit through material twice.</p>
+</section>
+
+<section id="modA">
+  <div class="modhead">
+    <div class="mh-top">
+      <span class="mh-id">MODULE A</span>
+      <span class="mh-time">~2&ndash;3 hours from scratch</span>
+    </div>
+    <h2>Geometric vision</h2>
+    <p>How a 3D point becomes a pixel, and how to invert that when you have more than one view.
+    Six topics, ending where this course begins: estimating many poses and many points jointly
+    from noisy measurements.</p>
+  </div>
+
+  <div class="topic" id="a1">
+    <div class="topic-head"><span class="tid">A1</span><h3>The pinhole camera and calibration</h3></div>
+    <p>A camera maps a world point to a pixel by a rigid transform into the camera frame, a
+    perspective divide, and an affine map into pixels:</p>
+    <div class="eq">x  ~  K [R | t] X
+
+        [ fx   s   cx ]
+    K = [  0  fy   cy ]        s (skew) is ~0 for any real camera
+        [  0   0    1 ]</div>
+    <p>Four intrinsic parameters that matter: focal lengths <code>fx, fy</code> in pixels and the
+    principal point <code>cx, cy</code>. The principal point sits a few pixels off the image
+    centre. It is usually within a few pixels of it, and assuming otherwise puts a small
+    systematic bend in every reconstruction you build.</p>
+    <p>Real lenses are not pinholes. The standard correction is radial plus tangential, applied
+    in normalised coordinates before <code>K</code>:</p>
+    <div class="eq">r&sup2; = x&sup2; + y&sup2;
+
+x_d = x(1 + k1 r&sup2; + k2 r&#8308; + k3 r&#8310;) + [ 2 p1 x y + p2(r&sup2; + 2x&sup2;) ]
+y_d = y(1 + k1 r&sup2; + k2 r&#8308; + k3 r&#8310;) + [ p1(r&sup2; + 2y&sup2;) + 2 p2 x y ]</div>
+    <p><strong>Calibration</strong> estimates all of this from images of a known target. Zhang's
+    method uses a planar checkerboard at several orientations: each view gives a homography
+    between the board plane and the image, each homography constrains the image of the absolute
+    conic, and enough of them determine <code>K</code>. Then everything is refined by minimising
+    reprojection error over intrinsics, distortion, and the per-view board poses.</p>
+    <div class="uses"><b>Used by</b>Lab&nbsp;1 Part&nbsp;B1 estimates intrinsics and distortion
+    from a checkerboard sequence and asks for the parameters <em>with their uncertainties</em>.
+    Every later part assumes <code>K</code> is right; a bad calibration does not announce itself,
+    it just puts your Part&nbsp;D mesh slightly through the wall.</div>
+    <div class="trap"><b>Trap</b>One board orientation is not enough, however many images you take
+    of it. A planar target seen fronto-parallel leaves focal length and depth trading off against
+    each other. You need the board tilted, in several directions. If your covariance
+    comes back near-singular in one direction, this is why.</div>
+    <p class="rd"><b>Read</b>Szeliski &sect;2.1.4 (projective camera), &sect;11.1.4 (calibration).
+    CMU 16-385 <em>Camera models</em>, both lectures.</p>
+    <div class="check"><b>Self-check</b>
+      <ol>
+        <li>A camera has <code>fx = 600 px</code> and images a 10&nbsp;cm object at 3&nbsp;m. How
+        many pixels wide is it?</li>
+        <li>You halve the image resolution by binning 2&times;2. What happens to
+        <code>fx, fy, cx, cy</code>?</li>
+        <li>Why does an RMS reprojection error of 3&nbsp;px mean you should look for bad frames
+        rather than accept the calibration?</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="topic" id="a2">
+    <div class="topic-head"><span class="tid">A2</span><h3>Two-view geometry</h3></div>
+    <p>Given the same scene point in two images, the two rays must intersect. That single
+    constraint is the whole of two-view geometry. In pixels it is the fundamental matrix; in
+    calibrated normalised coordinates it is the essential matrix:</p>
+    <div class="eq">x'&#7488; F x = 0          F is 3x3, rank 2, 7 DoF
+E = K'&#7488; F K            E is 3x3, rank 2, 5 DoF
+E = [t]&#8339; R              translation is recovered only up to scale</div>
+    <p>The rank-2 condition is not decoration: it is what makes every point in one image map to a
+    <em>line</em> in the other rather than a point. Estimating <code>F</code> without enforcing
+    it gives epipolar lines that fail to meet at a common epipole.</p>
+    <p>Decomposing <code>E</code> by SVD gives <strong>four</strong> candidate <code>(R, t)</code>
+    pairs: two rotations times two translation signs. Only one puts triangulated points in
+    front of both cameras; that <em>cheirality</em> test is how you pick it. Triangulate a single
+    point and check the sign of both depths.</p>
+    <div class="uses"><b>Used by</b>Unit&nbsp;1's feed-forward reconstruction lecture, where
+    DUSt3R and VGGT regress this relationship directly instead of estimating it. Knowing what
+    they replaced is what lets you judge whether they replaced it well, and Lab&nbsp;2
+    Part&nbsp;D2 measures exactly that.</div>
+    <div class="trap"><b>Trap</b><code>t</code> comes out of <code>E</code> as a unit vector.
+    A monocular pipeline has no metric scale, and this is where it goes missing: not in
+    some later approximation. Lab&nbsp;2 D2 asks what the recovered scale factor means for a robot
+    that needs metres; the honest answer starts here.</div>
+    <p class="rd"><b>Read</b>Hartley &amp; Zisserman ch. 9&ndash;11 is the reference; Szeliski
+    &sect;11.3 is faster. CMU 16-385 <em>Two-view geometry</em>. TUM <em>Multiple View
+    Geometry</em> lectures 5&ndash;7 if you want it derived slowly on video.</p>
+    <div class="check"><b>Self-check</b>
+      <ol>
+        <li>Why does <code>F</code> have 7 degrees of freedom and not 8, given it is a 3&times;3
+        matrix defined up to scale?</li>
+        <li>Both cameras translate purely along their optical axis. What do the epipolar lines
+        look like?</li>
+        <li>You decompose <code>E</code> and all four candidates put some points behind a camera.
+        What went wrong?</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="topic" id="a3">
+    <div class="topic-head"><span class="tid">A3</span><h3>Stereo and the depth error that follows from it</h3></div>
+    <p>Rectify two views so epipolar lines are corresponding image rows, and matching becomes a
+    1D search along a row. Disparity <code>d</code>, the horizontal shift of the match, gives depth directly:</p>
+    <div class="eq">Z = f B / d          f in pixels, B the baseline in metres</div>
+    <p>Differentiate. This is the most consequential equation in Module A:</p>
+    <div class="eq">dZ/dd = &minus;f B / d&sup2; = &minus;Z&sup2; / (f B)
+
+so   &sigma;_Z  &asymp;  (Z&sup2; / f B) &middot; &sigma;_d</div>
+    <p>Disparity error is roughly constant across the image. It is a matching problem, not
+    a distance problem. Depth <em>standard deviation</em> therefore grows with the
+    <strong>square</strong> of range, and depth <em>variance</em> with the fourth power. A stereo
+    rig accurate to a centimetre at 1&nbsp;m is accurate to about 25&nbsp;cm at 5&nbsp;m, with
+    nothing changed but the distance.</p>
+    <p>The same shape holds, for different reasons, across the depth sensors in Unit&nbsp;0:
+    structured light degrades with range as the projected pattern spreads; time-of-flight is
+    more nearly constant in range but fails on dark and specular surfaces; and every one of them
+    is worse at grazing incidence.</p>
+    <div class="uses"><b>Used by</b>Lab&nbsp;1 Part&nbsp;D1 requires a TSDF weighting scheme that
+    accounts for depth-dependent noise, and asks you to state the noise model you assumed. This
+    is that model. Inverse-variance weighting from the derivation above is
+    <code>w &prop; 1/Z&#8308;</code>; many published systems use <code>w &prop; 1/Z&sup2;</code>
+    instead, which is a deliberate softening rather than the principled choice. Either is
+    defensible, state which you used and why, and note that grazing incidence deserves a
+    factor too.</div>
+    <div class="trap"><b>Trap</b>Confusing &sigma; with &sigma;&sup2; here is the single most
+    common error in Lab&nbsp;1 Part&nbsp;D. Standard deviation goes as <em>Z</em>&sup2;; variance
+    goes as <em>Z</em>&#8308;. Write down which one your weight is the inverse of.</div>
+    <p class="rd"><b>Read</b>Szeliski &sect;12.1&ndash;12.4. CMU 16-385 <em>Stereo</em>.
+    Nguyen et al., <em>Modeling Kinect Sensor Noise</em> (3DIMPVT 2012) for a measured
+    axial-noise model of a real depth camera.</p>
+    <div class="check"><b>Self-check</b>
+      <ol>
+        <li>A rig has <code>f = 700 px</code>, <code>B = 12 cm</code>, and matches good to
+        0.25&nbsp;px. What is &sigma;_Z at 2&nbsp;m? At 6&nbsp;m?</li>
+        <li>You double the baseline. What improves, and what gets worse?</li>
+        <li>Why does a textureless white wall break stereo but not time-of-flight?</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="topic" id="a4">
+    <div class="topic-head"><span class="tid">A4</span><h3>Features, descriptors, and matching</h3></div>
+    <p><strong>Detection</strong> finds repeatable points. The Harris criterion looks at the
+    structure tensor of local gradients: two large eigenvalues means a corner, one means an
+    edge, none means flat, and a corner is exactly the case where a small shift in any
+    direction changes the patch, which is what makes it locatable.</p>
+    <p><strong>Description</strong> summarises the neighbourhood so it can be recognised from
+    another viewpoint. SIFT builds a gradient-orientation histogram over a scale- and
+    rotation-normalised patch; ORB pairs a FAST detector with a binary BRIEF descriptor compared
+    by Hamming distance, which is far cheaper and is what you find inside real-time SLAM systems.
+    Learned front-ends (SuperPoint, and the detector-free matchers that followed) now beat both
+    on hard viewpoint change.</p>
+    <p><strong>Matching</strong> is where the errors come from. Two standard filters: Lowe's ratio
+    test, rejecting a match when the best and second-best distances are too close
+    (&asymp;&nbsp;0.8), and mutual nearest neighbour, keeping a pair only if each is the other's
+    best. Both are cheap and both remove far more bad matches than they cost you good ones.</p>
+    <div class="uses"><b>Used by</b>Lab&nbsp;1 Part&nbsp;C finds correspondences between scans;
+    the distance gate there is doing the same job the ratio test does here. Lab&nbsp;3 Part&nbsp;B3
+    is the same problem again in 3D with appearance features attached, and once you have to
+    match <em>sets</em> rather than pairs, greedy nearest-neighbour is no longer good enough and
+    you solve an assignment problem instead.</div>
+    <div class="trap"><b>Trap</b>The ratio test assumes the true match is unique. On a repetitive
+    structure, a row of identical windows, a tiled floor, the second-best is a plausible competitor and the test throws away the correct match. Repetitive scenes need
+    geometric verification, not a stricter threshold.</div>
+    <p class="rd"><b>Read</b>Szeliski &sect;7.1&ndash;7.2. CMU 16-385 <em>Feature and corner
+    detection</em> and <em>Feature descriptors and matching</em>.</p>
+    <div class="check"><b>Self-check</b>
+      <ol>
+        <li>Why does a corner localise well while an edge does not, in terms of the structure
+        tensor's eigenvalues?</li>
+        <li>What does the ratio test do that a plain distance threshold cannot?</li>
+        <li>Your matcher returns 2,000 matches of which 400 are correct. Which of the two filters
+        above would you reach for first, and why?</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="topic" id="a5">
+    <div class="topic-head"><span class="tid">A5</span><h3>RANSAC and robust fitting</h3></div>
+    <p>Least squares assumes every measurement is a measurement. Correspondence sets violate that
+    badly: a wrong match is not a noisy measurement of the right answer, it is a
+    measurement of something else entirely, and one of them can drag a fit arbitrarily far.</p>
+    <p>RANSAC handles this by hypothesis and verification: draw the minimum number of points that
+    determine a model, fit, count how many of the rest agree, keep the best, refit on its
+    consensus set. The iteration count follows from wanting to draw one all-inlier sample with
+    probability <code>p</code>:</p>
+    <div class="eq">N = log(1 &minus; p) / log(1 &minus; w&#738;)
+
+   w = inlier fraction,  s = minimal sample size
+
+   p = 0.99, w = 0.5, s = 4  ->  N &asymp; 72
+   p = 0.99, w = 0.3, s = 4  ->  N &asymp; 566</div>
+    <p>Note how violently <code>N</code> depends on <code>s</code> and <code>w</code>. This is why
+    minimal solvers matter: a 4-point solver is tractable where an 8-point one is not, at the same
+    inlier rate.</p>
+    <p>The continuous cousin is a <strong>robust loss</strong>, Huber, Tukey, which
+    down-weights large residuals instead of hard-classifying them. Robust losses need an
+    initialisation good enough that inliers already dominate; RANSAC does not. In practice you use
+    RANSAC to get there and a robust loss to refine.</p>
+    <div class="uses"><b>Used by</b>Lab&nbsp;1 Part&nbsp;B2 fits the calibration target plane in
+    LiDAR returns with RANSAC. Part&nbsp;C2 uses a robust loss inside ICP and asks you to report
+    its effect <em>separately</em> from the effect of the plane metric: two different
+    improvements that get conflated every year.</div>
+    <div class="trap"><b>Trap</b>The inlier threshold matters more than the iteration count and
+    is almost always chosen by eye. Set it from your actual measurement noise: roughly
+    2&ndash;3&sigma; of the residual you expect from a correct match. Too loose and the consensus
+    set contains outliers; too tight and no hypothesis ever wins.</div>
+    <p class="rd"><b>Read</b>Szeliski &sect;8.1.4. CMU 16-385 <em>Image homographies</em> covers
+    RANSAC in the setting it is usually first met.</p>
+    <div class="check"><b>Self-check</b>
+      <ol>
+        <li>Recompute <code>N</code> for <code>p = 0.99</code>, <code>w = 0.5</code>,
+        <code>s = 7</code>. Why is the jump from <code>s = 4</code> so large?</li>
+        <li>Why refit on the consensus set instead of returning the minimal-sample model?</li>
+        <li>When would you prefer a Huber loss over RANSAC outright?</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="topic" id="a6">
+    <div class="topic-head"><span class="tid">A6</span><h3>Triangulation, PnP, and bundle adjustment</h3></div>
+    <p>Three estimation problems, distinguished by what is known and what is being solved for.</p>
+    <p><strong>Triangulation</strong>, poses known, find the point. Two rays never quite
+    meet under noise, so the linear (DLT) solution minimises an algebraic residual and the
+    optimal one minimises reprojection error in both images. Always check cheirality: a
+    triangulated point behind a camera is a sign the correspondence is wrong, not that the point
+    is unusual.</p>
+    <p><strong>PnP</strong>, points known, find the pose. Three correspondences give up to
+    four solutions (P3P) and a fourth point disambiguates. Wrapped in RANSAC, this is how a
+    system relocalises against an existing map.</p>
+    <p><strong>Bundle adjustment</strong>, solve for everything at once, minimising total
+    reprojection error over all poses and all points:</p>
+    <div class="eq">min  &Sigma;_ij  &rho;( || &pi;(K, T_i, X_j) &minus; x_ij ||&sup2; )
+ T,X</div>
+    <p>The problem is enormous and almost entirely sparse: pose <code>i</code> and point
+    <code>j</code> interact only if <code>j</code> was seen in view <code>i</code>. Exploiting
+    that structure, eliminating the points via the Schur complement and solving the much
+    smaller pose system, is what makes it tractable at all.</p>
+    <p>The modern framing is a <strong>factor graph</strong>: variables are poses and landmarks,
+    factors are measurements, and each factor carries a noise model. Marginalising the landmarks
+    out leaves a <em>pose graph</em>, poses connected by relative-pose constraints. That is
+    exactly the structure of Lab&nbsp;1 Part&nbsp;E, and it is why the loop-closure covariance you
+    supply there is not a formality: it sets how the correction is distributed around the loop.</p>
+    <div class="uses"><b>Used by</b>Lab&nbsp;1 Part&nbsp;E builds and optimises a pose graph in
+    GTSAM. Unit&nbsp;1's registration lecture puts this in the SLAM context. Note that GTSAM
+    orders twists <code>(&omega;, v)</code> while this course uses <code>(v, &omega;)</code>, the starter code says so twice because it is silent when you get it wrong.</div>
+    <div class="trap"><b>Trap</b>A pose graph with no prior has a free gauge: nothing fixes the
+    global frame, and the solver will tell you the system is under-determined. Anchor the first
+    pose. And one bad loop closure is worse than none. The optimiser will happily fold the
+    map in half to satisfy it, producing an "after" picture worse than the "before".</div>
+    <p class="rd"><b>Read</b>Szeliski &sect;11.4. Dellaert &amp; Kaess, <em>Factor Graphs for
+    Robot Perception</em> &sect;1&ndash;3, the reference for Unit&nbsp;1, listed under
+    Resources. CMU 16-822 covers the geometry end in depth.</p>
+    <div class="check"><b>Self-check</b>
+      <ol>
+        <li>Why is bundle adjustment sparse, and which matrix block does the Schur complement
+        eliminate?</li>
+        <li>What does marginalising landmarks out of a factor graph leave you with?</li>
+        <li>You add a loop closure and the trajectory error gets worse. Give two explanations and
+        say how you would tell them apart.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="modB">
+  <div class="modhead">
+    <div class="mh-top">
+      <span class="mh-id">MODULE B</span>
+      <span class="mh-time">~2 hours from scratch</span>
+    </div>
+    <h2>Deep learning</h2>
+    <p>Four topics, chosen for what the labs actually require: a working mental model of
+    autograd, enough about convolution to understand why the 3D version is sparse, enough about
+    attention to understand why it took over point clouds, and the practical knowledge that
+    separates a training run you can report from one you cannot.</p>
+  </div>
+
+  <div class="topic" id="b1">
+    <div class="topic-head"><span class="tid">B1</span><h3>Autograd and backpropagation</h3></div>
+    <p>A network is a composition of differentiable operations. Evaluating it builds a
+    <strong>computation graph</strong> whose nodes are operations and whose edges carry
+    intermediate values. Backpropagation is the chain rule applied to that graph in reverse
+    topological order: seed <code>&part;L/&part;L = 1</code> at the loss and push gradients
+    backward, each node turning the gradient of its output into the gradient of its inputs.</p>
+    <div class="eq">forward:   x -> h1 -> h2 -> ... -> L      (cache what the backward pass needs)
+backward:  &part;L/&part;L=1 -> &part;L/&part;h_n -> ... -> &part;L/&part;x, &part;L/&part;&theta;</div>
+    <p>Why <em>reverse</em> mode? Cost scales with the number of <strong>outputs</strong>, not
+    inputs. Forward mode costs one pass per input variable; reverse mode costs one forward and one
+    backward pass regardless of how many parameters there are. With a scalar loss and ten million
+    parameters, that difference is the entire field.</p>
+    <p>The price is memory: the backward pass needs values cached from the forward pass, so
+    activation memory grows with depth and batch size. That is what gradient checkpointing trades
+    back, recompute instead of store, and it is usually the first thing to reach for
+    when Lab&nbsp;2 runs out of GPU memory.</p>
+    <p>When a hand-written gradient is wrong, check it numerically before debugging anything else:</p>
+    <div class="eq">numeric  =  ( f(x + &epsilon;) &minus; f(x &minus; &epsilon;) ) / 2&epsilon;      &epsilon; ~ 1e-5
+
+relative error = |analytic &minus; numeric| / max(|analytic|, |numeric|, 1e-8)
+                 &lt; 1e-5 is healthy for float64</div>
+    <div class="uses"><b>Used by</b>Everything in Lab&nbsp;2. Also worth knowing for
+    Lab&nbsp;1: the Gauss-Newton step inside ICP is the same machinery by hand, build a
+    Jacobian, solve normal equations, iterate, which is why writing it once makes autograd
+    stop feeling like magic.</div>
+    <div class="trap"><b>Trap</b>An in-place operation on a tensor the backward pass still needs
+    is the classic silent bug. PyTorch usually raises; when it does not, you get a wrong gradient
+    rather than an error. If a model trains but plateaus somewhere implausible, gradient-check one
+    layer before rethinking the architecture.</div>
+    <p class="rd"><b>Read</b>Olah, <em>Calculus on Computational Graphs</em>, the clearest
+    short treatment. Szeliski &sect;5.3.5&ndash;5.3.6. PyTorch's autograd tutorial for the
+    mechanics.</p>
+    <div class="check"><b>Self-check</b>
+      <ol>
+        <li>Why is reverse-mode preferred for a scalar loss and forward-mode for a scalar input?</li>
+        <li>Your gradient check gives a relative error of 0.3 for one parameter and 1e-9 for the
+        rest. What kind of bug is that?</li>
+        <li>What exactly does gradient checkpointing trade away?</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="topic" id="b2">
+    <div class="topic-head"><span class="tid">B2</span><h3>Convolutional networks, and why 3D breaks them</h3></div>
+    <p>A convolution slides a small learned kernel over the input, sharing weights across
+    position. That weight sharing buys two things: far fewer parameters than a dense layer, and
+    <strong>translation equivariance</strong>, shift the input, and the output shifts with
+    it. For images, where a cat is a cat wherever it appears, that is exactly the right prior.</p>
+    <div class="eq">out = floor( (n + 2p &minus; k) / s ) + 1      n input, k kernel, p pad, s stride</div>
+    <p>Receptive field grows linearly with depth at stride 1, and multiplicatively once you stride
+    or dilate. Normalisation matters more than it looks: batch norm computes statistics across
+    the batch, which breaks without warning when the batch is small or when examples have different
+    numbers of elements, both of which are true for point clouds. Group and layer norm do
+    not have that dependence, which is why you see them in 3D architectures.</p>
+    <p><strong>Now make it 3D.</strong> A dense 3D convolution over a 10&times;10&times;3&nbsp;m
+    room at 1&nbsp;cm is 3&times;10&#8312; voxels, of which the observed surface occupies well
+    under one percent. Nearly all the compute is spent multiplying zeros, and memory is worse.</p>
+    <p><strong>Sparse convolution</strong> is the answer: store only occupied voxels in a hash
+    table, and define the convolution to produce output only where there is input. MinkowskiNet is
+    the standard implementation, and point transformers are the attention-based alternative. The
+    speedup in practice is smaller than the occupancy ratio suggests, gather/scatter over a
+    hash table has poor memory locality compared to a dense tensor, and that gap is a real cost,
+    not an implementation defect.</p>
+    <div class="uses"><b>Used by</b>Lab&nbsp;2 Part&nbsp;B trains a sparse-convolution network or
+    a point transformer for semantic segmentation, and Part&nbsp;B2 ablates voxel size, which is directly a question about the resolution/compute trade this section describes.
+    Lab&nbsp;1 Part&nbsp;D meets the same density problem without any learning in it.</div>
+    <div class="trap"><b>Trap</b>Evaluate segmentation at <em>point</em> level, not voxel level.
+    Voxel-level mIoU at 10&nbsp;cm looks much better than the method is, and the interesting
+    finding in Lab&nbsp;2 B2, which classes degrade fastest as resolution coarsens, disappears entirely if you evaluate in the same coarsened space you predicted in.</div>
+    <p class="rd"><b>Read</b>Szeliski &sect;5.4. Stanford CS231n's convolutional-networks notes
+    are still the best introduction. Then Choy et al., <em>4D Spatio-Temporal ConvNets</em>, which
+    is on the Unit&nbsp;1 reading list.</p>
+    <div class="check"><b>Self-check</b>
+      <ol>
+        <li>Input 64, kernel 3, stride 2, padding 1. What is the output size?</li>
+        <li>Why does batch norm misbehave on point clouds in a way it does not on images?</li>
+        <li>At 1% occupancy a sparse conv should be ~100&times; cheaper. Give two reasons the
+        measured speedup is smaller.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="topic" id="b3">
+    <div class="topic-head"><span class="tid">B3</span><h3>Attention and transformers</h3></div>
+    <p>Attention lets every element look at every other element and decide what to take:</p>
+    <div class="eq">Attention(Q, K, V) = softmax( Q K&#7488; / &radic;d_k ) V</div>
+    <p>Queries ask, keys advertise, values carry content. The <code>&radic;d_k</code> is not
+    cosmetic: without it the dot products grow with dimension, the softmax saturates, and
+    gradients vanish. Multiple heads run this in parallel in different learned subspaces so one
+    head can track geometry while another tracks appearance.</p>
+    <p>The property that matters for this course is that self-attention is
+    <strong>permutation-equivariant</strong>. Reorder the inputs and the outputs reorder
+    identically; nothing in the operation assumes a grid, a sequence, or any neighbourhood
+    structure. A point cloud <em>is</em> an unordered set, so attention fits it natively where
+    convolution has to be told what "adjacent" means. Positional information is then injected
+    explicitly, and in 3D that means encoding coordinates, which is a modelling choice
+    rather than a given.</p>
+    <p>The cost is <code>O(n&sup2;d)</code> in the number of elements. A room at useful resolution
+    has far too many points for that, which is why practical point transformers restrict attention
+    to neighbourhoods or serialise points along a space-filling curve to get locality back
+    cheaply. Recognising that these are all workarounds for one quadratic is most of what you need
+    to read the architectures in Units 1 and 4.</p>
+    <div class="uses"><b>Used by</b>VGGT in Unit&nbsp;1 and Lab&nbsp;2 Part&nbsp;D, it
+    attends across views, which is how it recovers pose without being given any. Point
+    transformers are the Lab&nbsp;2 Part&nbsp;B alternative to sparse convolution. The VLA
+    policies in Unit&nbsp;4 are transformers throughout.</div>
+    <div class="trap"><b>Trap</b>"Attention is permutation-equivariant" is a statement about the
+    operation, not about a trained model. Once you add positional encodings the model is no longer
+    order-agnostic, which is the point, so an ablation that shuffles input order is
+    testing your encoding, not the attention.</div>
+    <p class="rd"><b>Read</b>Vaswani et al., <em>Attention Is All You Need</em>, then
+    <em>The Annotated Transformer</em>, which walks the paper line by line as runnable code.
+    <em>Dive into Deep Learning</em> ch. 11 if you want it worked more slowly.</p>
+    <div class="check"><b>Self-check</b>
+      <ol>
+        <li>What breaks if you drop the <code>&radic;d_k</code> scaling?</li>
+        <li>Why is permutation equivariance an advantage for point clouds and a problem for
+        language?</li>
+        <li>Two ways to avoid the <code>O(n&sup2;)</code> cost on a large point cloud, and what
+        each gives up.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="topic" id="b4">
+    <div class="topic-head"><span class="tid">B4</span><h3>Training practicalities</h3></div>
+    <p><strong>Optimisers.</strong> SGD with momentum still generalises best on vision tasks given
+    a tuned schedule; AdamW is more forgiving and is what you should reach for first on an
+    unfamiliar problem. The "W" matters, decoupled weight decay behaves as regularisation
+    should, whereas Adam's original L2 term interacts with the adaptive scaling in ways that make
+    the decay coefficient mean something different at every parameter.</p>
+    <p><strong>Learning rate</strong> is the hyperparameter worth your tuning time; nothing else
+    is close. Warm up over the first few hundred steps, then decay, cosine is a reasonable
+    default. If a run diverges in the first epoch, the learning rate is too high before it is
+    anything else.</p>
+    <p><strong>Reading a curve.</strong> Training loss falling while validation rises is
+    overfitting: more augmentation, more regularisation, or early stopping. Both flat and high is
+    underfitting or a learning rate far off. Loss spiking irregularly usually means the rate is
+    too high or a few batches contain something pathological, and in 3D, "pathological"
+    is often a scan with almost no points in it.</p>
+    <p><strong>Reproducibility.</strong> Seed Python, NumPy, and Torch, and record the seed.
+    Note that seeding gives you <em>reproducibility</em>, not <em>determinism</em>: several CUDA
+    kernels are nondeterministic regardless, and forcing determinism costs speed. Report which one
+    you had.</p>
+    <div class="eq">rob498.config.set_global_seed(0)          # seeds python, numpy, torch, cuda
+m = RunManifest(run_name="seg", seed=0)   # captures gpu, git commit, versions
+m.add_param("voxel_size_m", 0.05)
+print(m.conditions_line())                # -> the caption your table needs</div>
+    <div class="uses"><b>Used by</b>Every lab, and graded. The course policy is that a number
+    reported without its conditions, sequence, trial count, seed, hardware, is worth
+    nothing, and <code>rob498.report.Table</code> will refuse to render a table whose conditions
+    are unset. The starter code does the bookkeeping; you have to have run the thing.</div>
+    <div class="trap"><b>Trap</b>Measure GPU memory and latency where they actually happen.
+    <code>torch.cuda.synchronize()</code> before you stop the clock, or you are timing kernel
+    launches rather than kernels and your numbers will be implausibly good.
+    <code>reset_peak_memory_stats</code> before the region you care about, or peak memory reflects
+    something earlier in the run.</div>
+    <p class="rd"><b>Read</b>PyTorch's <em>Learn the Basics</em> for the mechanics.
+    <em>Dive into Deep Learning</em> ch. 12 for optimisation. Michigan's ROB&nbsp;498 DeepRob has
+    a practical treatment aimed at robotics specifically.</p>
+    <div class="check"><b>Self-check</b>
+      <ol>
+        <li>Why does AdamW's decoupled decay behave differently from Adam with an L2 penalty?</li>
+        <li>Training loss is flat from step 0 and validation never moves. Name three causes and
+        the order you would check them.</li>
+        <li>Why is a seeded run not necessarily a bit-identical run on a GPU?</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="diag">
+  <div class="sec-head">
+    <p class="eyebrow">02 &middot; Diagnostic</p>
+    <h2>What the diagnostic asks</h2>
+    <p>Two <a href="https://umich.instructure.com/courses/866572/assignments">Canvas quizzes</a>, ten questions each. Quiz&nbsp;1 due Sunday Sep 13,
+    quiz&nbsp;2 due Sunday Sep 20; both retakeable to full credit through Sunday Sep 27.
+    5% of the course grade, 2.5% each.</p>
+  </div>
+  <div class="prose">
+    <p>Twenty questions in total, two per topic, at exactly the difficulty of the self-checks
+    above, short numeric answers, multiple choice, and a few multiple-select "which of these
+    are true" items. Open notes, unlimited attempts, and no time limit beyond the deadline.
+    Nothing on either quiz requires a derivation you have not been shown.</p>
+    <p>The split follows what has been <em>lectured</em>, not the module letters.
+    <strong>Quiz&nbsp;1</strong> covers A1, A2, A4, A5 and A6, plus this course's pose conventions, all of it taught by Sep&nbsp;9. <strong>Quiz&nbsp;2</strong> covers A3 and all of
+    Module&nbsp;B, which are lectured on Sep&nbsp;14 and Sep&nbsp;16. That is why the stereo
+    depth-error questions are on the second quiz and not the first.</p>
+    <p>The retake policy exists because the diagnostic is meant to tell you what to reread, not to
+    sort you. If you score badly, the feedback names the topics; reread those and take it again.
+    The only way to lose the 5% is to not take it.</p>
+    <p>Two things it deliberately checks, because they cause trouble later: whether you can state
+    how depth error scales with range, and whether you can say what a pose actually maps to what
+    under this course's conventions. Both appear in Lab&nbsp;1 within a fortnight.</p>
+  </div>
+  <div class="note staff">
+    <h4>Staff</h4>
+    <p>The question bank is written: twenty items, two per topic, with an answer key, a rationale
+    per question, and a per-question &ldquo;if you missed this, reread&hellip;&rdquo; pointer that
+    Canvas shows as general feedback. The
+    <a href="https://claude.ai/code/artifact/e11fe2aa-ece7-48e3-a140-4663985cab04">authoring copy is here</a>; the two Canvas QTI packages are generated from the
+    same source, so the quizzes and this page cannot drift apart.</p>
+  </div>
+</section>
+
+<section id="more">
+  <div class="sec-head">
+    <p class="eyebrow">03 &middot; Going deeper</p>
+    <h2>If you want the full course</h2>
+    <p>These modules are deliberately narrow. If a topic caught your interest, these are where to
+    take it further, all free and all complete courses rather than isolated lectures.</p>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Resource</th><th>What it is</th><th>Good for</th></tr></thead>
+      <tbody>
+        <tr><td><a href="https://szeliski.org/Book/">Szeliski, <em>Computer Vision: Algorithms and Applications</em></a></td><td>The standard text, free online</td><td>Every topic in Module A; the reference this course cites</td></tr>
+        <tr><td><a href="http://www.cs.cmu.edu/~16385/">CMU 16-385 Computer Vision</a></td><td>Undergraduate course, full slide decks</td><td>Camera models, two-view geometry, stereo, features, the clearest slides for Module A</td></tr>
+        <tr><td><a href="https://geometric3d.github.io/">CMU 16-822 Geometry-based Methods in Vision</a></td><td>Graduate geometry course</td><td>Module A taken seriously: projective geometry, multi-view reconstruction</td></tr>
+        <tr><td><a href="https://www.robots.ox.ac.uk/~vgg/hzbook/">Hartley &amp; Zisserman, <em>Multiple View Geometry</em></a></td><td>The reference book</td><td>A2 and A6 in full rigour, when you need the actual theorem</td></tr>
+        <tr><td><a href="https://cvg.cit.tum.de/teaching/online/mvg">TUM Multiple View Geometry</a></td><td>Cremers' lecture series, recorded</td><td>Two-view geometry derived slowly, on video</td></tr>
+        <tr><td><a href="https://web.stanford.edu/class/cs231a/">Stanford CS231A</a></td><td>Computer vision from 3D reconstruction to recognition</td><td>The bridge between Modules A and B, in one course</td></tr>
+        <tr><td><a href="https://cs231n.github.io/">Stanford CS231n</a></td><td>Convolutional networks for visual recognition</td><td>B1 and B2; the notes outlast the lectures</td></tr>
+        <tr><td><a href="https://d2l.ai/">Dive into Deep Learning</a></td><td>Interactive book with runnable code</td><td>All of Module B, worked slowly with executable examples</td></tr>
+        <tr><td><a href="https://nlp.seas.harvard.edu/annotated-transformer/">The Annotated Transformer</a></td><td>The paper as runnable code</td><td>B3, if the equation did not land</td></tr>
+        <tr><td><a href="https://colah.github.io/posts/2015-08-Backprop/">Olah, <em>Calculus on Computational Graphs</em></a></td><td>Short essay</td><td>B1, and the best half hour you can spend on backprop</td></tr>
+        <tr><td><a href="https://deeprob.org/">Michigan ROB 498 DeepRob</a></td><td>Deep learning for robotics</td><td>Module B aimed at robot problems rather than image classification</td></tr>
+        <tr><td><a href="https://pytorch.org/tutorials/beginner/basics/intro.html">PyTorch, <em>Learn the Basics</em></a></td><td>Official tutorial</td><td>B4, if you have not written a training loop before</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>ROB 498/599 Special Topics: 3D Robot Perception &middot; University of Michigan Robotics &middot; Fall 2026<br>
+These notes accompany lectures L01&ndash;L05; questions go to Piazza.</footer>
+
+</main>
+</div>

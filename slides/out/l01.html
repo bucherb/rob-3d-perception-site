@@ -1,0 +1,284 @@
+<title>L01 · What embodiment changes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+:root{
+  --ground:#F5F7F6; --surface:#FFFFFF; --surface-2:#EDF1F0;
+  --ink:#16232A; --ink-soft:#55676F; --ink-faint:#84969C;
+  --rule:#DCE3E2; --rule-strong:#C3CFCD;
+  --accent:#0E7C86; --accent-soft:#E0EFEF;
+  --accent-2:#B4652A; --accent-2-soft:#F4E8DC;
+  --hand:#C9D6D4;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ground:#101619; --surface:#172024; --surface-2:#1D282C;
+  --ink:#E4EBE9; --ink-soft:#A3B3B8; --ink-faint:#7D8F95;
+  --rule:#2A373C; --rule-strong:#3B4B50;
+  --accent:#4FBCC4; --accent-soft:#123336;
+  --accent-2:#DFA160; --accent-2-soft:#33261A;
+  --hand:#2F3E43;
+}}
+:root[data-theme="dark"]{
+  --ground:#101619; --surface:#172024; --surface-2:#1D282C;
+  --ink:#E4EBE9; --ink-soft:#A3B3B8; --ink-faint:#7D8F95;
+  --rule:#2A373C; --rule-strong:#3B4B50;
+  --accent:#4FBCC4; --accent-soft:#123336;
+  --accent-2:#DFA160; --accent-2-soft:#33261A;
+  --hand:#2F3E43;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Source Serif 4",Georgia,serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+
+#bar{position:fixed;top:0;left:0;right:0;height:46px;z-index:30;display:flex;align-items:center;
+  gap:0 16px;padding:0 16px;background:var(--surface);border-bottom:1px solid var(--rule);
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.03em}
+#bar .nm{font-family:"IBM Plex Sans Condensed",system-ui,sans-serif;font-weight:700;
+  font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+#bar .lec{font-family:"Source Serif 4",Georgia,serif;font-size:13px;
+  color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#bar .spacer{flex:1}
+.mode button{font:inherit;cursor:pointer;border:1px solid var(--rule-strong);
+  background:var(--surface);color:var(--ink-soft);border-radius:3px;padding:3px 8px}
+.mode button[aria-current="true"]{
+  background:var(--accent);border-color:var(--accent);color:#fff}
+.mode{display:flex;gap:4px}
+#count{color:var(--ink-faint);white-space:nowrap}
+
+#stage{position:fixed;inset:46px 0 0 0;display:flex;justify-content:center;
+  padding:22px 18px 34px;overflow:auto}
+.slide{width:min(1180px,100%);background:var(--surface);border:1px solid var(--rule);
+  border-radius:4px;padding:34px 40px 40px;min-height:calc(100% - 6px)}
+.s-meta{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-faint);margin:0 0 14px}
+.slide h2{font-family:"IBM Plex Sans Condensed",system-ui,sans-serif;font-weight:700;
+  font-size:34px;line-height:1.13;margin:0 0 6px;letter-spacing:-.01em}
+.slide .sub{font-size:17px;font-style:italic;color:var(--ink-soft);margin:0 0 4px}
+.slide .rulel{height:1px;background:var(--rule-strong);margin:14px 0 20px}
+.body{font-size:19px;line-height:1.55}
+.body.sm{font-size:16.5px}
+.body p{margin:0 0 12px}
+.body ul,.body ol{margin:0 0 12px;padding-left:24px}
+.body li{margin:0 0 7px}
+.body ul{list-style:none;padding-left:20px}
+.body ul>li{position:relative}
+.body ul>li::before{content:"";position:absolute;left:-16px;top:.6em;
+  width:6px;height:6px;background:var(--accent)}
+.big{font-size:26px;line-height:1.35}
+.pull{border-left:3px solid var(--accent);background:var(--accent-soft);
+  padding:10px 14px;font-style:italic;margin:14px 0}
+.eq{overflow-x:auto;margin:12px 0;padding:2px 0}
+code{font-family:"IBM Plex Mono",monospace;font-size:.88em;
+  background:var(--surface-2);padding:1px 5px;border-radius:3px}
+.rbox{border:1px solid var(--rule-strong);background:var(--ground);border-radius:3px;
+  padding:16px 14px 6px;margin:14px 0;position:relative;font-size:.92em}
+.rbox-t{position:absolute;top:-9px;left:12px;background:var(--surface);padding:0 7px;
+  font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--accent-2)}
+.rbox p:last-child,.rbox ul:last-child,.rbox ol:last-child{margin-bottom:10px}
+.cols{display:flex;gap:26px;align-items:flex-start;margin:0 0 12px}
+table.cmp{border-collapse:collapse;width:100%;font-size:.86em;margin:12px 0}
+table.cmp th,table.cmp td{text-align:left;padding:7px 12px 7px 0;
+  border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp th{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:11.5px;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--ink-faint);
+  border-bottom:1px solid var(--rule-strong)}
+.fig{margin:14px 0;text-align:center}
+.fig svg{max-width:100%;height:auto}
+.cap{font-size:14px;color:var(--ink-soft);margin:6px 0 0}
+
+/* --- the write-in mechanism ------------------------------------------- */
+.cue{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:13px;
+  letter-spacing:.05em;text-transform:uppercase;color:var(--accent-2);margin:16px 0 8px}
+.cue::before{content:"";display:inline-block;width:9px;height:9px;
+  background:var(--accent-2);margin-right:8px}
+.hand .panel{border:1px solid var(--rule-strong);border-radius:3px;
+  background:repeating-linear-gradient(to bottom,transparent 0,transparent 7.6mm,
+    var(--hand) 7.6mm,var(--hand) calc(7.6mm + 1px));
+  background-position:0 1mm;margin:0 0 14px}
+body[data-mode="a"] .hand:not(.always) .panel{display:none}
+body[data-mode="w"] .hand:not(.always) .worked{display:none}
+
+#notes{position:fixed;right:0;bottom:0;width:min(430px,42vw);max-height:52vh;overflow:auto;
+  background:var(--surface);border-left:1px solid var(--rule);border-top:1px solid var(--rule);
+  padding:12px 16px 16px;font-size:14px;line-height:1.5;color:var(--ink-soft);
+  display:none;z-index:25}
+#notes.on{display:block}
+#notes h3{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:11px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--accent);margin:0 0 8px}
+#grid{position:fixed;inset:46px 0 0 0;background:var(--ground);overflow:auto;padding:18px;
+  display:none;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;z-index:26}
+#grid.on{display:grid}
+.thumb{text-align:left;background:var(--surface);border:1px solid var(--rule);border-radius:3px;
+  padding:9px 10px;cursor:pointer;font:inherit;color:var(--ink);min-height:74px}
+.thumb[aria-current="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.tn{display:block;font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--ink-faint)}
+.tt{display:block;font-size:13px;line-height:1.3;margin-top:3px}
+#prog{position:fixed;left:0;bottom:0;height:2px;background:var(--accent);z-index:28;width:0}
+#help{position:fixed;left:16px;bottom:10px;font-family:"IBM Plex Mono",monospace;
+  font-size:10px;color:var(--ink-faint);z-index:24}
+body.present #bar,body.present #help{display:none}
+body.present #stage{inset:0;padding:0}
+body.present .slide{border:0;border-radius:0;min-height:100%;
+  padding:46px 62px;display:flex;flex-direction:column}
+body.present .body{font-size:22px}
+
+/* Only the current slide is in the DOM, so printing gives you that one slide.
+   The full deck is distributed as the two PDFs, not from here. */
+@media print{
+  @page{size:279mm 157mm;margin:0}
+  html,body{height:auto;overflow:visible;background:#fff}
+  #bar,#notes,#grid,#prog,#help{display:none!important}
+  #stage{position:static;inset:auto;padding:0;display:block;overflow:visible}
+  .slide{width:279mm;height:157mm;border:0;border-radius:0;
+    padding:14mm 16mm;min-height:0;overflow:hidden}
+}
+</style>
+
+<div id="bar">
+  <span class="nm">ROB 498/599 &middot; L01</span>
+  <span class="lec">What embodiment changes</span>
+  <span class="spacer"></span>
+  <div class="mode">
+    <button type="button" data-m="a" title="Annotated (key A)">Annotated</button>
+    <button type="button" data-m="w" title="Write-in (key W)">Write-in</button>
+  </div>
+  <span id="count"></span>
+</div>
+<div id="stage"><div class="slide" id="slide"></div></div>
+<div id="grid"></div>
+<div id="prog"></div>
+<div id="help">&larr;/&rarr; move &middot; A/W build &middot; O overview &middot; P present &middot; F full screen</div>
+
+<script>
+window.MathJax = {
+  tex:{inlineMath:[['$','$'],['\\(','\\)']], displayMath:[['\\[','\\]']],
+       macros:{
+         R:'\\mathbb{R}', SOthree:'\\mathrm{SO}(3)', SEthree:'\\mathrm{SE}(3)',
+         sothree:'\\mathfrak{so}(3)', sethree:'\\mathfrak{se}(3)',
+         Ad:'\\mathrm{Ad}', tr:'\\mathrm{tr}', Exp:'\\mathrm{Exp}', Log:'\\mathrm{Log}',
+         argmin:'\\operatorname*{arg\\,min}', argmax:'\\operatorname*{arg\\,max}',
+         hatop:['{#1}^{\\wedge}',1], veeop:['{#1}^{\\vee}',1], vecx:['\\boldsymbol{#1}',1]
+       }},
+  svg:{fontCache:'global'},
+  options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']},
+  startup:{typeset:false}
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+
+<script>
+const DECK = [{"id": "l01", "num": "L01", "title": "What embodiment changes", "date": "Mon Aug 31, 2026", "slides": [{"t": "3D Robot Perception", "sub": "ROB 498/599 · Fall 2026 · Bernadette Bucher", "min": 2, "sz": "", "html": "<p class=\"big\">A camera you control is a different problem from a dataset you are handed.</p><ul><li>Robots act in a 3D world they observe through imperfect sensors, from a moving body, under a deadline.</li><li>This course is about how a robot <b>represents</b> that world and keeps the representation <b>useful</b>.</li><li>Roughly half the reading postdates 2024. Four guests lecture on their own work.</li></ul><p class=\"pull\">Fifteen minutes of logistics, then we start on the mathematics.</p>", "n": ""}, {"t": "Teaching staff", "sub": "", "min": 1.5, "sz": "", "html": "<div class=\"cols\"><div style=\"flex:0.500 1 0\"><div class=\"rbox\"><span class=\"rbox-t\">Instructor</span><p><b>Bernadette Bucher</b></p><p>Assistant Professor, Robotics and CSE. Directs the Mapping and Motion Lab.</p><p><b>Office hours</b> Wednesdays after class until 11:30 am, 2240 Ford Robotics Building.</p></div></div><div style=\"flex:0.500 1 0\"><div class=\"rbox\"><span class=\"rbox-t\">Graduate Student Instructor</span><p><b>Anton Arapin</b></p><p>PhD student, CSE. World models for robotics.</p><p><b>Office hours</b> Thursdays at 3 pm, some weeks virtual, some weeks in the Ford Robotics Building. Format posted on Piazza.</p></div></div></div><p>Canvas for grades and announcements · Piazza for questions · Gradescope for written work.</p>", "n": ""}, {"t": "Twenty-seven meetings", "sub": "1303 EECS, Mondays and Wednesdays, Aug 31 to Dec 9", "min": 2, "sz": "", "html": "<ol><li><b>Unit 0</b> — Foundations: what embodiment changes, rigid-body state, sensing physics. <i>Plus the crash course.</i></li><li><b>Unit 1</b> — Representing and reconstructing 3D.</li><li><b>Unit 2</b> — Semantics, objects, and scene structure.</li><li><b>Unit 3</b> — World models and prediction.</li><li><b>Unit 4</b> — Perception for action.</li></ol><p>Twenty-three lectures, four student-led seminars (one closing each unit), four guest lectures.</p><p class=\"pull\">The arc: where things are, what they are, what happens next, what to do about it.</p>", "n": ""}, {"t": "How the grade is computed", "sub": "", "min": 2, "sz": "", "html": "<table class='cmp'><thead><tr><th>Component</th><th>Weight</th><th>What it involves</th></tr></thead><tbody><tr><td>Crash-course diagnostic</td><td>5%</td><td>Two Canvas quizzes, 2.5% each. Quiz 1 due Sun Sep 13, quiz 2 due Sun Sep 20. Retakeable to full credit through Sun Sep 27.</td></tr><tr><td>Labs: three</td><td>30%</td><td>10% each. Each lab ends in a working piece of a 3D perception stack that the next lab consumes.</td></tr><tr><td>Paper seminar</td><td>30%</td><td>Responses 15%, your own spotlight 10%, discussion 5%.</td></tr><tr><td>Research project</td><td>35%</td><td>Teams of 3–4. Proposal 5%, checkpoint 10%, presentation 5%, report and video 15%.</td></tr></tbody></table><p class=\"pull\">There are no exams. The seminar is where the reading is assessed.</p>", "n": ""}, {"t": "Three labs, one stack", "sub": "", "min": 1.5, "sz": "", "html": "<ul><li><b>Lab 1</b> · Sep 14 – Oct 18 · <i>From raw sensors to a map.</i></li><li><b>Lab 2</b> · Oct 7 – Oct 30 · <i>Representations, compared honestly.</i></li><li><b>Lab 3</b> · Oct 28 – Nov 22 · <i>A scene graph you can ask questions.</i></li></ul><p class=\"pull\">Each lab consumes the last one's output. A part left broken in October is still broken in November.</p><p>Starter code has shared utilities, contract tests, and a runner per lab. Every graded function is a stub.</p>", "n": ""}, {"t": "Lab 1", "sub": "from raw sensors to a map · Sep 14 – Oct 18", "min": 1.5, "sz": "", "html": "<ul><li>Calibrate and time-align an RGB-D and LiDAR pair from a ROS 2 bag collected for this course.</li><li>Implement ICP and a point-to-plane variant.</li><li>Integrate a TSDF volume; extract a mesh and an ESDF.</li><li>Close a loop with a small factor graph and report drift before and after.</li></ul><p class=\"pull\">The bag is deliberately miscalibrated. Calibration here is a real problem, not a solved one.</p>", "n": ""}, {"t": "Lab 2", "sub": "representations, compared honestly · Oct 7 – Oct 30", "min": 1.5, "sz": "", "html": "<ul><li>Train a sparse-convolution or point-transformer segmenter on ScanNet++.</li><li>Separately fit a 3DGS scene and run a feed-forward VGGT reconstruction on the same sequence.</li><li>Evaluate all three against one downstream task, collision checking or grasp sampling, rather than against PSNR.</li></ul><p class=\"pull\">The ranking flips depending on the task. You are expected to find that out, not to be told it.</p>", "n": ""}, {"t": "Lab 3", "sub": "a scene graph you can ask questions · Oct 28 – Nov 22", "min": 1.5, "sz": "", "html": "<ul><li>Build an open-vocabulary 3D scene graph from a posed RGB-D sequence: SAM 2 instances, CLIP or DINOv2 features, multi-view association, nodes and edges.</li><li>Answer spatial and task queries by putting the graph in an LLM's context.</li><li>Deliverable is query accuracy <b>plus</b> a failure analysis.</li></ul><p class=\"pull\">For every failed query: is the failure in the graph, or in the language model? Those need different fixes.</p>", "n": ""}, {"t": "The seminar, and why it is 30%", "sub": "", "min": 2, "sz": "", "html": "<ul><li>Every paper on the reading list is required and is attached to the lecture it supports.</li><li>Seventeen lectures carry a <b>structured response</b>, due at the start of that lecture, on one designated paper: the claim, the evidence, the weakest assumption, and what you would run next.</li><li>Each of you leads one <b>15-minute spotlight</b> during a seminar session, paired with a reproduction sketch, what it would actually take to rerun the headline result.</li><li>Four seminars: <b>Sep 30</b>, <b>Nov 2</b>, <b>Nov 11</b>, <b>Dec 2</b>. Three sit within a week of that unit's guest lecture.</li></ul><p class=\"pull\">You arrive at the guest lecture having already argued about the speaker's work.</p>", "n": ""}, {"t": "The project", "sub": "teams of 3–4, formed by Fri Sep 25", "min": 2, "sz": "", "html": "<p>Pick a 3D robot perception problem, find a relevant recent paper, build on it, demonstrate the result. Robot hardware is not required, 3D sensor data or simulation is fine. Ongoing research work may be used if it meets the requirements.</p><table class='cmp'><thead><tr><th>Milestone</th><th>Due</th></tr></thead><tbody><tr><td>Teams formed</td><td>Fri Sep 25</td></tr><tr><td>Proposal, target paper and an evaluation</td><td>Fri Oct 23</td></tr><tr><td>Checkpoint, reproduced baseline running end to end</td><td>Fri Nov 13</td></tr><tr><td>Presentation</td><td>Dec 14–18, final exam period</td></tr><tr><td>Final report and demonstration video</td><td>Fri Dec 18</td></tr></tbody></table><p><b>498</b>: a careful reproduction plus one well-motivated extension. <b>599</b>: a novel component: a new method, a new evaluation, or a negative result established rigorously, in conference format. Same milestones, different rubric.</p>", "n": ""}, {"t": "Policies to state out loud", "sub": "", "min": 1.5, "sz": "", "html": "<ul><li><b>Collaboration.</b> Discuss freely. Written solutions and code must be your own.</li><li><b>Generative AI.</b> Use the tools at your disposal, but what you submit must be yours. Copying the output of an automated system is the same as copying the output of a classmate.</li><li><b>Late work.</b> Accepted through the end of the course with a deduction. If something is going wrong, contact us <b>before</b> the deadline.</li></ul><p>Compute: Lab 1 is CPU. Labs 2 and 3 need real GPUs: a Great Lakes allocation is provided; instructions on Canvas. Colab will not carry a 3DGS fit or a VGGT forward pass on a long sequence.</p>", "n": ""}, {"t": "What the crash course covers", "sub": "", "min": 1.5, "sz": "", "html": "<div class=\"cols\"><div style=\"flex:0.500 1 0\"><div class=\"rbox\"><span class=\"rbox-t\">A · geometric vision</span><ul><li>Pinhole camera and calibration, <i>today</i></li><li>Two-view geometry, L03</li><li>Stereo and the depth error that follows, L04</li><li>Features, descriptors, matching, L03</li><li>RANSAC and robust fitting, L03</li><li>Triangulation, PnP, bundle adjustment, L03</li></ul></div></div><div style=\"flex:0.500 1 0\"><div class=\"rbox\"><span class=\"rbox-t\">B · deep learning</span><ul><li>Autograd and backpropagation, L05</li><li>Convolutional networks, and why 3D breaks them, L05</li><li>Attention and transformers, L05</li><li>Training practicalities and reproducibility, L05</li></ul></div></div></div>", "n": ""}, {"t": "What to do this week", "sub": "", "min": 1, "sz": "", "html": "<ul><li>Read the course site end to end. It is the syllabus.</li><li>Skim <b>Module A1</b> before Wednesday if you have never seen a homogeneous transform.</li><li>Sign up on Piazza.</li><li><b>Diagnostic quiz 1</b> on Canvas, due <b>Sun Sep 13</b>. Quiz 2 follows on <b>Sun Sep 20</b>. Both retakeable to full credit through <b>Sep 27</b>.</li><li><b>Lab 1 is out Sep 14.</b> Run the data fetch the day it drops, not the night before.</li></ul><p class=\"pull\">The bag is several gigabytes.</p>", "n": ""}, {"t": "The setup you inherit in a vision course", "sub": "", "min": 1.5, "sz": "", "html": "<ul><li>A dataset exists.</li><li>Someone else chose the viewpoints.</li><li>Ground truth is given.</li><li>Errors cost you a number on a leaderboard.</li><li>You can re-run on the same data as many times as you like.</li></ul><p>This is the right abstraction for a great many problems, and it produced most of the machinery we are going to use.</p>", "n": ""}, {"t": "What a robot actually has", "sub": "", "min": 2, "sz": "", "html": "<ul><li>A sensor it is <b>carrying</b>, pointed wherever the body happens to be pointing.</li><li>No ground truth. Ever.</li><li>A partial view, arriving over time, with the past already gone.</li><li>Errors cost you a collision.</li><li>No re-runs: the data depends on what you did.</li></ul><p class=\"pull\">That is the whole course in five bullets. Everything else is detail.</p>", "n": ""}, {"t": "Four things change", "sub": "and they compound", "min": 1, "sz": "", "html": "<ol><li><b>Closed loop</b> — perception feeds a controller that moves the sensor that feeds perception.</li><li><b>Partial observability</b> — the room is not in your field of view.</li><li><b>Metric scale</b> — plans are in metres, images are not.</li><li><b>The cost of being wrong</b> — asymmetric, and physical.</li></ol><p>They interact. Partial observability is only a problem <i>because</i> you are in a closed loop and have to act now.</p>", "n": ""}, {"t": "1 · Closed loop", "sub": "", "min": 2.5, "sz": "", "html": "<ul><li>Latency is part of correctness. A perfect answer at 400 ms is a wrong answer.</li><li>Your errors become your next inputs.</li><li>You cannot re-run on the same data, because the data depends on what you did.</li></ul><div class=\"hand\" data-h=\"38\"><p class=\"cue\">How far does a stale pose put you off?</p><div class=\"worked\"><p>A ground robot at $v = 1.5$ m/s. Perception pipeline latency $\\Delta t$. The pose you act on is the pose you had $\\Delta t$ ago:</p><div class=\"eq\">\\[e = v\\,\\Delta t \\qquad\\Longrightarrow\\qquad \\Delta t = 100\\text{ ms} \\Rightarrow e = 15\\text{ cm}, \\quad \\Delta t = 400\\text{ ms} \\Rightarrow e = 60\\text{ cm}\\]</div><p>A 60 cm position error is wider than the robot. No amount of accuracy in the estimator recovers it.</p></div><div class=\"panel\" style=\"height:38mm\"></div></div>", "n": ""}, {"t": "2 · Partial observability", "sub": "", "min": 2, "sz": "", "html": "<p>A body-mounted camera sees a cone. The room is not in it.</p><ul><li>Most task-relevant objects are out of view at any given moment.</li><li>What you knew a minute ago is <b>memory</b>, not observation.</li><li>Memory has to be a <i>representation</i>, and choosing it is most of this course.</li></ul><p class=\"pull\">The question is never 'what do I see'. It is 'what do I still believe, and how stale is it'.</p>", "n": ""}, {"t": "3 · Metric scale", "sub": "", "min": 2, "sz": "", "html": "<p>Monocular vision recovers structure only <b>up to an unknown scale</b>. A robot needs metres to plan, grasp, or avoid anything.</p><div class=\"hand\" data-h=\"40\"><p class=\"cue\">Why one camera cannot know how big anything is</p><div class=\"worked\"><p>Take the projection we are about to derive, $x = fX/Z$. Scale the whole world by $s$:</p><div class=\"eq\">\\[X \\mapsto sX,\\quad Z \\mapsto sZ \\qquad\\Longrightarrow\\qquad x' = f\\,\\frac{sX}{sZ} = f\\,\\frac{X}{Z} = x\\]</div><p>Every image is <b>identical</b>. A doll's house at 1 m and a room at 10 m produce the same pixels. Scale must come from the sensor (a stereo baseline, a time of flight) or from the body (kinematics, an IMU). It never comes from the image alone.</p></div><div class=\"panel\" style=\"height:40mm\"></div></div>", "n": ""}, {"t": "4 · The cost of being wrong", "sub": "", "min": 2.5, "sz": "", "html": "<ul><li>Vision: a misclassification is one cell in a confusion matrix.</li><li>Robotics: a false negative in a collision check is a collision.</li><li>False positives and false negatives are almost never symmetric.</li></ul><table class='cmp'><thead><tr><th></th><th>Occupied cell called free</th><th>Free cell called occupied</th></tr></thead><tbody><tr><td>What happens</td><td>You drive into it</td><td>You refuse to plan through a doorway</td></tr><tr><td>Recoverable?</td><td>No</td><td>Yes, slowly</td></tr><tr><td>Shows up in mIoU as</td><td>One error</td><td>One error</td></tr></tbody></table><p class=\"pull\">Any evaluation that averages them is hiding the thing you care about.</p>", "n": ""}, {"t": "Perception as an action", "sub": "", "min": 2, "sz": "", "html": "<p>A robot chooses its viewpoints. Its dataset is something it <b>produces</b>, not something it receives.</p><ul><li>Which measurement should I take next?</li><li>Where is my uncertainty, and what would reduce it?</li><li>What is looking going to cost me, in time, in energy, in risk?</li></ul><p>This is the thread into <b>active perception</b> in Unit 1, and into Wen Jiang's guest lecture on Sep 28.</p><p class=\"pull\">Every dataset you have ever used is the frozen output of somebody else's answer to these three questions.</p>", "n": ""}, {"t": "The two tools the rest of the course runs on", "sub": "", "min": 1.5, "sz": "", "html": "<ul><li><b>Rigid-body state.</b> Where things are, in what frame, with what uncertainty. That is L02.</li><li><b>Sensor physics.</b> What a measurement actually is, and how it fails. That is L04.</li></ul><p>Between them sits the crash course: the geometry that turns a 3D world into pixels and back. We start on it now.</p><p class=\"pull\">Everything after Unit 0 assumes all three.</p>", "n": ""}, {"t": "Crash course · A1", "sub": "the pinhole camera and the camera matrix", "min": 1.5, "sz": "", "html": "<p class=\"big\">Coordinate transformations are the whole of 3D perception. We start where the transformations start: how a 3D point becomes a pixel.</p><ul><li>By the end of today you can write down $\\mathbf{P} = \\mathbf{K}[\\mathbf{R}\\mid\\mathbf{t}]$ and say what every symbol is doing.</li><li>On Wednesday we make $[\\mathbf{R}\\mid\\mathbf{t}]$ an object with a group structure and an uncertainty.</li><li>Lab 1 Part B estimates both halves from real data that is deliberately miscalibrated.</li></ul>", "n": ""}, {"t": "The pinhole camera", "sub": "", "min": 2.5, "sz": "", "html": "<div class=\"fig\"><svg viewBox=\"0 0 614 271\" width=\"614\" role=\"img\" aria-label=\"A pinhole camera: rays through the aperture form an inverted image behind it, or an upright one on the virtual plane in front.\">\n  <defs><marker id=\"a32edcaccent2\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto\"><path d=\"M0 0 L10 5 L0 10 z\" fill=\"var(--accent-2)\"/></marker></defs>\n  <path d=\"M29.0 139.2 L606.3 139.2\" stroke=\"var(--ink-faint)\" stroke-width=\"0.76\" fill=\"none\"/>\n  <path d=\"M186.4 217.9 L186.4 147.6\" stroke=\"var(--ink)\" stroke-width=\"2.09\" fill=\"none\"/>\n  <path d=\"M186.4 130.8 L186.4 60.5\" stroke=\"var(--ink)\" stroke-width=\"2.09\" fill=\"none\"/>\n  <path d=\"M81.5 202.2 L81.5 76.2\" stroke=\"var(--accent)\" stroke-width=\"1.71\" fill=\"none\"/>\n  <path d=\"M291.4 202.2 L291.4 76.2\" stroke=\"var(--accent)\" stroke-width=\"1.71\" fill=\"none\" stroke-dasharray=\"5 4\"/>\n  <path d=\"M553.8 34.2 L81.5 169.2\" stroke=\"var(--accent-2)\" stroke-width=\"1.71\" fill=\"none\"/>\n  <path d=\"M553.8 139.2 L81.5 139.2\" stroke=\"var(--rule)\" stroke-width=\"0.95\" fill=\"none\" stroke-dasharray=\"1.5 3\" stroke-linecap=\"round\"/>\n  <path d=\"M553.8 139.2 L553.8 34.2\" stroke=\"var(--accent-2)\" stroke-width=\"2.66\" fill=\"none\" marker-end=\"url(#a32edcaccent2)\"/>\n  <path d=\"M81.5 139.2 L81.5 169.2\" stroke=\"var(--accent-2)\" stroke-width=\"2.66\" fill=\"none\" marker-end=\"url(#a32edcaccent2)\"/>\n  <path d=\"M291.4 139.2 L291.4 109.2\" stroke=\"var(--accent-2)\" stroke-width=\"2.66\" fill=\"none\" marker-end=\"url(#a32edcaccent2)\"/>\n  <circle cx=\"186.4\" cy=\"139.2\" r=\"5.4\" fill=\"var(--ink)\"/>\n  <text x=\"186.4\" y=\"107.7\" text-anchor=\"middle\" fill=\"var(--ink)\" font-family=\"Georgia,serif\" font-size=\"10.0\" dominant-baseline=\"middle\">aperture</text>\n  <text x=\"186.4\" y=\"171.7\" text-anchor=\"middle\" fill=\"var(--ink)\" font-family=\"Georgia,serif\" font-size=\"11.5\" dominant-baseline=\"middle\">O</text>\n  <text x=\"186.4\" y=\"41.6\" text-anchor=\"middle\" fill=\"var(--ink-soft)\" font-family=\"Georgia,serif\" font-size=\"10.0\" dominant-baseline=\"middle\">barrier</text>\n  <text x=\"553.8\" y=\"15.3\" text-anchor=\"middle\" fill=\"var(--ink)\" font-family=\"Georgia,serif\" font-size=\"10.0\" dominant-baseline=\"middle\">object</text>\n  <text x=\"81.5\" y=\"193.3\" text-anchor=\"middle\" fill=\"var(--ink)\" font-family=\"Georgia,serif\" font-size=\"10.0\" dominant-baseline=\"middle\">real image</text>\n  <text x=\"81.5\" y=\"212.2\" text-anchor=\"middle\" fill=\"var(--ink-faint)\" font-family=\"Georgia,serif\" font-size=\"10.0\" dominant-baseline=\"middle\">(inverted)</text>\n  <text x=\"291.4\" y=\"85.1\" text-anchor=\"middle\" fill=\"var(--accent)\" font-family=\"Georgia,serif\" font-size=\"10.0\" dominant-baseline=\"middle\">virtual image plane</text>\n  <path d=\"M186.4 231.0 v6.3 H291.4 v-6.3\" stroke=\"var(--ink-soft)\" stroke-width=\"1\" fill=\"none\"/>\n  <text x=\"238.9\" y=\"248.3\" text-anchor=\"middle\" fill=\"var(--ink-soft)\" font-family=\"Georgia,serif\" font-size=\"11.5\" dominant-baseline=\"middle\">f</text>\n</svg><p class=\"cap\">The physics puts the image behind the aperture and inverted. We draw the <i>virtual</i> plane in front instead; the sign is the only difference.</p></div><p>Drawn in front of $O$, the <i>virtual</i> image plane, so the image is not inverted. The physics puts it behind, at $-f$; the sign is the only difference.</p>", "n": ""}, {"t": "Two similar triangles", "sub": "", "min": 2, "sz": "", "html": "<div class=\"fig\"><svg viewBox=\"0 0 528 323\" width=\"528\" role=\"img\" aria-label=\"Two similar right triangles sharing the apex at the optical centre: the small one has legs f and x, the large one Z and X.\">\n  <path d=\"M59.2 200.0 L443.2 200.0 L443.2 46.4 Z\" stroke=\"var(--accent-2)\" stroke-width=\"0.95\" fill=\"var(--accent-2-soft)\"/>\n  <path d=\"M59.2 200.0 L174.4 200.0 L174.4 153.9 Z\" stroke=\"var(--accent)\" stroke-width=\"1.33\" fill=\"var(--accent-soft)\"/>\n  <path d=\"M33.6 200.0 L520.0 200.0\" stroke=\"var(--ink-faint)\" stroke-width=\"0.76\" fill=\"none\"/>\n  <path d=\"M174.4 283.2 L174.4 27.2\" stroke=\"var(--accent)\" stroke-width=\"1.52\" fill=\"none\"/>\n  <path d=\"M59.2 200.0 L443.2 46.4\" stroke=\"var(--accent-2)\" stroke-width=\"1.71\" fill=\"none\"/>\n  <circle cx=\"59.2\" cy=\"200.0\" r=\"6.0\" fill=\"var(--ink)\"/>\n  <text x=\"52.8\" y=\"214.1\" text-anchor=\"end\" fill=\"var(--ink)\" font-family=\"Georgia,serif\" font-size=\"11.5\" dominant-baseline=\"middle\">O</text>\n  <circle cx=\"174.4\" cy=\"153.9\" r=\"6.5\" fill=\"var(--accent)\"/>\n  <text x=\"168.0\" y=\"139.8\" text-anchor=\"end\" fill=\"var(--ink)\" font-family=\"Georgia,serif\" font-size=\"11.5\" dominant-baseline=\"middle\">p</text>\n  <circle cx=\"443.2\" cy=\"46.4\" r=\"7.1\" fill=\"var(--accent-2)\"/>\n  <text x=\"443.2\" y=\"29.8\" text-anchor=\"middle\" fill=\"var(--ink)\" font-family=\"Georgia,serif\" font-size=\"11.5\" dominant-baseline=\"middle\">P</text>\n  <text x=\"174.4\" y=\"306.2\" text-anchor=\"middle\" fill=\"var(--accent)\" font-family=\"Georgia,serif\" font-size=\"10.0\" dominant-baseline=\"middle\">image plane</text>\n  <path d=\"M191.0 200.0 L191.0 153.9\" stroke=\"var(--ink-soft)\" stroke-width=\"1\" fill=\"none\"/>\n  <path d=\"M187.0 200.0 h8 M187.0 153.9 h8\" stroke=\"var(--ink-soft)\" stroke-width=\"1\"/>\n  <text x=\"201.3\" y=\"177.0\" text-anchor=\"start\" fill=\"var(--ink-soft)\" font-family=\"Georgia,serif\" font-size=\"11.5\" dominant-baseline=\"middle\">x</text>\n  <path d=\"M462.4 200.0 L462.4 46.4\" stroke=\"var(--ink-soft)\" stroke-width=\"1\" fill=\"none\"/>\n  <path d=\"M458.4 200.0 h8 M458.4 46.4 h8\" stroke=\"var(--ink-soft)\" stroke-width=\"1\"/>\n  <text x=\"472.6\" y=\"123.2\" text-anchor=\"start\" fill=\"var(--ink-soft)\" font-family=\"Georgia,serif\" font-size=\"11.5\" dominant-baseline=\"middle\">X</text>\n  <path d=\"M59.2 219.2 v7.7 H174.4 v-7.7\" stroke=\"var(--ink-soft)\" stroke-width=\"1\" fill=\"none\"/>\n  <text x=\"116.8\" y=\"237.9\" text-anchor=\"middle\" fill=\"var(--ink-soft)\" font-family=\"Georgia,serif\" font-size=\"11.5\" dominant-baseline=\"middle\">f</text>\n  <path d=\"M59.2 257.6 v7.7 H443.2 v-7.7\" stroke=\"var(--ink-soft)\" stroke-width=\"1\" fill=\"none\"/>\n  <text x=\"251.2\" y=\"276.3\" text-anchor=\"middle\" fill=\"var(--ink-soft)\" font-family=\"Georgia,serif\" font-size=\"11.5\" dominant-baseline=\"middle\">Z</text>\n</svg></div><p>Both triangles have a right angle and share the angle at $O$, so corresponding sides are in the same ratio. That is the whole model.</p>", "n": ""}, {"t": "Perspective projection", "sub": "two similar triangles, and that is the entire model", "min": 4.5, "sz": "", "html": "<div class=\"cols\"><div style=\"flex:0.340 1 0\"><div class=\"fig\"><svg viewBox=\"0 0 170 102\" width=\"170\" role=\"img\" aria-label=\"Two similar right triangles sharing the apex at the optical centre: the small one has legs f and x, the large one Z and X.\">\n  <path d=\"M23.4 65.6 L138.6 65.6 L138.6 19.5 Z\" stroke=\"var(--accent-2)\" stroke-width=\"0.95\" fill=\"var(--accent-2-soft)\"/>\n  <path d=\"M23.4 65.6 L57.9 65.6 L57.9 51.8 Z\" stroke=\"var(--accent)\" stroke-width=\"1.33\" fill=\"var(--accent-soft)\"/>\n  <path d=\"M15.7 65.6 L161.6 65.6\" stroke=\"var(--ink-faint)\" stroke-width=\"0.76\" fill=\"none\"/>\n  <path d=\"M57.9 90.6 L57.9 13.8\" stroke=\"var(--accent)\" stroke-width=\"1.52\" fill=\"none\"/>\n  <path d=\"M23.4 65.6 L138.6 19.5\" stroke=\"var(--accent-2)\" stroke-width=\"1.71\" fill=\"none\"/>\n  <circle cx=\"23.4\" cy=\"65.6\" r=\"1.8\" fill=\"var(--ink)\"/>\n  <circle cx=\"57.9\" cy=\"51.8\" r=\"2.0\" fill=\"var(--accent)\"/>\n  <circle cx=\"138.6\" cy=\"19.5\" r=\"2.1\" fill=\"var(--accent-2)\"/>\n  <path d=\"M62.9 65.6 L62.9 51.8\" stroke=\"var(--accent)\" stroke-width=\"1\" fill=\"none\"/>\n  <path d=\"M58.9 65.6 h8 M58.9 51.8 h8\" stroke=\"var(--accent)\" stroke-width=\"1\"/>\n  <text x=\"66.0\" y=\"58.7\" text-anchor=\"start\" fill=\"var(--accent)\" font-family=\"Georgia,serif\" font-size=\"11.5\" dominant-baseline=\"middle\">x</text>\n  <path d=\"M144.3 65.6 L144.3 19.5\" stroke=\"var(--accent-2)\" stroke-width=\"1\" fill=\"none\"/>\n  <path d=\"M140.3 65.6 h8 M140.3 19.5 h8\" stroke=\"var(--accent-2)\" stroke-width=\"1\"/>\n  <text x=\"147.4\" y=\"42.6\" text-anchor=\"start\" fill=\"var(--accent-2)\" font-family=\"Georgia,serif\" font-size=\"11.5\" dominant-baseline=\"middle\">X</text>\n  <path d=\"M23.4 71.4 v2.3 H57.9 v-2.3\" stroke=\"var(--accent)\" stroke-width=\"1\" fill=\"none\"/>\n  <text x=\"40.6\" y=\"84.7\" text-anchor=\"middle\" fill=\"var(--accent)\" font-family=\"Georgia,serif\" font-size=\"11.5\" dominant-baseline=\"middle\">f</text>\n  <path d=\"M23.4 82.9 v2.3 H138.6 v-2.3\" stroke=\"var(--accent-2)\" stroke-width=\"1\" fill=\"none\"/>\n  <text x=\"81.0\" y=\"96.2\" text-anchor=\"middle\" fill=\"var(--accent-2)\" font-family=\"Georgia,serif\" font-size=\"11.5\" dominant-baseline=\"middle\">Z</text>\n</svg></div></div><div style=\"flex:0.620 1 0\"><div class=\"hand\" data-h=\"22\"><p class=\"cue\">Derive $x = fX/Z$</p><div class=\"worked\"><div class=\"eq\">\\[\\frac{x}{f} = \\frac{X}{Z}\\]</div></div><div class=\"panel\" style=\"height:22mm\"></div></div></div></div><div class=\"hand\" data-h=\"14\"><p class=\"cue\">and in both axes</p><div class=\"worked\"><div class=\"eq\">\\[\\boxed{\\;x = f\\,\\frac{X}{Z}, \\qquad y = f\\,\\frac{Y}{Z}\\;}\\]</div></div><div class=\"panel\" style=\"height:14mm\"></div></div>", "n": ""}, {"t": "The problem with that equation", "sub": "", "min": 2, "sz": "", "html": "<div class=\"cols\"><div style=\"flex:0.360 1 0\"><div class=\"fig\"><svg viewBox=\"0 0 170 97\" width=\"170\" role=\"img\" aria-label=\"Two similar right triangles sharing the apex at the optical centre: the small one has legs f and x, the large one Z and X.\">\n  <path d=\"M23.4 59.8 L138.6 59.8 L138.6 13.8 Z\" stroke=\"var(--accent-2)\" stroke-width=\"0.95\" fill=\"var(--accent-2-soft)\"/>\n  <path d=\"M23.4 59.8 L57.9 59.8 L57.9 46.0 Z\" stroke=\"var(--rule)\" stroke-width=\"1.33\" fill=\"none\"/>\n  <path d=\"M15.7 59.8 L161.6 59.8\" stroke=\"var(--ink-faint)\" stroke-width=\"0.76\" fill=\"none\"/>\n  <path d=\"M57.9 84.8 L57.9 8.0\" stroke=\"var(--rule)\" stroke-width=\"1.52\" fill=\"none\"/>\n  <path d=\"M23.4 59.8 L138.6 13.8\" stroke=\"var(--accent-2)\" stroke-width=\"1.71\" fill=\"none\"/>\n  <circle cx=\"23.4\" cy=\"59.8\" r=\"1.8\" fill=\"var(--ink)\"/>\n  <circle cx=\"57.9\" cy=\"46.0\" r=\"2.0\" fill=\"var(--rule)\"/>\n  <circle cx=\"138.6\" cy=\"13.8\" r=\"2.1\" fill=\"var(--accent-2)\"/>\n  <path d=\"M23.4 65.6 v2.3 H57.9 v-2.3\" stroke=\"var(--ink-soft)\" stroke-width=\"1\" fill=\"none\"/>\n  <text x=\"40.6\" y=\"78.9\" text-anchor=\"middle\" fill=\"var(--ink-soft)\" font-family=\"Georgia,serif\" font-size=\"11.5\" dominant-baseline=\"middle\">f</text>\n  <path d=\"M23.4 77.1 v2.3 H138.6 v-2.3\" stroke=\"var(--ink-soft)\" stroke-width=\"1\" fill=\"none\"/>\n  <text x=\"81.0\" y=\"90.4\" text-anchor=\"middle\" fill=\"var(--ink-soft)\" font-family=\"Georgia,serif\" font-size=\"11.5\" dominant-baseline=\"middle\">Z</text>\n</svg></div></div><div style=\"flex:0.600 1 0\"><p>The offender is $Z$, the side of the large triangle you divide by.</p></div></div><ul><li>$x = fX/Z$ is <b>not linear</b> in $(X, Y, Z)$. There is no $3\\times3$ matrix $\\mathbf{M}$ with $\\mathbf{x} = \\mathbf{M}\\mathbf{X}$.</li><li>Composition of transformations therefore is not matrix multiplication, and least squares does not apply.</li><li>Translation is not linear either: $\\mathbf{X} \\mapsto \\mathbf{X} + \\mathbf{t}$ cannot be written as a $3\\times3$ matrix.</li></ul><p class=\"pull\">Homogeneous coordinates are the trick that makes both of these linear at once, at the cost of one extra dimension.</p>", "n": ""}, {"t": "Homogeneous coordinates", "sub": "", "min": 2, "sz": "", "html": "<div class=\"cols\"><div style=\"flex:0.320 1 0\"><div class=\"fig\"><svg viewBox=\"0 0 136 100\" width=\"136\" role=\"img\" aria-label=\"A ray through the origin meets the w = 1 line at one point; every scalar multiple along the ray is the same image point.\">\n  <defs><marker id=\"a4ccd8faint\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto\"><path d=\"M0 0 L10 5 L0 10 z\" fill=\"var(--ink-faint)\"/></marker></defs>\n  <path d=\"M8.0 81.0 L115.5 81.0\" stroke=\"var(--ink-faint)\" stroke-width=\"0.76\" fill=\"none\" marker-end=\"url(#a4ccd8faint)\"/>\n  <path d=\"M27.2 86.7 L27.2 8.0\" stroke=\"var(--ink-faint)\" stroke-width=\"0.76\" fill=\"none\" marker-end=\"url(#a4ccd8faint)\"/>\n  <path d=\"M11.8 42.6 L111.7 42.6\" stroke=\"var(--rule)\" stroke-width=\"1.52\" fill=\"none\"/>\n  <text x=\"113.6\" y=\"38.3\" text-anchor=\"start\" fill=\"var(--ink-faint)\" font-family=\"Georgia,serif\" font-size=\"10.0\" dominant-baseline=\"middle\">w = 1</text>\n  <path d=\"M27.2 81.0 L77.9 17.6\" stroke=\"var(--accent-2)\" stroke-width=\"1.90\" fill=\"none\"/>\n  <circle cx=\"42.6\" cy=\"61.8\" r=\"2.0\" fill=\"var(--accent-2)\"/>\n  <circle cx=\"57.9\" cy=\"42.6\" r=\"2.0\" fill=\"var(--accent-2)\"/>\n  <circle cx=\"73.3\" cy=\"23.4\" r=\"2.0\" fill=\"var(--accent-2)\"/>\n  <circle cx=\"27.2\" cy=\"81.0\" r=\"1.8\" fill=\"var(--ink)\"/>\n  <path d=\"M57.9 81.0 L57.9 42.6\" stroke=\"var(--rule)\" stroke-width=\"0.76\" fill=\"none\" stroke-dasharray=\"5 4\"/>\n  <text x=\"57.9\" y=\"88.8\" text-anchor=\"middle\" fill=\"var(--ink-faint)\" font-family=\"Georgia,serif\" font-size=\"10.0\" dominant-baseline=\"middle\">x</text>\n</svg></div></div><div style=\"flex:0.640 1 0\"><p>Append a 1. Declare vectors that differ by a nonzero scale to be the same point, they all lie along one ray.</p></div></div><div class=\"eq\">\\[(x,y) \\;\\longleftrightarrow\\; \\tilde{\\mathbf{x}} = \\begin{bmatrix}x\\\\y\\\\1\\end{bmatrix} \\sim \\begin{bmatrix}\\lambda x\\\\ \\lambda y\\\\ \\lambda\\end{bmatrix},\\ \\lambda \\neq 0 \\qquad\\quad \\begin{bmatrix}u\\\\v\\\\w\\end{bmatrix} \\;\\longmapsto\\; \\left(\\tfrac{u}{w},\\ \\tfrac{v}{w}\\right)\\]</div><p>A point is now an equivalence class of rays through the origin of $\\mathbb{R}^3$. Points with $w = 0$ are the ones at infinity, directions, with no finite position.</p>", "n": ""}, {"t": "A point is a ray", "sub": "", "min": 2, "sz": "", "html": "<div class=\"fig\"><svg viewBox=\"0 0 425 294\" width=\"425\" role=\"img\" aria-label=\"A ray through the origin meets the w = 1 line at one point; every scalar multiple along the ray is the same image point.\">\n  <defs><marker id=\"a1025dfaint\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto\"><path d=\"M0 0 L10 5 L0 10 z\" fill=\"var(--ink-faint)\"/></marker></defs>\n  <path d=\"M8.0 251.2 L366.4 251.2\" stroke=\"var(--ink-faint)\" stroke-width=\"0.76\" fill=\"none\" marker-end=\"url(#a1025dfaint)\"/>\n  <path d=\"M72.0 270.4 L72.0 8.0\" stroke=\"var(--ink-faint)\" stroke-width=\"0.76\" fill=\"none\" marker-end=\"url(#a1025dfaint)\"/>\n  <path d=\"M20.8 123.2 L353.6 123.2\" stroke=\"var(--accent)\" stroke-width=\"1.52\" fill=\"none\"/>\n  <text x=\"360.0\" y=\"109.1\" text-anchor=\"start\" fill=\"var(--accent)\" font-family=\"Georgia,serif\" font-size=\"10.0\" dominant-baseline=\"middle\">w = 1</text>\n  <path d=\"M72.0 251.2 L241.0 40.0\" stroke=\"var(--accent-2)\" stroke-width=\"1.90\" fill=\"none\"/>\n  <circle cx=\"123.2\" cy=\"187.2\" r=\"6.5\" fill=\"var(--accent-2)\"/>\n  <text x=\"143.0\" y=\"187.2\" text-anchor=\"start\" fill=\"var(--ink-soft)\" font-family=\"Georgia,serif\" font-size=\"10.0\" dominant-baseline=\"middle\">λ = 0.5</text>\n  <circle cx=\"174.4\" cy=\"123.2\" r=\"6.5\" fill=\"var(--accent-2)\"/>\n  <text x=\"194.2\" y=\"123.2\" text-anchor=\"start\" fill=\"var(--ink-soft)\" font-family=\"Georgia,serif\" font-size=\"10.0\" dominant-baseline=\"middle\">λ = 1</text>\n  <circle cx=\"225.6\" cy=\"59.2\" r=\"6.5\" fill=\"var(--accent-2)\"/>\n  <text x=\"245.4\" y=\"59.2\" text-anchor=\"start\" fill=\"var(--ink-soft)\" font-family=\"Georgia,serif\" font-size=\"10.0\" dominant-baseline=\"middle\">λ = 1.5</text>\n  <circle cx=\"174.4\" cy=\"123.2\" r=\"7.6\" fill=\"var(--accent)\"/>\n  <circle cx=\"72.0\" cy=\"251.2\" r=\"6.0\" fill=\"var(--ink)\"/>\n  <text x=\"65.6\" y=\"265.3\" text-anchor=\"end\" fill=\"var(--ink)\" font-family=\"Georgia,serif\" font-size=\"11.5\" dominant-baseline=\"middle\">0</text>\n  <path d=\"M174.4 251.2 L174.4 123.2\" stroke=\"var(--rule)\" stroke-width=\"0.76\" fill=\"none\" stroke-dasharray=\"5 4\"/>\n  <text x=\"174.4\" y=\"277.4\" text-anchor=\"middle\" fill=\"var(--accent)\" font-family=\"Georgia,serif\" font-size=\"10.0\" dominant-baseline=\"middle\">x</text>\n  <text x=\"274.2\" y=\"212.8\" text-anchor=\"start\" fill=\"var(--ink)\" font-family=\"Georgia,serif\" font-size=\"10.0\" dominant-baseline=\"middle\">one ray = one point</text>\n</svg></div><p>Every scalar multiple along one ray through the origin is the <i>same</i> image point. Dividing by $w$ is just the choice to read it off where the ray crosses $w = 1$.</p>", "n": ""}, {"t": "Where we stopped", "sub": "", "min": 1.5, "sz": "", "html": "<p>We got as far as <i>a point is a ray</i>. The pinhole model, the perspective divide and homogeneous coordinates are done. The camera matrix itself is not: that is where L02 opens.</p><ul><li>Derive $x_i = f x_c / z_c$ from the figure, and name the two triangles you used.</li><li>Say why $(x, y)$ becomes $(x, y, 1)$, and what equality up to scale buys you.</li><li>Say what a point with $w = 0$ is, and why it has no finite position.</li></ul><p>Notes: Module <b>A1</b>, §1 to §3, with the self-checks. Szeliski §2.1.</p>", "n": ""}, {"t": "Next time", "sub": "L02 · the camera matrix, then rigid-body state", "min": 1, "sz": "", "html": "<p>L02 picks up on this slide. We build $\\mathbf{P} = \\mathbf{K}[\\mathbf{R}\\mid\\mathbf{t}]$ out of two hops, estimate it from correspondences, calibrate a real lens, and only then turn $[\\mathbf{R}\\mid\\mathbf{t}]$ into an object with structure.</p><ul><li>Intrinsics, extrinsics, and the distortion model a real lens needs.</li><li>Calibration as an estimation problem: what is unknown once, and what is unknown per photograph.</li><li>Then $\\mathrm{SO}(3)$, $\\mathrm{SE}(3)$, and why <i>my estimate is off by a little</i> is a sentence you cannot write with a plus sign.</li></ul><p>Before Wednesday: read the MathWorks calibration page linked under <b>Resources</b> on the course site. It is four screens long and it is the clearest version of the camera matrix I know.</p>", "n": ""}]}];
+</script>
+
+<script>
+(function(){
+  "use strict";
+  var flat=[];
+  DECK.forEach(function(L){ L.slides.forEach(function(s,i){
+    flat.push({lec:L,s:s,i:i,n:L.slides.length});
+  });});
+
+  var cur=0, notesOn=false, gridOn=false, mode="a";
+  var slideEl=document.getElementById("slide"), countEl=document.getElementById("count"),
+      notesEl=document.getElementById("notes"), notesBody=document.getElementById("notesbody"),
+      gridEl=document.getElementById("grid"), progEl=document.getElementById("prog"),
+      pickEl=null;
+
+  try{ var sm=localStorage.getItem("rob3dp-mode"); if(sm==="a"||sm==="w") mode=sm; }catch(e){}
+
+  function setMode(m){
+    mode=m; document.body.setAttribute("data-mode",m);
+    try{ localStorage.setItem("rob3dp-mode",m); }catch(e){}
+    Array.prototype.forEach.call(document.querySelectorAll(".mode button"),function(b){
+      b.setAttribute("aria-current", b.getAttribute("data-m")===m ? "true":"false");
+    });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".mode button"),function(b){
+    b.addEventListener("click",function(){ setMode(b.getAttribute("data-m")); });
+  });
+
+  function typeset(el){
+    if(window.MathJax && MathJax.typesetPromise){
+      MathJax.typesetPromise([el]).catch(function(){});
+    }
+  }
+
+  function render(){
+    var f=flat[cur];
+    slideEl.innerHTML =
+      '<p class="s-meta">'+f.lec.num+' &middot; '+f.lec.title+' &middot; '+f.lec.date+
+        (f.s.min?(' &middot; '+f.s.min+' min'):'')+'</p>'+
+      '<h2>'+f.s.t+'</h2>'+
+      (f.s.sub?'<p class="sub">'+f.s.sub+'</p>':'')+
+      '<div class="rulel"></div>'+
+      '<div class="body'+(f.s.sz?' sm':'')+'">'+f.s.html+'</div>';
+    countEl.textContent=(f.i+1)+" / "+f.n;
+    if(notesBody) notesBody.textContent=f.s.n||"—";
+    progEl.style.width=((cur+1)/flat.length*100)+"%";
+    if(gridOn) buildGrid();
+    try{ history.replaceState(null,"","#"+f.lec.id+"-s"+(f.i+1)); }catch(e){}
+    document.getElementById("stage").scrollTop=0;
+    typeset(slideEl);
+  }
+  function go(i){ if(i<0||i>=flat.length) return; cur=i; render(); }
+
+  function buildGrid(){
+    gridEl.innerHTML="";
+    flat.forEach(function(f,k){
+      var b=document.createElement("button");
+      b.className="thumb"; b.type="button";
+      b.setAttribute("aria-current",k===cur?"true":"false");
+      b.innerHTML='<span class="tn">'+f.lec.num+' &middot; '+(f.i+1)+
+        (f.s.min?(' &middot; '+f.s.min+"'"):'')+'</span><span class="tt">'+f.s.t+'</span>';
+      b.addEventListener("click",function(){
+        gridOn=false; gridEl.classList.remove("on"); go(k);
+      });
+      gridEl.appendChild(b);
+    });
+  }
+
+  document.addEventListener("keydown",function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    var k=e.key;
+    if(k==="ArrowRight"||k===" "||k==="PageDown"){ e.preventDefault(); go(cur+1); }
+    else if(k==="ArrowLeft"||k==="PageUp"){ e.preventDefault(); go(cur-1); }
+    else if(k==="Home"){ e.preventDefault(); go(0); }
+    else if(k==="End"){ e.preventDefault(); go(flat.length-1); }
+    else if(k==="a"||k==="A"){ setMode("a"); }
+    else if(k==="w"||k==="W"){ setMode("w"); }
+    else if((k==="s"||k==="S")&&notesEl){ notesOn=!notesOn; notesEl.classList.toggle("on",notesOn); }
+    else if(k==="o"||k==="O"){ gridOn=!gridOn; gridEl.classList.toggle("on",gridOn); if(gridOn) buildGrid(); }
+    else if(k==="p"||k==="P"){ document.body.classList.toggle("present"); }
+    else if(k==="f"||k==="F"){
+      if(!document.fullscreenElement){ (document.documentElement.requestFullscreen||function(){}).call(document.documentElement); }
+      else { (document.exitFullscreen||function(){}).call(document); }
+    }
+    else if(k==="Escape"){ gridOn=false; gridEl.classList.remove("on");
+      document.body.classList.remove("present"); }
+  });
+
+  var x0=null;
+  document.addEventListener("touchstart",function(e){ x0=e.changedTouches[0].clientX; },{passive:true});
+  document.addEventListener("touchend",function(e){
+    if(x0===null) return;
+    var dx=e.changedTouches[0].clientX-x0;
+    if(Math.abs(dx)>60) go(cur+(dx<0?1:-1));
+    x0=null;
+  },{passive:true});
+
+  var h=(location.hash||"").replace("#","");
+  var m=/^(l\d\d)(?:-s(\d+))?$/.exec(h);
+  if(m){
+    var idx=flat.findIndex(function(f){
+      return f.lec.id===m[1] && (!m[2]||f.i+1===parseInt(m[2],10)); });
+    if(idx>=0) cur=idx;
+  }
+  setMode(mode);
+  if(window.MathJax && MathJax.startup && MathJax.startup.promise){
+    MathJax.startup.promise.then(render);
+  } else { render(); }
+})();
+</script>
