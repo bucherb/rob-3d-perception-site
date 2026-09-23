@@ -1,0 +1,245 @@
+<title>Student-led seminars</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+:root{
+  --ground:#F5F7F6; --surface:#FFFFFF; --surface-2:#EDF1F0;
+  --ink:#16232A; --ink-soft:#55676F; --ink-faint:#84969C;
+  --rule:#DCE3E2; --rule-strong:#C3CFCD;
+  --accent:#0E7C86; --accent-soft:#E0EFEF;
+  --accent-2:#B4652A; --accent-2-soft:#F4E8DC;
+  --shadow:0 1px 2px rgba(22,35,42,.05), 0 8px 24px -16px rgba(22,35,42,.18);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#101619; --surface:#172024; --surface-2:#1D282C;
+    --ink:#E4EBE9; --ink-soft:#A3B3B8; --ink-faint:#7D8F95;
+    --rule:#2A373C; --rule-strong:#3B4B50;
+    --accent:#4FBCC4; --accent-soft:#123336;
+    --accent-2:#DFA160; --accent-2-soft:#33261A;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -16px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#101619; --surface:#172024; --surface-2:#1D282C;
+  --ink:#E4EBE9; --ink-soft:#A3B3B8; --ink-faint:#7D8F95;
+  --rule:#2A373C; --rule-strong:#3B4B50;
+  --accent:#4FBCC4; --accent-soft:#123336;
+  --accent-2:#DFA160; --accent-2-soft:#33261A;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -16px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Source Serif 4",Georgia,"Times New Roman",serif;
+  font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased;}
+.shell{max-width:780px;margin:0 auto;padding:0 28px 90px;}
+header{padding:48px 0 26px;border-bottom:1px solid var(--rule);margin-bottom:34px;}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:0 0 10px;}
+h1{font-family:"IBM Plex Sans Condensed","Arial Narrow",sans-serif;font-weight:700;
+  font-size:clamp(34px,5.5vw,52px);line-height:1.03;letter-spacing:-.015em;
+  margin:0 0 16px;text-wrap:balance;}
+h2{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;
+  font-size:clamp(22px,3vw,27px);line-height:1.14;margin:0 0 8px;text-wrap:balance;}
+.lede{font-size:19px;line-height:1.55;color:var(--ink-soft);margin:0 0 20px;}
+p{margin:0 0 15px;} a{color:var(--accent);}
+code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.87em;
+  background:var(--surface-2);padding:1px 5px;border-radius:2px;}
+.meta{display:flex;flex-wrap:wrap;gap:0 26px;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11.5px;color:var(--ink-faint);letter-spacing:.05em;
+  border-top:1px solid var(--rule);padding-top:14px;}
+.meta b{color:var(--ink-soft);font-weight:500;}
+
+section{margin:0 0 42px;}
+.q{background:var(--surface);border:1px solid var(--rule);border-top:2px solid var(--accent);
+  border-radius:0 0 3px 3px;padding:22px 24px;margin:0 0 18px;box-shadow:var(--shadow);}
+.q-head{display:flex;align-items:baseline;gap:13px;margin-bottom:10px;}
+.q-n{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;font-weight:600;
+  color:var(--accent);letter-spacing:.1em;}
+.q-t{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:20px;line-height:1.2;}
+.q p{font-size:16px;color:var(--ink-soft);margin-bottom:12px;}
+.q p:last-child{margin-bottom:0;}
+.wk,.st{font-size:14.5px;line-height:1.5;padding:9px 13px;border-radius:0 2px 2px 0;margin:0 0 8px;}
+.wk{background:var(--accent-2-soft);border-left:2px solid var(--accent-2);color:var(--ink-soft);}
+.st{background:var(--accent-soft);border-left:2px solid var(--accent);color:var(--ink-soft);margin-bottom:0;}
+.wk b,.st b{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;
+  letter-spacing:.13em;text-transform:uppercase;display:block;margin-bottom:3px;font-weight:600;}
+.wk b{color:var(--accent-2);} .st b{color:var(--accent);}
+
+.tpl{background:var(--surface);border:1px solid var(--rule);border-radius:3px;
+  overflow:hidden;box-shadow:var(--shadow);margin:0 0 16px;}
+.tpl-head{display:flex;align-items:center;gap:12px;padding:11px 15px;
+  background:var(--surface-2);border-bottom:1px solid var(--rule);}
+.tpl-head span{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;
+  color:var(--ink-soft);flex:1;}
+.copy{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;font-weight:500;
+  letter-spacing:.07em;text-transform:uppercase;background:var(--surface);color:var(--accent);
+  border:1px solid var(--rule-strong);padding:5px 12px;border-radius:2px;cursor:pointer;
+  transition:background .12s,color .12s,border-color .12s;}
+.copy:hover,.copy.done{background:var(--accent);color:var(--surface);border-color:var(--accent);}
+.copy:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+pre{margin:0;padding:16px 18px;overflow-x:auto;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;line-height:1.65;
+  color:var(--ink);white-space:pre;}
+
+.ex{background:var(--surface);border:1px solid var(--rule);border-left:2px solid var(--accent);
+  border-radius:0 3px 3px 0;padding:22px 24px;box-shadow:var(--shadow);}
+.ex h3{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;font-weight:600;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--accent);margin:0 0 4px;}
+.ex h4{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:17px;
+  margin:18px 0 6px;color:var(--ink);}
+.ex h4:first-of-type{margin-top:14px;}
+.ex p{font-size:15.5px;line-height:1.55;color:var(--ink-soft);margin:0 0 10px;}
+.ex .cite{font-size:14.5px;color:var(--ink-faint);margin-bottom:0;}
+
+.note{border-left:2px solid var(--accent-2);background:var(--accent-2-soft);
+  padding:16px 20px;border-radius:0 3px 3px 0;font-size:15.5px;}
+.note p{color:var(--ink-soft);margin-bottom:10px;} .note p:last-child{margin-bottom:0;}
+.note h4{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;font-weight:600;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--accent-2);margin:0 0 8px;}
+footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--rule);
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;color:var(--ink-faint);}
+@media (prefers-reduced-motion:reduce){.copy{transition:none;}}
+</style>
+<style>
+.draft{background:var(--accent-2-soft);border:1px solid var(--accent-2);border-left:4px solid var(--accent-2);
+  border-radius:3px;padding:18px 22px;margin:0 0 34px;}
+.draft h3{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:15px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--accent-2);margin:0 0 8px;}
+.draft ol{margin:0;padding-left:20px;} .draft li{margin:0 0 6px;}
+table.g{width:100%;border-collapse:collapse;margin:0 0 18px;font-size:15.5px;}
+table.g th{text-align:left;font-family:"IBM Plex Sans Condensed",sans-serif;font-size:13px;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);
+  border-bottom:1px solid var(--rule-strong);padding:0 12px 7px 0;vertical-align:bottom;}
+table.g td{border-bottom:1px solid var(--rule);padding:8px 12px 8px 0;vertical-align:top;}
+table.g td.t{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:13px;color:var(--accent);
+  white-space:nowrap;}
+ul.papers{list-style:none;padding:0;margin:0;columns:2;column-gap:28px;font-size:15.5px;}
+ul.papers li{break-inside:avoid;margin:0 0 6px;padding-left:14px;text-indent:-14px;}
+.claimed{color:var(--ink-faint);}
+</style>
+
+<div class="shell">
+<header>
+  <p class="eyebrow">ROB 498 / 599 &middot; Fall 2026 &middot; Paper seminar</p>
+  <h1>Student-led seminars</h1>
+  <p class="lede">Four sessions, one at the end of each unit. Eight of you sign up for each one,
+  bring a paper, walk the room through it, and then run the discussion. Everything else about the
+  session is deliberately loose.</p>
+  <div class="meta">
+    <span><b>Sessions</b> Sep 30, Nov 2, Nov 11, Dec 2</span>
+    <span><b>Eight slots</b> per session</span>
+    <span><b>Your turn</b> about ten minutes</span>
+    <span><b>Sign up</b> Piazza</span>
+  </div>
+</header>
+
+<section>
+  <h2>What the session is</h2>
+  <p>Ninety minutes on the papers of the unit that just finished, run by you rather than by me.
+  Eight people sign up to bring a paper and walk the room through it; everyone else comes and
+  joins the discussion.</p>
+  <p>I keep a loose eye on the clock and otherwise stay out of the way.</p>
+</section>
+
+<section>
+  <h2>Sign up for a slot</h2>
+  <ul>
+    <li><b>Eight slots per session,</b> first come. A sign-up sheet goes up on Piazza before each
+    session; adding your name is a commitment to be in the room that day.</li>
+    <li><b>Pick any paper from the reading list,</b> or propose one of your own. Anything in the
+    unit's area is fair game: a paper the list skipped, something from last month, a classic the
+    lectures leaned on. Tell me what you have chosen when you sign up so two people do not bring
+    the same paper.</li>
+    <li>Over the term, aim to take one slot. Four sessions and eight slots each is enough for
+    everyone.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Your ten minutes</h2>
+  <p>Roughly four minutes walking the room through the paper, then roughly six leading a discussion
+  about it. Nobody is timing you to the second.</p>
+
+  <div class="q">
+    <div class="q-head"><span class="q-n">01</span><span class="q-t">Walk us through it</span></div>
+    <p>Show the paper itself on screen, or slides if you like making them, or the project page with
+    its video. Whatever gets the idea across fastest.</p>
+    <p>The one thing to land clearly is <b>the key contribution</b>: what this paper does that was
+    not there before, in your own words, stated so that someone could disagree with it. A figure
+    and a result usually carry it.</p>
+    <p class="note">No slide deck is required, and there is nothing to submit beforehand. If you do
+    bring slides, three or four is plenty.</p>
+  </div>
+
+  <div class="q">
+    <div class="q-head"><span class="q-n">02</span><span class="q-t">Then lead the discussion</span></div>
+    <p>Use the rest of the response form as your agenda. You have already answered these questions
+    in writing for other papers, so the room knows the shape of them:</p>
+    <ul>
+      <li><b>The evidence.</b> Which experiment actually carries the claim, and how far?</li>
+      <li><b>The weakest assumption.</b> Where does the argument rest on something that might not
+      hold, and what breaks if it fails?</li>
+      <li><b>What you would run next.</b> One experiment, with what result would change your
+      mind.</li>
+    </ul>
+    <p>Bring your own answer to each, but the point is to get other people arguing rather than to
+    deliver a verdict. Asking the room "does anyone believe Table 2?" is a perfectly good way to
+    spend two minutes.</p>
+  </div>
+</section>
+
+<section>
+  <h2>If you are there without a slot</h2>
+  <p>Read what you can, come, and argue. The discussion is the session, and it is the part of the
+  seminar grade that is not tied to your own paper. One good question about someone else's paper is
+  worth more than sitting through all eight quietly.</p>
+</section>
+
+<section>
+  <h2>Seminar I: Wednesday Sep 30</h2>
+  <p>Unit 1, representation and reconstruction. The sign-up is posted on Piazza: add your name and
+  the paper you plan to bring. These are the papers already on the list for this unit, and a paper
+  of your own is just as welcome.</p>
+  <ul class="papers">
+    <li><a href="https://arxiv.org/abs/1612.00593">PointNet</a></li>
+    <li><a href="https://arxiv.org/abs/1706.02413">PointNet++</a></li>
+    <li><a href="https://arxiv.org/abs/1904.08755">MinkowskiNet</a></li>
+    <li><a href="https://arxiv.org/abs/1611.03631">Voxblox</a></li>
+    <li><a href="https://arxiv.org/abs/2003.08934">NeRF</a></li>
+    <li><a href="https://arxiv.org/abs/2201.05989">Instant-NGP</a></li>
+    <li><a href="https://arxiv.org/abs/2112.12130">NICE-SLAM</a></li>
+    <li><a href="https://arxiv.org/abs/2308.04079">3D Gaussian Splatting</a></li>
+    <li><a href="https://arxiv.org/abs/2312.06741">Gaussian Splatting SLAM</a></li>
+    <li><a href="https://arxiv.org/abs/2312.02126">SplaTAM</a></li>
+    <li><a href="https://arxiv.org/abs/2312.14132">DUSt3R</a></li>
+    <li><a href="https://arxiv.org/abs/2406.09756">MASt3R</a></li>
+    <li><a href="https://arxiv.org/abs/2503.11651">VGGT</a></li>
+    <li><a href="https://arxiv.org/abs/2311.17874">FisherRF</a></li>
+    <li><a href="https://arxiv.org/abs/2410.17422">MLLM Guided Exploration</a></li>
+    <li><a href="https://arxiv.org/abs/2410.04680">Next Best Sense</a></li>
+    <li><a href="https://arxiv.org/abs/2403.11396">Beyond Uncertainty</a></li>
+  </ul>
+  <p class="note">L09 and L10 come after this seminar, so the splatting and feed-forward papers are
+  ones you would be meeting early. Taking one of those is a good way to set up the lecture.</p>
+</section>
+
+<section>
+  <h2>How it is graded</h2>
+  <p>Anton grades the seminar: 10% for the session you lead, 5% for your part in the discussion
+  across all four. There is nothing to hand in and no rubric to write to. He is judging whether you
+  engaged with the paper, not how polished the delivery was, so a clear statement of the
+  contribution and a discussion that goes somewhere is what earns it.</p>
+</section>
+
+<section>
+  <h2>Practical</h2>
+  <ul>
+    <li>Swapping slots or sessions with someone else is fine. Tell me so the list stays right.</li>
+    <li>If you signed up and cannot make it, email me before the session rather than after.</li>
+    <li>Bring the paper open on your own laptop if you can; the room machine takes HDMI or USB-C.</li>
+  </ul>
+</section>
+
+</div>
