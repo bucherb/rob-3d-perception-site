@@ -1,0 +1,2194 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Pose Is Not a Vector</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+/* Tokens are the course notes' (bridge-modules.html), plus one hue for
+   "what naive arithmetic produces".  Figures use them by role throughout:
+   teal = the tangent space, copper = on the group, rose = off it. */
+:root{
+  --ground:#F5F7F6; --surface:#FFFFFF; --surface-2:#EDF1F0;
+  --ink:#16232A; --ink-soft:#55676F; --ink-faint:#84969C;
+  --rule:#DCE3E2; --rule-strong:#C3CFCD;
+  --accent:#0E7C86; --accent-soft:#E0EFEF;
+  --accent-2:#B4652A; --accent-2-soft:#F4E8DC;
+  --rose:#B03A52; --rose-soft:#F6E4E8;
+  --shadow:0 1px 2px rgba(22,35,42,.05), 0 8px 24px -16px rgba(22,35,42,.18);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#101619; --surface:#172024; --surface-2:#1D282C;
+    --ink:#E4EBE9; --ink-soft:#A3B3B8; --ink-faint:#7D8F95;
+    --rule:#2A373C; --rule-strong:#3B4B50;
+    --accent:#4FBCC4; --accent-soft:#123336;
+    --accent-2:#DFA160; --accent-2-soft:#33261A;
+    --rose:#EC8A9C; --rose-soft:#3A1E25;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -16px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#101619; --surface:#172024; --surface-2:#1D282C;
+  --ink:#E4EBE9; --ink-soft:#A3B3B8; --ink-faint:#7D8F95;
+  --rule:#2A373C; --rule-strong:#3B4B50;
+  --accent:#4FBCC4; --accent-soft:#123336;
+  --accent-2:#DFA160; --accent-2-soft:#33261A;
+  --rose:#EC8A9C; --rose-soft:#3A1E25;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -16px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Source Serif 4",Georgia,"Times New Roman",serif;
+  font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased;}
+.shell{max-width:1240px;margin:0 auto;padding:0 28px 96px;
+  display:grid;grid-template-columns:196px minmax(0,1fr);gap:0 56px;align-items:start;}
+.rail{position:sticky;top:0;padding:44px 0;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11.5px;line-height:1.5;display:flex;flex-direction:column;gap:2px;
+  max-height:100vh;overflow-y:auto;}
+.rail a{color:var(--ink-soft);text-decoration:none;padding:5px 8px 5px 10px;
+  border-left:2px solid transparent;display:flex;gap:8px;transition:color .15s,border-color .15s;}
+.rail a:hover,.rail a:focus-visible{color:var(--accent);border-left-color:var(--accent);outline:none;}
+.rail a .n{color:var(--ink-faint);min-width:24px;}
+.rail .rail-head{text-transform:uppercase;letter-spacing:.12em;color:var(--ink-faint);
+  padding:14px 0 6px 10px;font-size:10px;}
+main{padding:44px 0 0;min-width:0;}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--accent);margin:0 0 10px;}
+h1{font-family:"IBM Plex Sans Condensed","Arial Narrow",sans-serif;font-weight:700;
+  font-size:clamp(36px,5.6vw,58px);line-height:1.02;letter-spacing:-.015em;margin:0 0 16px;text-wrap:balance;}
+h2{font-family:"IBM Plex Sans Condensed","Arial Narrow",sans-serif;font-weight:700;font-size:clamp(24px,3.2vw,31px);
+  line-height:1.12;letter-spacing:-.01em;margin:0 0 8px;text-wrap:balance;}
+h3{font-family:"IBM Plex Sans Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:20px;line-height:1.25;
+  margin:30px 0 8px;text-wrap:balance;}
+h4{font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:600;font-size:11.5px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 10px;}
+p{margin:0 0 15px;}
+.prose{max-width:68ch;}
+.prose > ul,.prose > ol{padding-left:22px;margin:0 0 16px;}
+.prose li{margin-bottom:6px;}
+.lede{font-size:20px;line-height:1.55;color:var(--ink-soft);max-width:64ch;margin-bottom:24px;}
+a{color:var(--accent);} strong{font-weight:600;}
+code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.84em;
+  background:var(--surface-2);padding:1px 5px;border-radius:2px;}
+pre{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:13px;line-height:1.6;
+  background:var(--surface-2);border:1px solid var(--rule);border-radius:3px;
+  padding:14px 17px;margin:14px 0 18px;overflow-x:auto;max-width:78ch;color:var(--ink);}
+pre code{background:none;padding:0;font-size:inherit;}
+pre .c{color:var(--ink-faint);}
+section{padding:50px 0;border-top:1px solid var(--rule);}
+section:first-of-type{border-top:none;}
+.sec-head{margin-bottom:22px;max-width:70ch;}
+.sec-head p{color:var(--ink-soft);margin-bottom:0;}
+.masthead{padding:0 0 40px;border:none;}
+.mast-meta{display:flex;flex-wrap:wrap;gap:0 28px;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11.5px;color:var(--ink-faint);letter-spacing:.06em;text-transform:uppercase;
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:12px 0;margin-top:26px;}
+.mast-meta span b{color:var(--ink-soft);font-weight:500;}
+
+/* colour key */
+.key{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin:18px 0 6px;max-width:860px;}
+.key div{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:10px 13px;
+  font-size:14.5px;line-height:1.45;color:var(--ink-soft);display:flex;gap:10px;align-items:flex-start;}
+.key i{flex:none;width:12px;height:12px;border-radius:50%;margin-top:4px;}
+.key b{color:var(--ink);font-weight:600;}
+.k-tan i{background:var(--accent);} .k-grp i{background:var(--accent-2);} .k-bad i{background:var(--rose);}
+
+/* display math */
+.eq{margin:12px 0 16px;overflow-x:auto;overflow-y:hidden;max-width:100%;padding:2px 0;}
+
+/* callouts */
+.uses,.trap,.else{padding:12px 16px;border-radius:0 2px 2px 0;margin:16px 0;font-size:15.5px;line-height:1.55;max-width:74ch;}
+.uses{background:var(--accent-soft);border-left:2px solid var(--accent);}
+.trap{background:var(--accent-2-soft);border-left:2px solid var(--accent-2);}
+.else{background:var(--surface);border:1px solid var(--rule);border-left:2px solid var(--ink-faint);}
+.uses > b,.trap > b,.else > b{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;display:block;margin-bottom:4px;font-weight:600;}
+.uses > b{color:var(--accent);} .trap > b{color:var(--accent-2);} .else > b{color:var(--ink-faint);}
+.else ul{margin:4px 0 0;padding-left:18px;} .else li{margin-bottom:6px;}
+.else li:last-child{margin-bottom:0;}
+.uses p:last-child,.trap p:last-child,.else p:last-child{margin-bottom:0;}
+.slides{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-faint);
+  letter-spacing:.02em;margin:0 0 18px;max-width:74ch;line-height:1.55;}
+.slides b{color:var(--ink-soft);font-weight:500;letter-spacing:.1em;text-transform:uppercase;font-size:10px;margin-right:6px;}
+
+/* straight answers */
+.qa{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;max-width:900px;}
+.qa div{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px 16px;}
+.qa h3{margin:0 0 6px;font-size:17px;}
+.qa p{font-size:15px;line-height:1.55;color:var(--ink-soft);margin:0;}
+.qa a{font-family:"IBM Plex Mono",monospace;font-size:11.5px;white-space:nowrap;}
+
+/* figures and widgets */
+figure{margin:20px 0 24px;background:var(--surface);border:1px solid var(--rule);border-radius:3px;
+  padding:16px 16px 12px;max-width:820px;box-shadow:var(--shadow);}
+/* only the drawings: MathJax renders captions' maths as svg too */
+figure > svg,.widget > svg{display:block;width:100%;height:auto;margin:0 auto;}
+figcaption{font-size:14.5px;line-height:1.5;color:var(--ink-soft);margin-top:10px;max-width:74ch;}
+figcaption b{color:var(--ink);font-weight:600;}
+.photo{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:12px 22px;align-items:center;}
+.twoup{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px 22px;align-items:start;}
+/* Commons figures are drawn for a white page, so they keep one in both themes */
+.plate{background:#FFFFFF;border:1px solid var(--rule);border-radius:3px;padding:10px;
+  display:flex;justify-content:center;align-items:center;}
+.plate img{display:block;max-width:100%;height:auto;max-height:320px;width:auto;}
+.credit{display:block;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-faint);
+  margin-top:8px;line-height:1.5;}
+.credit a{color:inherit;}
+.prose figure{max-width:none;}
+.widget{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:14px 22px;align-items:start;}
+.widget .panel{display:flex;flex-direction:column;gap:14px;min-width:0;}
+.ctl{display:flex;flex-direction:column;gap:4px;}
+.ctl label{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-soft);
+  display:flex;justify-content:space-between;gap:8px;}
+.ctl output{color:var(--ink);font-variant-numeric:tabular-nums;}
+input[type=range]{width:100%;accent-color:var(--accent);}
+input:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.radios{display:flex;flex-direction:column;gap:5px;font-size:14.5px;}
+.radios label{display:flex;gap:8px;align-items:center;cursor:pointer;}
+.radios input{accent-color:var(--accent);margin:0;}
+.readout{font-family:"IBM Plex Mono",monospace;font-size:12px;line-height:1.5;border-radius:3px;
+  padding:10px 12px;font-variant-numeric:tabular-nums;}
+.readout h4{margin:0 0 6px;font-size:10px;}
+.ro-bad{background:var(--rose-soft);} .ro-bad h4{color:var(--rose);}
+.ro-grp{background:var(--accent-2-soft);} .ro-grp h4{color:var(--accent-2);}
+.ro-plain{background:var(--surface-2);}
+.mat{display:inline-grid;grid-template-columns:auto auto;gap:0 14px;padding:2px 8px;
+  border-left:1.5px solid var(--ink-soft);border-right:1.5px solid var(--ink-soft);margin:2px 0 6px;text-align:right;}
+.hint{font-size:14px;color:var(--ink-soft);line-height:1.5;margin:0;}
+
+/* svg classes */
+.s-ink{stroke:var(--ink);fill:none;} .s-soft{stroke:var(--ink-faint);fill:none;} .s-rule{stroke:var(--rule-strong);fill:none;}
+.s-tan{stroke:var(--accent);fill:none;} .s-grp{stroke:var(--accent-2);fill:none;} .s-bad{stroke:var(--rose);fill:none;}
+.f-ink{fill:var(--ink);stroke:none;} .f-soft{fill:var(--ink-faint);stroke:none;} .f-tan{fill:var(--accent);stroke:none;}
+.f-grp{fill:var(--accent-2);stroke:none;} .f-bad{fill:var(--rose);stroke:none;} .f-ground{fill:var(--surface);stroke:none;}
+.f-grp-soft{fill:var(--accent-2-soft);stroke:none;}
+.a-ink{stroke:var(--ink);fill:var(--ink);} .a-soft{stroke:var(--ink-faint);fill:var(--ink-faint);}
+.a-tan{stroke:var(--accent);fill:var(--accent);} .a-grp{stroke:var(--accent-2);fill:var(--accent-2);} .a-bad{stroke:var(--rose);fill:var(--rose);}
+.dash{stroke-dasharray:5 4;} .dot{stroke-dasharray:1.5 3.5;stroke-linecap:round;}
+.plane{fill:var(--accent-soft);stroke:var(--accent);fill-opacity:.8;}
+.face{stroke:var(--ink-soft);stroke-linejoin:round;stroke-width:1;}
+.face-top{fill:var(--accent-2-soft);stroke:var(--accent-2);} .face-front{fill:var(--surface-2);}
+.face-xside{fill:var(--surface-2);} .face-yside{fill:var(--surface);} .face-bot{fill:var(--rule);}
+.t{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;fill:var(--ink-soft);}
+.t-ink{fill:var(--ink);} .t-tan{fill:var(--accent);} .t-grp{fill:var(--accent-2);} .t-bad{fill:var(--rose);} .t-faint{fill:var(--ink-faint);}
+.t-m{font-family:"Source Serif 4",Georgia,serif;font-style:italic;font-size:16px;}
+.t-sm{font-size:10.5px;}
+.t-b{font-weight:600;}
+
+/* tables */
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);border-radius:3px;
+  background:var(--surface);margin:14px 0 18px;max-width:900px;}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:15px;}
+th{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink-faint);font-weight:500;text-align:left;
+  padding:11px 14px;border-bottom:1px solid var(--rule-strong);background:var(--surface-2);white-space:nowrap;}
+td{padding:10px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.45;}
+tr:last-child td{border-bottom:none;}
+td.mono{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink-soft);white-space:nowrap;}
+td.num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;}
+table.cayley{min-width:0;width:auto;font-family:"IBM Plex Mono",monospace;font-size:13.5px;}
+table.cayley th,table.cayley td{text-align:center;padding:7px 14px;}
+table.cayley td.id{background:var(--accent-2-soft);color:var(--accent-2);font-weight:600;}
+
+/* self-checks */
+.try{margin:22px 0 0;max-width:74ch;}
+.try > h4{margin-bottom:8px;}
+.try details{border:1px solid var(--rule);border-radius:3px;background:var(--surface);margin-bottom:8px;}
+.try summary{cursor:pointer;padding:10px 14px 10px 36px;font-size:15.5px;line-height:1.5;position:relative;list-style:none;}
+.try summary::-webkit-details-marker{display:none;}
+.try summary::before{content:"+";position:absolute;left:14px;top:9px;font-family:"IBM Plex Mono",monospace;
+  color:var(--accent);font-weight:600;}
+.try details[open] summary::before{content:"\2212";}
+.try summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
+.try .ans{padding:2px 16px 12px 36px;font-size:15px;color:var(--ink-soft);border-top:1px solid var(--rule);}
+.try .ans p{margin:10px 0 0;}
+
+footer{margin-top:44px;padding-top:22px;border-top:1px solid var(--rule);
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;color:var(--ink-faint);}
+@media (max-width:880px){
+  .shell{grid-template-columns:1fr;padding:0 18px 80px;gap:0;}
+  .rail{position:static;max-height:none;padding:24px 0 0;
+    flex-direction:row;flex-wrap:wrap;border-bottom:1px solid var(--rule);}
+  .rail .rail-head{display:none;}
+  .widget,.photo{grid-template-columns:1fr;}
+  body{font-size:16.5px;}
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important;} }
+</style>
+
+<div class="shell">
+<nav class="rail" aria-label="Contents">
+  <div class="rail-head">Start</div>
+  <a href="#how"><span class="n">&middot;</span>How to read this</a>
+  <a href="#answers"><span class="n">&middot;</span>Straight answers</a>
+  <div class="rail-head">Steps</div>
+  <a href="#s1"><span class="n">1</span>The problem</a>
+  <a href="#s2"><span class="n">2</span>Groups</a>
+  <a href="#s3"><span class="n">3</span>SO(3), concretely</a>
+  <a href="#s4"><span class="n">4</span>Manifolds</a>
+  <a href="#s5"><span class="n">5</span>All of it on a circle</a>
+  <a href="#s6"><span class="n">6</span>Tangent space in 3D</a>
+  <a href="#s7"><span class="n">7</span>exp and Log</a>
+  <a href="#s8"><span class="n">8</span>Poses and twists</a>
+  <a href="#s9"><span class="n">9</span>Uncertainty</a>
+  <a href="#s10"><span class="n">10</span>Lever arms, chains</a>
+  <a href="#s11"><span class="n">11</span>Optimising</a>
+  <div class="rail-head">Reference</div>
+  <a href="#sheet"><span class="n">&middot;</span>Cheat sheet</a>
+  <a href="#code"><span class="n">&middot;</span>Reference code</a>
+  <a href="#notation"><span class="n">&middot;</span>Notation elsewhere</a>
+  <a href="#reading"><span class="n">&middot;</span>Where to read more</a>
+</nav>
+
+<main>
+<header class="masthead">
+  <p class="eyebrow">ROB 498 / 599 &middot; Fall 2026 &middot; Companion to L03</p>
+  <h1>A pose is not a vector</h1>
+  <p class="lede">The first half of L03 went quickly through groups, manifolds, the tangent space and
+  uncertainty on poses. This tutorial covers the same ground slowly. It works every example in
+  numbers, draws the ideas, and gives you three figures you can move with sliders. The material is
+  the same as the slides, explained a second way.</p>
+  <div class="mast-meta">
+    <span><b>Goes with</b> L03, first half</span>
+    <span><b>Time</b> about 90 minutes</span>
+    <span><b>Needs</b> matrix products, the cross product</span>
+    <span><b>Conventions</b> twists (v, &omega;), right perturbations</span>
+  </div>
+</header>
+
+<section id="how">
+  <div class="sec-head">
+    <p class="eyebrow">How to read this</p>
+    <h2>Eleven short steps, in order</h2>
+  </div>
+  <div class="prose">
+    <p>Each step uses the one before it. If you are short of time, do not skip
+    <a href="#s5">Step&nbsp;5</a>. It puts every idea from the lecture on a circle, where you can
+    see all of it at once, and the 3D steps after it repeat that picture with bigger matrices.</p>
+    <p>Each step ends with a few questions. Answer them before you open them. Where an outside
+    tutorial explains the same point well, a <em>Read elsewhere</em> box names the exact figure,
+    section or video. The slide titles each step backs up are listed under its heading.</p>
+    <p>The figures use colour the same way every time:</p>
+  </div>
+  <div class="key" role="list">
+    <div class="k-tan" role="listitem"><i></i><span><b>Teal: the tangent space.</b> Flat. Adding and scaling are allowed here.</span></div>
+    <div class="k-grp" role="listitem"><i></i><span><b>Copper: on the group.</b> Real rotations and poses. You combine them by composing.</span></div>
+    <div class="k-bad" role="listitem"><i></i><span><b>Rose: off the group.</b> What you get from treating a rotation as a vector.</span></div>
+  </div>
+</section>
+
+<section id="answers">
+  <div class="sec-head">
+    <p class="eyebrow">Straight answers</p>
+    <h2>The questions from class, answered short</h2>
+    <p>Each answer points to the step that explains it properly.</p>
+  </div>
+  <div class="qa">
+    <div><h3>Is SO(3) a group or a manifold?</h3>
+      <p>Both, and they are two separate facts. <em>Group</em> is about the rules for combining
+      rotations: compose, undo, do nothing. <em>Manifold</em> is about the shape of the set: curved,
+      but flat when you zoom in. A set with both properties, where the two fit together smoothly, is
+      called a <strong>Lie group</strong>. <a href="#s2">Steps 2&ndash;4</a></p></div>
+    <div><h3>What exactly is &ldquo;the manifold&rdquo;?</h3>
+      <p>The set of all $3\times3$ matrices with $\mathbf{R}^\top\mathbf{R}=\mathbf{I}$ and
+      $\det\mathbf{R}=+1$, seen as a surface inside the 9-dimensional space of all $3\times3$
+      matrices. That surface is 3-dimensional, in the same way the circle $x^2+y^2=1$ is a
+      1-dimensional curve in the plane. <a href="#s4">Step 4</a></p></div>
+    <div><h3>What is the tangent space? Is it $\mathfrak{so}(3)$?</h3>
+      <p>The tangent space at a point is the flat space of all velocities you could have while passing
+      through that point. The one at the identity has its own name, $\mathfrak{so}(3)$: the
+      skew-symmetric matrices, which are 3-vectors $\boldsymbol\omega$ in matrix form. The tangent
+      spaces at other points are copies of it. <a href="#s6">Step 6</a></p></div>
+    <div><h3>Why does an exponential show up?</h3>
+      <p>Spinning at a constant angular velocity is a linear differential equation, and the solution
+      of a linear ODE is an exponential. $\exp$ takes a velocity and returns where you are after one
+      second of it. <a href="#s7">Step 7</a></p></div>
+    <div><h3>Why not add, then re-normalise?</h3>
+      <p>Projecting back onto the rotations does give you a valid rotation, but not the one the
+      correction described, and how far off it is depends on how far you strayed. Composing with
+      $\mathrm{Exp}$ lands exactly where the correction says. <a href="#s5">Step 5</a></p></div>
+    <div><h3>What does &ldquo;uncertainty lives in the tangent space&rdquo; mean?</h3>
+      <p>Write the true pose as your estimate composed with a small unknown twist,
+      $\mathbf{T} = \bar{\mathbf{T}}\,\mathrm{Exp}(\boldsymbol\xi)$, and put an ordinary Gaussian on
+      $\boldsymbol\xi$. The covariance is $6\times6$ on $\boldsymbol\xi$, never on the entries of
+      $\mathbf{T}$. <a href="#s9">Step 9</a></p></div>
+  </div>
+</section>
+
+<!-- ================================================================ 1 -->
+<section id="s1">
+  <div class="sec-head">
+    <p class="eyebrow">Step 1 &middot; 8 min</p>
+    <h2>The problem: every tool you own adds</h2>
+  </div>
+  <p class="slides"><b>Slides</b>L02 &ldquo;Why not just use three numbers?&rdquo; &middot; L03 &ldquo;You cannot add two rotations&rdquo; &middot; &ldquo;What a vector space gives you&rdquo;</p>
+  <div class="prose">
+    <p>Look at the update step of every estimator you have used:</p>
+  </div>
+  <div class="eq">\[
+    \underbrace{\mathbf{x} \leftarrow \mathbf{x} + \mathbf{K}\big(\mathbf{z} - h(\mathbf{x})\big)}_{\text{Kalman filter}}
+    \qquad
+    \underbrace{\mathbf{x} \leftarrow \mathbf{x} - \alpha\nabla f(\mathbf{x})}_{\text{gradient descent}}
+    \qquad
+    \underbrace{\bar{\mathbf{x}} = \tfrac{1}{N}\textstyle\sum_i \mathbf{x}_i}_{\text{averaging}}
+  \]</div>
+  <div class="prose">
+    <p>Each one adds vectors and scales them. A robot's orientation looks like it should work the
+    same way, since it has three degrees of freedom. It does not work, and there are three separate
+    reasons.</p>
+    <h3>Reason 1: the order of rotations matters</h3>
+    <p>Take a book lying flat. Turn it 90&deg; about the world $x$ axis, then 90&deg; about the world
+    $y$ axis. Start again, and do the same two turns in the other order. The book ends up in two
+    different positions:</p>
+  </div>
+  <figure>
+    <svg id="fig-order" viewBox="0 0 740 330" role="img"
+      aria-label="Two rows of a box, a book, rotated 90 degrees about x then y in the first row and about y then x in the second. The copper top face ends up facing a different direction in each row."></svg>
+    <figcaption>The <b>copper face</b> is the top of the book, and the <b>black dot</b> on it sits
+    near the front edge. The same two turns in a different order leave it in different places:
+    $\mathbf{R}_y\mathbf{R}_x \neq \mathbf{R}_x\mathbf{R}_y$. Adding never depends on order,
+    because $a+b=b+a$. So no set of three numbers can turn composing rotations into adding
+    vectors.</figcaption>
+  </figure>
+  <figure>
+    <div class="photo">
+      <div class="plate"><img src="img/rotations/dice-noncommutative.png" width="884" height="1247" loading="lazy"
+        alt="Two dice start in the same position. One follows path A and the other path B: the same two quarter turns in opposite orders. They finish with different faces showing."></div>
+      <figcaption>The same experiment with dice. Both start with the same faces showing and get the
+      same two quarter turns, in opposite orders (paths A and B). They finish with different faces
+      up. Any box on your desk will show the same thing.
+      <span class="credit">Image: Guy vandegrift, <a href="https://commons.wikimedia.org/wiki/File:Non-commutative_rotation_of_dice.png">Wikimedia Commons</a>, CC0.</span></figcaption>
+    </div>
+  </figure>
+  <div class="prose">
+    <h3>Reason 2: the sum of two rotations is not a rotation</h3>
+    <p>In 2D, add the rotation by 0&deg; to the rotation by 90&deg;:</p>
+  </div>
+  <div class="eq">\[
+    \begin{bmatrix}1&0\\0&1\end{bmatrix} + \begin{bmatrix}0&-1\\1&0\end{bmatrix}
+    = \begin{bmatrix}1&-1\\1&1\end{bmatrix} = \sqrt2\,\begin{bmatrix}\cos45^\circ&-\sin45^\circ\\ \sin45^\circ&\cos45^\circ\end{bmatrix}
+  \]</div>
+  <div class="prose">
+    <p>The result rotates by 45&deg;, but it also stretches everything by $\sqrt2$, so it is not a
+    rotation. The lecture did the 3D version: the average of the 0&deg; and 180&deg; turns about $z$
+    has determinant 0. It flattens space onto a line.</p>
+    <h3>Reason 3: every three-number description breaks somewhere</h3>
+    <p>Roll, pitch and yaw lose a degree of freedom at pitch $\pm90^\circ$, where roll and yaw turn
+    about the same axis. This is <strong>gimbal lock</strong>. Choosing different angles does not
+    fix it. <a href="#s4">Step&nbsp;4</a> shows why with a globe: any single flat coordinate system
+    laid over a shape that closes on itself has a seam somewhere.</p>
+    <figure>
+      <div class="photo">
+        <div class="plate"><img src="img/rotations/gimbal-lock-plane.gif" width="200" height="200" loading="lazy"
+          alt="Animation of an aircraft model held by three nested gimbal rings, turning until two of the rings lie in the same plane."></div>
+        <figcaption>An aircraft held by three gimbals, one ring per angle. When the middle ring has
+        turned through 90&deg;, the other two lie in the same plane and turn the aircraft about the same
+        axis. One degree of freedom is gone until the middle ring moves away again.
+        <span class="credit">Animation: Drummyfish, <a href="https://commons.wikimedia.org/wiki/File:Gimbal_Lock_Plane.gif">Wikimedia Commons</a>, CC0.</span></figcaption>
+      </div>
+    </figure>
+    <p>So we need three things, and the rest of this tutorial supplies them:</p>
+    <ol>
+      <li>Rules for what you <em>may</em> do with rotations. That is the <strong>group</strong>.</li>
+      <li>A place where adding and scaling are legal again. That is the <strong>tangent space</strong>.</li>
+      <li>A way to move between the two. That is <strong>$\exp$ and $\mathrm{Log}$</strong>.</li>
+    </ol>
+  </div>
+  <div class="else"><b>Read elsewhere</b>
+    <ul>
+      <li>Wikipedia, <a href="https://en.wikipedia.org/wiki/Gimbal_lock">Gimbal lock</a>, where the
+      animation above comes from. It also works through the loss of a degree of freedom with Euler-angle matrices.</li>
+      <li>Lynch &amp; Park, <a href="http://hades.mech.northwestern.edu/images/2/25/MR-v2.pdf"><em>Modern Robotics</em></a>,
+      Fig.&nbsp;3.12 (&sect;3.2.1): reason 1, drawn for rotations about different axes.</li>
+    </ul>
+  </div>
+  <div class="try"><h4>Try it</h4>
+    <details><summary>Rotate the book about $z$ by 90&deg;, then again about $z$ by 30&deg;. Does the order matter now?</summary>
+      <div class="ans"><p>No. Rotations about the <em>same</em> axis commute: both orders give 120&deg; about $z$.
+      This is why 2D rotations (Step&nbsp;5) are so much easier. There is only one axis.</p></div></details>
+    <details><summary>Compute $\det$ of $\tfrac12\big(\mathbf{R}(0^\circ)+\mathbf{R}(90^\circ)\big)$ in 2D. What does the average do to a unit square?</summary>
+      <div class="ans"><p>$\tfrac12\begin{bmatrix}1&-1\\1&1\end{bmatrix}$ has determinant $\tfrac12$. It rotates by 45&deg;,
+      shrinks lengths by $1/\sqrt2$ and halves areas. That is a valid linear map, but not a rotation.</p></div></details>
+  </div>
+</section>
+
+<!-- ================================================================ 2 -->
+<section id="s2">
+  <div class="sec-head">
+    <p class="eyebrow">Step 2 &middot; 10 min</p>
+    <h2>Groups: rules for combining things</h2>
+  </div>
+  <p class="slides"><b>Slides</b>L02 &ldquo;What a group is&rdquo; &middot; L03 &ldquo;What a group is&rdquo;</p>
+  <div class="prose">
+    <p>A <strong>group</strong> is a set together with <em>one</em> way of combining two of its
+    members, obeying four rules. The rules are not arbitrary. Each one is something you rely on every
+    time you chain transforms in code:</p>
+  </div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Rule</th><th>For rotations</th><th>What it buys you in code</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Closure</strong></td><td>$\mathbf{R}_1\mathbf{R}_2$ is a rotation</td><td>Composing two poses always gives a pose. Adding them does not, as Step&nbsp;1 showed.</td></tr>
+      <tr><td><strong>Associativity</strong></td><td>$(\mathbf{R}_1\mathbf{R}_2)\mathbf{R}_3 = \mathbf{R}_1(\mathbf{R}_2\mathbf{R}_3)$</td><td>$\mathbf{T}_{wc} = \mathbf{T}_{wb}\mathbf{T}_{bl}\mathbf{T}_{lc}$ needs no brackets, so a transform tree can multiply in any grouping.</td></tr>
+      <tr><td><strong>Identity</strong></td><td>$\mathbf{I}$</td><td>&ldquo;No motion&rdquo;. The zero correction maps to it.</td></tr>
+      <tr><td><strong>Inverse</strong></td><td>$\mathbf{R}^{-1} = \mathbf{R}^\top$</td><td>&ldquo;Undo&rdquo;, in closed form. So never call <code>np.linalg.inv</code> on a rotation or a pose: the closed form is exact and cheaper.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="prose">
+    <p>Two things are <em>not</em> on the list. Commutativity: $ab$ need not equal
+    $ba$, and for 3D rotations it usually does not. Adding and scaling: a group has
+    exactly one operation, and for rotations that operation is composition. &ldquo;Half of
+    $\mathbf{R}$&rdquo; or &ldquo;$\mathbf{R}_1+\mathbf{R}_2$&rdquo; are not group operations.</p>
+
+    <h3>Example: the four rotations of a square</h3>
+    <p>Take a square with one corner marked and rotate it counter-clockwise by 0&deg;, 90&deg;,
+    180&deg; or 270&deg;. Each rotation puts the square back on its own outline, so these four are
+    its <em>symmetries</em>. Combine two of them by doing one after the other.</p>
+  </div>
+  <figure>
+    <svg id="fig-square" viewBox="0 0 720 128" role="img"
+      aria-label="Four copies of a square with a copper dot marking one corner, rotated by 0, 90, 180 and 270 degrees counter-clockwise."></svg>
+    <figcaption>Each square is the same set of points, and only the marked corner shows which
+    rotation was applied.</figcaption>
+  </figure>
+  <div class="prose">
+    <p>The table lists every combination. Read the row, then the column: the entry is the row
+    rotation followed by the column rotation.</p>
+  </div>
+  <div class="tablewrap" style="display:inline-block;max-width:100%;">
+    <table class="cayley">
+      <thead><tr><th>then &rarr;</th><th>r0</th><th>r90</th><th>r180</th><th>r270</th></tr></thead>
+      <tbody>
+        <tr><th>r0</th><td>r0</td><td>r90</td><td>r180</td><td>r270</td></tr>
+        <tr><th>r90</th><td>r90</td><td>r180</td><td>r270</td><td class="id">r0</td></tr>
+        <tr><th>r180</th><td>r180</td><td>r270</td><td class="id">r0</td><td>r90</td></tr>
+        <tr><th>r270</th><td>r270</td><td class="id">r0</td><td>r90</td><td>r180</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <p>You can check three of the rules by reading the table. Every entry is one of the four
+    rotations, so the set is closed. The <code>r0</code> row repeats the header, so
+    <code>r0</code> is the identity. The identity appears exactly once in every row,
+    highlighted, so every rotation has an inverse: 90&deg; is undone by 270&deg;.
+    Associativity comes for free, because doing one thing after another is always associative.</p>
+
+    <h3>Example: all rotations of the plane</h3>
+    <p>Let the angle be anything, not just multiples of 90&deg;. Combining two rotations adds their
+    angles, wrapping at 360&deg;. The identity is 0&deg; and the inverse of $\theta$ is $-\theta$.
+    This group is called $\mathrm{SO}(2)$. Its members also form a <em>circle</em>, and that
+    circle is what leads to manifolds in Step&nbsp;4.</p>
+
+    <h3>Two sets that are not groups</h3>
+    <ul>
+      <li><strong>Rotation matrices under addition:</strong> closure fails, as Step&nbsp;1 showed.</li>
+      <li><strong>Integers under multiplication:</strong> the identity is 1, but 2 has no integer
+      inverse.</li>
+    </ul>
+  </div>
+  <div class="else"><b>Read elsewhere</b>
+    <ul>
+      <li>3Blue1Brown, <a href="https://www.youtube.com/watch?v=mH0oCDa74tE">Group theory, abstraction, and the 196,883-dimensional monster</a>
+      (22&nbsp;min). It builds groups from the symmetries of shapes, like the square
+      above, and shows two symmetries giving different results in different orders.</li>
+      <li><a href="https://nathancarter.github.io/group-explorer/index.html">Group Explorer</a>, free in
+      the browser. Pick any small group and it draws the multiplication table and Cayley diagram, so you
+      can check the rules yourself.</li>
+    </ul>
+  </div>
+  <div class="try"><h4>Try it</h4>
+    <details><summary>Take all 3D reflections: orthogonal matrices with determinant $-1$. Do they form a group under multiplication?</summary>
+      <div class="ans"><p>No. Two reflections multiply to a matrix with determinant $(-1)(-1)=+1$, which is a rotation,
+      so closure fails. The identity has determinant $+1$, so it is not in the set either.</p></div></details>
+    <details><summary>Then why does the definition of SO(3) need $\det\mathbf{R}=+1$?</summary>
+      <div class="ans"><p>Without it, $\mathbf{R}^\top\mathbf{R}=\mathbf{I}$ allows rotations <em>and</em> reflections together.
+      That larger set, $\mathrm{O}(3)$, is also a group. The condition $\det=+1$ keeps only the rotations,
+      which form a group by themselves and are the only matrices a physical rigid body can have.</p></div></details>
+    <details><summary>Find two poses that give different results in different orders.</summary>
+      <div class="ans"><p>Let $\mathbf{T}_1$ translate 1&nbsp;m along $x$ and $\mathbf{T}_2$ rotate 90&deg; about $z$. Follow
+      where the origin goes. $\mathbf{T}_1\mathbf{T}_2$ rotates it first, which does not move it, then translates it,
+      so it lands at $(1,0,0)$. $\mathbf{T}_2\mathbf{T}_1$ translates it to $(1,0,0)$ and then rotates that point to
+      $(0,1,0)$.</p></div></details>
+  </div>
+</section>
+
+<!-- ================================================================ 3 -->
+<section id="s3">
+  <div class="sec-head">
+    <p class="eyebrow">Step 3 &middot; 8 min</p>
+    <h2>SO(3), concretely: what the nine numbers mean</h2>
+  </div>
+  <p class="slides"><b>Slides</b>L03 &ldquo;SO(3): rotations&rdquo;</p>
+  <div class="eq">\[
+    \mathrm{SO}(3) = \left\{\mathbf{R}\in\mathbb{R}^{3\times3} \;:\; \mathbf{R}^\top\mathbf{R}=\mathbf{I},\ \det\mathbf{R}=+1\right\}
+  \]</div>
+  <div class="prose">
+    <p>Read $\mathbf{R}^\top\mathbf{R}=\mathbf{I}$ one column at a time. Entry $(i,j)$ of
+    $\mathbf{R}^\top\mathbf{R}$ is the dot product of column $i$ with column $j$. So the equation says
+    each column has length 1, and any two columns are perpendicular.</p>
+    <p>The columns also have a physical meaning: <strong>column $j$ is where the $j$-th axis ends
+    up</strong>. Here is the rotation by 90&deg; about $z$:</p>
+  </div>
+  <div class="eq">\[
+    \mathbf{R}_z(90^\circ) = \begin{bmatrix} 0 & -1 & 0\\ 1 & 0 & 0\\ 0 & 0 & 1\end{bmatrix}
+    \qquad \text{columns: } (0,1,0),\ (-1,0,0),\ (0,0,1)
+  \]</div>
+  <figure>
+    <svg id="fig-frame" viewBox="0 0 700 220" role="img"
+      aria-label="Left, a frame with x pointing right and y up. Right, after rotating 90 degrees about z, the new x axis points up and the new y axis points left; these are the columns of R."></svg>
+    <figcaption>After the rotation, the new $x$ axis points along old $+y$ and the new $y$ axis
+    along old $-x$. <b>Those two vectors are the first two columns.</b> $z$ points out of the page
+    and does not move. To read any rotation matrix, read its columns.</figcaption>
+  </figure>
+  <div class="prose">
+    <h3>Counting degrees of freedom</h3>
+    <p>The matrix has nine entries. Written out, $\mathbf{R}^\top\mathbf{R}=\mathbf{I}$ is six
+    equations, not nine, because the $(i,j)$ and $(j,i)$ entries give the same equation:</p>
+  </div>
+  <div class="eq">\[
+    \underbrace{\|\mathbf{r}_1\|=\|\mathbf{r}_2\|=\|\mathbf{r}_3\|=1}_{3\ \text{equations}}
+    \qquad
+    \underbrace{\mathbf{r}_1\!\cdot\mathbf{r}_2=\mathbf{r}_1\!\cdot\mathbf{r}_3=\mathbf{r}_2\!\cdot\mathbf{r}_3=0}_{3\ \text{equations}}
+    \qquad 9-6=3
+  \]</div>
+  <div class="prose">
+    <p>The condition $\det\mathbf{R}=+1$ removes no dimensions. It throws out mirror images, such as
+    $\mathrm{diag}(1,1,-1)$, which passes the column test but turns a right hand into a left
+    hand.</p>
+    <h3>Every representation stores the same three degrees of freedom</h3>
+  </div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Representation</th><th>Numbers stored</th><th>What it costs you</th></tr></thead>
+    <tbody>
+      <tr><td>Euler angles (roll, pitch, yaw)</td><td class="num">3</td><td>Singular at pitch $\pm90^\circ$, and there are twelve orderings with no agreed default.</td></tr>
+      <tr><td>Axis&ndash;angle vector $\boldsymbol\omega$</td><td class="num">3</td><td>Wraps around: turning $\pi+\epsilon$ one way is the same rotation as turning $\pi-\epsilon$ the other way.</td></tr>
+      <tr><td>Unit quaternion</td><td class="num">4</td><td>One constraint to maintain, and $\mathbf{q}$ and $-\mathbf{q}$ are the same rotation.</td></tr>
+      <tr><td>Rotation matrix</td><td class="num">9</td><td>Six constraints to maintain.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="prose"><p>The group is the same in every row. Only the bookkeeping changes, and every
+  choice pays for its convenience somewhere.</p></div>
+  <div class="else"><b>Read elsewhere</b>
+    <ul>
+      <li><em>Modern Robotics</em> &sect;3.2.1, with two short videos:
+      <a href="https://youtu.be/OZucG1DY_sY">Rotation Matrices, part 1</a> (3&nbsp;min) and
+      <a href="https://youtu.be/6KIPusOv5fA">part 2</a> (4&nbsp;min). They cover columns as axes and
+      the three uses of a rotation matrix.</li>
+      <li>Ben Eater and 3Blue1Brown, <a href="https://eater.net/quaternions">Visualizing quaternions</a>, interactive,
+      if you want to see why $\mathbf{q}$ and $-\mathbf{q}$ are the same rotation (the &ldquo;double cover&rdquo; chapter).</li>
+    </ul>
+  </div>
+  <div class="try"><h4>Try it</h4>
+    <details><summary>Which of these are in SO(3)? $\mathbf{A}=\begin{bmatrix}1&0&0\\0&0&1\\0&1&0\end{bmatrix}$, $\mathbf{B}=\begin{bmatrix}0.8&-0.6&0\\0.6&0.8&0\\0&0&1\end{bmatrix}$, $\mathbf{C}=\begin{bmatrix}1&0.1&0\\0&1&0\\0&0&1\end{bmatrix}$</summary>
+      <div class="ans"><p>Only $\mathbf{B}$, which is a rotation of $36.9^\circ$ about $z$ because $\cos\theta=0.8$. $\mathbf{A}$ has
+      orthonormal columns but swaps $y$ and $z$, so $\det\mathbf{A}=-1$: it is a mirror. $\mathbf{C}$ has
+      $\det=1$ but its first two columns are not perpendicular, so it is a shear.</p></div></details>
+    <details><summary>A rotation matrix's third column is $(0,0,-1)$. What happened to the $z$ axis?</summary>
+      <div class="ans"><p>It flipped to point straight down. The object is upside down. For example, $\mathbf{R}_x(180^\circ)$ does this.</p></div></details>
+  </div>
+</section>
+
+<!-- ================================================================ 4 -->
+<section id="s4">
+  <div class="sec-head">
+    <p class="eyebrow">Step 4 &middot; 10 min</p>
+    <h2>Manifolds: curved overall, flat up close</h2>
+  </div>
+  <p class="slides"><b>Slides</b>L03 &ldquo;Flatten it locally: the tangent space&rdquo;</p>
+  <div class="prose">
+    <p>A <strong>manifold</strong> is a set that looks like ordinary flat $\mathbb{R}^n$ if you zoom in
+    close enough around any of its points. The number $n$ is its <strong>dimension</strong>. The
+    standard picture is the Earth. A street map of your town is flat and works perfectly. A map of
+    the whole planet cannot be flat without stretching or tearing somewhere.</p>
+  </div>
+  <figure>
+    <svg id="fig-globe" viewBox="0 0 640 330" role="img"
+      aria-label="A sphere drawn with latitude and longitude lines. A flat teal plane touches it at one point, with a grid on it. At the north pole all longitude lines meet at a rose dot."></svg>
+    <figcaption>The <b>teal plane</b> touching the sphere at the copper point is a flat map of that
+    neighbourhood: its tangent plane. It is accurate near the point and wrong far away. At the
+    <b>rose pole</b> every line of longitude meets, so the coordinates stop working there even though
+    nothing is wrong with the sphere itself.</figcaption>
+  </figure>
+  <div class="prose">
+    <p>Three things carry over from the globe to rotations.</p>
+    <ol>
+      <li><strong>Dimension counts the directions you can move in, not the numbers you store.</strong>
+      A point on the sphere is stored as $(x,y,z)$, but you can only move north&ndash;south and
+      east&ndash;west, so the sphere is 2-dimensional. A rotation is stored as nine numbers and has
+      three directions to move in.</li>
+      <li><strong>The flat map at a point is the tangent space.</strong> Distances, directions,
+      averages and derivatives all work on the flat map, and you can trust them near the point
+      where it touches. Calculus on a manifold is calculus on these maps.</li>
+      <li><strong>Every single global coordinate system has a bad spot.</strong> At the North Pole
+      every longitude names the same point, and one small step can change longitude by 180&deg;.
+      Euler angles fail the same way at pitch $\pm90^\circ$. No choice of three angles avoids it,
+      because SO(3), like the sphere, closes back on itself, and a flat grid laid over it must have a
+      seam.</li>
+    </ol>
+    <h3>From the circle up to poses</h3>
+  </div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Manifold</th><th>Stored as a point in</th><th>Dimension</th><th>Also a group?</th></tr></thead>
+    <tbody>
+      <tr><td>Circle, $x^2+y^2=1$</td><td>$\mathbb{R}^2$</td><td class="num">1</td><td>Yes: SO(2), rotations of the plane</td></tr>
+      <tr><td>Sphere, $x^2+y^2+z^2=1$</td><td>$\mathbb{R}^3$</td><td class="num">2</td><td>No. There is no way to combine two points on a sphere that obeys the four rules</td></tr>
+      <tr><td>Unit quaternions</td><td>$\mathbb{R}^4$</td><td class="num">3</td><td>Yes</td></tr>
+      <tr><td>SO(3)</td><td>$\mathbb{R}^{3\times3}$, nine numbers</td><td class="num">3</td><td>Yes</td></tr>
+      <tr><td>SE(3), poses</td><td>$\mathbb{R}^{4\times4}$, twelve free entries</td><td class="num">6</td><td>Yes</td></tr>
+    </tbody>
+  </table></div>
+  <div class="prose">
+    <p>A manifold that is also a group, where the operation is smooth, is a <strong>Lie
+    group</strong>. SO(3) and SE(3) are Lie groups. So &ldquo;SO(3) is a group&rdquo; and
+    &ldquo;SO(3) is a manifold&rdquo; are both true, and they describe different things.</p>
+
+    <h3>&ldquo;Drifting off the manifold&rdquo;</h3>
+    <p>Think of the constraints as carving out a surface. $x^2+y^2=1$ picks a circle out of the
+    plane, and $\mathbf{R}^\top\mathbf{R}=\mathbf{I}$ picks a 3-dimensional surface out of the space of
+    $3\times3$ matrices. A matrix that no longer satisfies the constraint is a point <em>off</em> that
+    surface. Multiplying rotations in floating point creeps off it very slowly. Adding a correction
+    jumps off it immediately:</p>
+  </div>
+<pre><code>import numpy as np
+from scipy.spatial.transform import Rotation as Rot
+
+W = np.array([[0., -1, 0], [1, 0, 0], [0, 0, 0]])   <span class="c"># spin about z at 1 rad/s</span>
+dt = 0.01
+R_add = np.eye(3)
+R_cmp = np.eye(3)
+for _ in range(1000):                               <span class="c"># ten seconds</span>
+    R_add = R_add + R_add @ W * dt                  <span class="c"># "add a small correction"</span>
+    R_cmp = R_cmp @ Rot.from_rotvec([0, 0, dt]).as_matrix()
+
+print(np.linalg.det(R_add))   <span class="c"># 1.105   ten percent too big, and growing</span>
+print(np.linalg.det(R_cmp))   <span class="c"># 1.000</span></code></pre>
+  <div class="prose">
+    <p>Each added step stretches the matrix by a factor of $\sqrt{1+\mathrm{d}t^2}$. That is tiny
+    per step, but it never averages out. <a href="#s5">Step&nbsp;5</a> lets you watch it happen.</p>
+  </div>
+  <div class="else"><b>Read elsewhere</b>
+    <ul>
+      <li>Sol&agrave;, Deray &amp; Atchuthan, <a href="https://arxiv.org/abs/1812.01537"><em>A micro Lie theory for state estimation in robotics</em></a>,
+      &sect;II-A and Figs.&nbsp;1&ndash;2: a sphere with its tangent plane, and a manifold with a
+      side-cut through it. The paper covers Steps 4 to 11 of this tutorial, and the later boxes point
+      to its figures.</li>
+      <li><em>Modern Robotics</em> Fig.&nbsp;3.13 (&sect;3.2.3) draws all of SO(3) at once as a
+      solid ball of radius $\pi$ whose opposite surface points are glued together. Look at it when
+      the idea of SO(3) &ldquo;closing back on itself&rdquo; feels too abstract.</li>
+      <li>GTSAM blog, M. Mattamala, <a href="https://gtsam.org/2021/02/23/uncertainties-part2.html">Reducing the uncertainty about the uncertainties, part 2: frames and manifolds</a>.</li>
+    </ul>
+  </div>
+  <div class="try"><h4>Try it</h4>
+    <details><summary>What is the dimension of (a) the set of unit vectors in $\mathbb{R}^3$, (b) planar poses SE(2), (c) the directions a camera's optical axis can point?</summary>
+      <div class="ans"><p>(a) 2, since it is the sphere. (b) 3: $x$, $y$ and heading. (c) 2, since it is the sphere again.
+      Adding roll about the optical axis gives 3, which is all of SO(3).</p></div></details>
+    <details><summary>Where exactly is the &ldquo;seam&rdquo; for roll&ndash;pitch&ndash;yaw, and what is its analogue on the globe?</summary>
+      <div class="ans"><p>At pitch $\pm90^\circ$, where only roll minus yaw (or roll plus yaw) can be determined, not
+      each one separately. On the globe it is the poles, where latitude is fine but longitude is undefined.</p></div></details>
+  </div>
+</section>
+
+<!-- ================================================================ 5 -->
+<section id="s5">
+  <div class="sec-head">
+    <p class="eyebrow">Step 5 &middot; 15 min</p>
+    <h2>The whole lecture on a circle</h2>
+    <p>SO(3) is a curved 3-dimensional surface inside a 9-dimensional space, and nobody can draw
+    that. SO(2), the rotations of the plane, has every one of the same ideas and fits on a page.</p>
+  </div>
+  <p class="slides"><b>Slides</b>This is the 1D version of L03 &ldquo;Flatten it locally&rdquo; through &ldquo;Uncertainty lives in the tangent space&rdquo;</p>
+  <div class="prose">
+    <h3>The group, and the manifold</h3>
+    <p>A 2D rotation and its first column:</p>
+  </div>
+  <div class="eq">\[
+    \mathbf{R}(\theta) = \begin{bmatrix}\cos\theta & -\sin\theta\\ \sin\theta & \cos\theta\end{bmatrix}
+    \qquad \text{first column } (\cos\theta,\ \sin\theta)\ \text{is a point on the unit circle}
+  \]</div>
+  <div class="prose">
+    <p>So every rotation <em>is</em> a point on the circle, and the circle is the manifold. Here are
+    the group rules on it:</p>
+    <ul>
+      <li><strong>Compose:</strong> $\mathbf{R}(a)\mathbf{R}(b)=\mathbf{R}(a+b)$. Angles add, and the
+      result wraps around the circle.</li>
+      <li><strong>Identity:</strong> $\mathbf{R}(0)=\mathbf{I}$, the point $(1,0)$.</li>
+      <li><strong>Inverse:</strong> $\mathbf{R}(\theta)^{-1}=\mathbf{R}(-\theta)=\mathbf{R}(\theta)^\top$,
+      the mirror-image point below the axis.</li>
+    </ul>
+
+    <h3>The tangent space, and the hat map</h3>
+    <p>Move along the circle through the identity and ask for your velocity. Differentiate
+    $\mathbf{R}(\theta)$ at $\theta=0$:</p>
+  </div>
+  <div class="eq">\[
+    \frac{\mathrm{d}\mathbf{R}}{\mathrm{d}\theta}\bigg|_{\theta=0} = \begin{bmatrix}0 & -1\\ 1 & 0\end{bmatrix} = \mathbf{J},
+    \qquad
+    \mathfrak{so}(2) = \left\{ \omega\mathbf{J} = \begin{bmatrix}0 & -\omega\\ \omega & 0\end{bmatrix} : \omega\in\mathbb{R}\right\}
+  \]</div>
+  <div class="prose">
+    <p>Every velocity at the identity is a multiple of $\mathbf{J}$. These are the skew-symmetric
+    $2\times2$ matrices, and each one is described by a single number $\omega$. Geometrically they
+    form the vertical line touching the circle at $(1,0)$. The <strong>hat map</strong> is
+    $\omega^\wedge = \omega\mathbf{J}$, turning the number into the matrix. On this line, adding
+    and scaling are fine.</p>
+
+    <h3>exp wraps the line around the circle</h3>
+    <p>Put $\theta\mathbf{J}$ into the power series for the exponential. Since $\mathbf{J}^2=-\mathbf{I}$,
+    the powers cycle through $\mathbf{I},\mathbf{J},-\mathbf{I},-\mathbf{J}$. Group the terms:</p>
+  </div>
+  <div class="eq">\[
+    \exp(\theta\mathbf{J}) = \mathbf{I} + \theta\mathbf{J} - \frac{\theta^2}{2!}\mathbf{I} - \frac{\theta^3}{3!}\mathbf{J} + \cdots
+    = \underbrace{\Big(1 - \tfrac{\theta^2}{2!} + \cdots\Big)}_{\cos\theta}\mathbf{I} + \underbrace{\Big(\theta - \tfrac{\theta^3}{3!} + \cdots\Big)}_{\sin\theta}\mathbf{J}
+    = \mathbf{R}(\theta)
+  \]</div>
+  <div class="prose">
+    <p>So $\exp$ takes a distance $\theta$ along the tangent line and wraps it onto the circle as an
+    arc of the same length. $\mathrm{Log}$ unwraps it: $\mathrm{Log}(\mathbf{R}) =
+    \mathrm{atan2}(R_{21}, R_{11})$, which always returns an angle in $(-\pi,\pi]$.</p>
+    <p>Now try it. Pick an estimate $\bar{\mathbf{R}}$ and a correction $\tau$. The figure applies the
+    correction in two ways: by adding $\tau$ times the tangent direction to the
+    matrix, and by composing with $\mathrm{Exp}(\tau)$.</p>
+  </div>
+  <figure>
+    <div class="widget">
+      <svg id="circle-svg" viewBox="0 0 430 400" role="img"
+        aria-label="The unit circle with an estimate point, its tangent line, a correction arrow along the tangent, the point reached by adding (off the circle), and the point reached by composing with Exp (on the circle)."></svg>
+      <div class="panel">
+        <div class="ctl"><label for="c-mean"><span>estimate $\bar{\mathbf{R}}$, angle</span> <output id="c-mean-o">40&deg;</output></label>
+          <input type="range" id="c-mean" min="-180" max="180" step="1" value="40"></div>
+        <div class="ctl"><label for="c-tau"><span>correction $\tau$, radians</span> <output id="c-tau-o">0.90</output></label>
+          <input type="range" id="c-tau" min="-1.5" max="1.5" step="0.01" value="0.9"></div>
+        <div class="readout ro-bad"><h4>Add: $\bar{\mathbf{R}} + \tau\,\bar{\mathbf{R}}\mathbf{J}$</h4>
+          <div class="mat" id="c-add-m"></div>
+          <div id="c-add-d"></div></div>
+        <div class="readout ro-grp"><h4>Compose: $\bar{\mathbf{R}}\,\mathrm{Exp}(\tau)$</h4>
+          <div class="mat" id="c-cmp-m"></div>
+          <div id="c-cmp-d"></div></div>
+      </div>
+    </div>
+    <figcaption>Try these settings. <b>$\tau = 0.1$</b>: the two answers nearly agree, because for small
+    steps adding is the first-order approximation of composing. <b>$\tau = 1.0$</b>: the added
+    point sits 41% outside the circle and its determinant is 2. <b>Move the estimate</b>: the
+    tangent line moves with it, but the gap between the two answers depends only on $\tau$.
+    That is the sense in which every tangent space is &ldquo;the same&rdquo;.</figcaption>
+  </figure>
+
+  <div class="prose">
+    <h3>Plus and minus</h3>
+    <p>Every estimator needs two things: <em>apply a correction</em> and <em>measure a
+    difference</em>. On a group they become:</p>
+  </div>
+  <div class="eq">\[
+    \bar{\mathbf{R}} \oplus \tau = \bar{\mathbf{R}}\,\mathrm{Exp}(\tau)
+    \qquad\qquad
+    \mathbf{R}_2 \ominus \mathbf{R}_1 = \mathrm{Log}\big(\mathbf{R}_1^\top\mathbf{R}_2\big)
+  \]</div>
+  <div class="prose">
+    <p>Headings make the difference easy to see. Take 10&deg; minus 350&deg;. As plain numbers it
+    is $-340^\circ$. On the circle it is
+    $\mathrm{Log}\big(\mathbf{R}(-350^\circ)\mathbf{R}(10^\circ)\big) = \mathrm{Log}\big(\mathbf{R}(-340^\circ)\big) = +20^\circ$,
+    because $\mathrm{Log}$ returns the short way round. A compass heading filter that forgets this
+    turns the robot the long way.</p>
+
+    <h3>Averaging, the right way</h3>
+    <p>Three heading measurements: 350&deg;, 10&deg; and 20&deg;. Averaged as numbers they give
+    $(350+10+20)/3 = 126.7^\circ$, which points almost backwards. The correct method uses the
+    tangent-space idea:</p>
+    <ol>
+      <li>Pick a starting guess, say $\bar{\mathbf{R}} = 350^\circ$.</li>
+      <li>Unwrap each measurement onto the tangent line there: $\mathbf{R}_i \ominus \bar{\mathbf{R}} = 0^\circ,\ 20^\circ,\ 30^\circ$.</li>
+      <li>Average on the line, where adding is legal: $16.7^\circ$.</li>
+      <li>Wrap back onto the circle: $\bar{\mathbf{R}} \leftarrow \bar{\mathbf{R}} \oplus 16.7^\circ = 6.7^\circ$.</li>
+      <li>Repeat. The unwrapped values are now $-16.7^\circ, 3.3^\circ, 13.3^\circ$, which average to 0, so it has converged.</li>
+    </ol>
+  </div>
+  <figure>
+    <svg id="fig-mean" viewBox="0 0 520 380" role="img"
+      aria-label="Three measured headings near 0 degrees on a circle. Averaging the numbers lands on the far side at 126.7 degrees. Unwrapping them onto the tangent line at 350 degrees, averaging there, and wrapping back gives 6.7 degrees."></svg>
+    <figcaption>The three measurements, black on the circle, are <b>unwrapped</b> onto the tangent
+    line at the first guess, drawn straightened out on the right. They are averaged there
+    (<b>16.7&deg;</b>) and wrapped back with Exp to the copper mark at <b>6.7&deg;</b>. The rose
+    point is the average of the numbers: a real heading, and the wrong one.</figcaption>
+  </figure>
+<pre><code>import numpy as np
+
+def R2(a):   return np.array([[np.cos(a), -np.sin(a)], [np.sin(a), np.cos(a)]])
+def Log2(R): return np.arctan2(R[1, 0], R[0, 0])
+
+meas = [R2(np.radians(d)) for d in (350, 10, 20)]
+R = meas[0]
+for _ in range(10):
+    tau = np.mean([Log2(R.T @ Ri) for Ri in meas])   <span class="c"># unwrap, average</span>
+    R = R @ R2(tau)                                  <span class="c"># wrap back: R ⊕ tau</span>
+print(np.degrees(Log2(R)))                           <span class="c"># 6.67</span></code></pre>
+  <div class="prose">
+    <p>Keep this loop in mind. <a href="#s11">Step&nbsp;11</a> shows that pose-graph optimisation,
+    PnP and ICP all have the same structure: unwrap onto the tangent space, solve there, wrap back.</p>
+  </div>
+  <div class="else"><b>Read elsewhere</b>
+    <ul>
+      <li>Sol&agrave; et al., <a href="https://arxiv.org/abs/1812.01537">micro Lie theory</a>, Example&nbsp;1
+      and Fig.&nbsp;3 do this exact example with unit complex numbers, $z=\cos\theta+i\sin\theta$. Fig.&nbsp;5 shows
+      why the velocity looks the same from every point on the circle.</li>
+      <li>Joan Sol&agrave;, <a href="https://www.youtube.com/watch?v=QR1p0Rabuww">Lie theory for the roboticist</a>
+      (37&nbsp;min): the first author presenting the same material as a talk.</li>
+    </ul>
+  </div>
+  <div class="try"><h4>Try it</h4>
+    <details><summary>Two headings, 170&deg; and $-170^\circ$. What is their difference, and what is their mean?</summary>
+      <div class="ans"><p>$(-170^\circ)\ominus 170^\circ = \mathrm{Log}\big(\mathbf{R}(-340^\circ)\big) = +20^\circ$. Starting at 170&deg;, the
+      unwrapped values are $0^\circ$ and $20^\circ$, which average to $10^\circ$, and $170^\circ\oplus10^\circ = 180^\circ$.
+      The average of the numbers is $0^\circ$, which points the opposite way.</p></div></details>
+    <details><summary>In the figure, set $\tau=0.5$. Why is the added point's distance from the centre $\sqrt{1.25}$?</summary>
+      <div class="ans"><p>The tangent direction is perpendicular to the radius and has length 1. You move $\tau$ along it
+      from a point at distance 1, so by Pythagoras you reach distance $\sqrt{1+\tau^2}$. The determinant is the square of
+      that, $1+\tau^2$.</p></div></details>
+  </div>
+</section>
+
+<!-- ================================================================ 6 -->
+<section id="s6">
+  <div class="sec-head">
+    <p class="eyebrow">Step 6 &middot; 8 min</p>
+    <h2>The tangent space in 3D: $\mathfrak{so}(3)$ and the hat map</h2>
+  </div>
+  <p class="slides"><b>Slides</b>L03 &ldquo;Three numbers, not nine&rdquo; &middot; &ldquo;$\mathfrak{so}(3)$ and $\mathfrak{se}(3)$&rdquo;</p>
+  <div class="prose">
+    <p>Repeat Step&nbsp;5's derivative in 3D. Let $\mathbf{R}(t)$ be any smooth path of rotations
+    through the identity, so $\mathbf{R}(0)=\mathbf{I}$. The constraint holds at every instant, so its
+    derivative is zero:</p>
+  </div>
+  <div class="eq">\[
+    \mathbf{R}(t)^\top\mathbf{R}(t) = \mathbf{I}
+    \;\;\xrightarrow{\ \mathrm{d}/\mathrm{d}t\ \text{at}\ t=0\ }\;\;
+    \dot{\mathbf{R}}(0)^\top + \dot{\mathbf{R}}(0) = \mathbf{0}
+    \quad\Longrightarrow\quad
+    \dot{\mathbf{R}}(0)\ \text{is skew-symmetric}
+  \]</div>
+  <div class="prose">
+    <p>So the velocities at the identity are exactly the skew-symmetric matrices.
+    A skew-symmetric $3\times3$ matrix has zeros on the diagonal, and the lower triangle is minus the
+    upper, which leaves three free numbers. The <strong>hat map</strong> packs them in and the
+    <strong>vee map</strong> takes them out:</p>
+  </div>
+  <div class="eq">\[
+    \boldsymbol\omega^\wedge = \begin{bmatrix}0 & -\omega_3 & \omega_2\\ \omega_3 & 0 & -\omega_1\\ -\omega_2 & \omega_1 & 0\end{bmatrix}
+    \qquad
+    \big(\boldsymbol\omega^\wedge\big)^\vee = \boldsymbol\omega = (\omega_1,\omega_2,\omega_3)
+    \qquad
+    \boldsymbol\omega^\wedge\mathbf{x} = \boldsymbol\omega\times\mathbf{x}
+  \]</div>
+  <div class="prose">
+    <p>Check the last identity on the first row: $-\omega_3x_2+\omega_2x_3$ is
+    the first component of $\boldsymbol\omega\times\mathbf{x}$. So $\boldsymbol\omega$ is an ordinary
+    angular velocity, and $\boldsymbol\omega^\wedge$ is the matrix that gives the
+    velocity of every point of a body spinning at that rate:</p>
+  </div>
+  <figure>
+    <svg id="fig-spin" viewBox="0 0 520 300" role="img"
+      aria-label="Top view of a body spinning about z, which points out of the page. Teal velocity arrows around two circles are perpendicular to the radius and longer further out. The point (1,0,0) has velocity (0,1,0)."></svg>
+    <figcaption>Spin about $z$ with $\boldsymbol\omega=(0,0,1)$ rad/s. Every point moves
+    perpendicular to its radius, at a speed proportional to its distance from the axis. For the
+    highlighted point, $\boldsymbol\omega^\wedge(1,0,0) = (0,0,1)\times(1,0,0) = (0,1,0)$. The
+    matrix and the cross product are the same thing written two ways.</figcaption>
+  </figure>
+  <div class="prose">
+    <h3>Tangent spaces at other points</h3>
+    <p>At a rotation $\bar{\mathbf{R}}$ that is not the identity, the velocities are
+    $\bar{\mathbf{R}}\boldsymbol\omega^\wedge$. Differentiating
+    $\bar{\mathbf{R}}\exp(t\boldsymbol\omega^\wedge)$ at $t=0$ gives that. It is the same
+    three-number space carried over to $\bar{\mathbf{R}}$ by the group, which is why only the one at the
+    identity gets a name. In this course's convention, corrections
+    multiply on the right, $\mathbf{R} = \bar{\mathbf{R}}\,\mathrm{Exp}(\boldsymbol\omega)$,
+    so $\boldsymbol\omega$ is expressed in the body's own frame.</p>
+  </div>
+  <div class="else"><b>Read elsewhere</b>
+    <ul>
+      <li>Sol&agrave; et al. &sect;II-C and Example&nbsp;3, which derive $\mathfrak{so}(3)$ the same way. Fig.&nbsp;6
+      puts hat, vee, exp, log, Exp and Log on one diagram. Keep it open while you work through Steps 6 to 8.</li>
+      <li><em>Modern Robotics</em> &sect;3.2.2, video <a href="https://youtu.be/zJJldJYMxVU">Angular Velocities</a> (3.5&nbsp;min).</li>
+    </ul>
+  </div>
+  <div class="try"><h4>Try it</h4>
+    <details><summary>A body spins with $\boldsymbol\omega=(0,0,2)$ rad/s. What is the velocity of the point $(0,3,0)$?</summary>
+      <div class="ans"><p>$\boldsymbol\omega\times\mathbf{x} = (0\cdot0-2\cdot3,\ 2\cdot0-0\cdot0,\ 0) = (-6,0,0)$ m/s. A point on the $+y$
+      axis spinning counter-clockwise about $z$ heads towards $-x$ at $2\times3=6$ m/s.</p></div></details>
+    <details><summary>Why must the diagonal of a skew-symmetric matrix be zero?</summary>
+      <div class="ans"><p>$\mathbf{A}^\top=-\mathbf{A}$ says $A_{ii}=-A_{ii}$ for each diagonal entry, so $A_{ii}=0$. Physically, a rotation
+      never moves a point directly along its own position vector.</p></div></details>
+  </div>
+</section>
+
+<!-- ================================================================ 7 -->
+<section id="s7">
+  <div class="sec-head">
+    <p class="eyebrow">Step 7 &middot; 10 min</p>
+    <h2>exp and Log: from velocity to rotation and back</h2>
+  </div>
+  <p class="slides"><b>Slides</b>L03 &ldquo;Where $\exp$ comes from&rdquo; &middot; &ldquo;A twist&rdquo;</p>
+  <div class="prose">
+    <p>Spin at a constant angular velocity $\boldsymbol\omega$, measured in the body frame. The
+    orientation changes at a rate proportional to itself, which is a linear ODE with constant
+    coefficients. Its solution is an exponential, as it would be for a scalar:</p>
+  </div>
+  <div class="eq">\[
+    \dot{\mathbf{R}} = \mathbf{R}\,\boldsymbol\omega^\wedge,\quad \mathbf{R}(0)=\mathbf{I}
+    \qquad\Longrightarrow\qquad
+    \mathbf{R}(t) = \exp\!\big(t\,\boldsymbol\omega^\wedge\big)
+  \]</div>
+  <div class="prose">
+    <p>Read $\mathrm{Exp}(\boldsymbol\omega)$ as: <em>spin about the axis
+    $\boldsymbol\omega/\|\boldsymbol\omega\|$ at $\|\boldsymbol\omega\|$ rad/s for one second, then
+    stop</em>. So the vector $\boldsymbol\omega$ is the axis times the angle. Following Sol&agrave;,
+    capital $\mathrm{Exp}$ and $\mathrm{Log}$ act on the vector directly, and lowercase $\exp$ acts on
+    the matrix, so $\mathrm{Exp}(\boldsymbol\omega) = \exp(\boldsymbol\omega^\wedge)$. Summing the
+    series the way Step&nbsp;5 did gives <strong>Rodrigues' formula</strong>, with
+    $\theta=\|\boldsymbol\omega\|$ and $\mathbf{K}=(\boldsymbol\omega/\theta)^\wedge$ for the unit
+    axis:</p>
+  </div>
+  <div class="eq">\[
+    \mathrm{Exp}(\boldsymbol\omega) = \mathbf{I} + \sin\theta\,\mathbf{K} + (1-\cos\theta)\,\mathbf{K}^2
+  \]</div>
+  <figure>
+    <div class="twoup">
+      <div>
+        <div class="plate"><img src="img/rotations/rotation-decomposition.svg" width="424" height="535" loading="lazy"
+          alt="A vector v split into a part along the rotation axis u and a part perpendicular to it. The perpendicular part turns through angle theta, and R(v) is the result."></div>
+        <figcaption>Where Rodrigues' formula comes from. The vector $\mathbf{v}$ splits into a part along the
+        axis $\mathbf{u}$, labelled $P(\mathbf{v})$, which the rotation leaves alone, and a perpendicular part
+        $(I-P)(\mathbf{v})$, which turns through $\theta$. $R(\mathbf{v})$ is their sum, and the $\sin\theta$
+        and $1-\cos\theta$ in the formula are the coordinates of that turn.
+        <span class="credit">Image: Giacomo Alessandroni, <a href="https://commons.wikimedia.org/wiki/File:Rotation_decomposition.svg">Wikimedia Commons</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.</span></figcaption>
+      </div>
+      <div>
+        <div class="plate"><img src="img/rotations/exp-map-sphere.svg" width="470" height="400" loading="lazy"
+          alt="A tangent plane above a sphere at the point p, with arrows radiating from the plane's origin. An arrow labelled exp_p carries them down onto the sphere."></div>
+        <figcaption>The same move on a sphere. Arrows in the tangent plane at $p$ are carried by
+        $\exp_p$ onto the sphere, and each becomes an arc of a great circle with the same length and
+        starting direction. SO(3) has a different shape, and its $\mathrm{Exp}$ does the same job: a
+        direction and a distance in the flat space become a path along the curved one.
+        <span class="credit">Image: Christian1985, <a href="https://commons.wikimedia.org/wiki/File:Exponential_map_of_the_sphere.svg">Wikimedia Commons</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.</span></figcaption>
+      </div>
+    </div>
+  </figure>
+  <div class="prose">
+    <h3>Worked example: Exp</h3>
+    <p>Take $\boldsymbol\omega = (0,0,\pi/2)$, a quarter turn about $z$. Then $\theta=\pi/2$, $\sin\theta=1$
+    and $1-\cos\theta=1$:</p>
+  </div>
+  <div class="eq">\[
+    \mathbf{K} = \begin{bmatrix}0&-1&0\\1&0&0\\0&0&0\end{bmatrix},\quad
+    \mathbf{K}^2 = \begin{bmatrix}-1&0&0\\0&-1&0\\0&0&0\end{bmatrix},\quad
+    \mathbf{I}+\mathbf{K}+\mathbf{K}^2 = \begin{bmatrix}0&-1&0\\1&0&0\\0&0&1\end{bmatrix} = \mathbf{R}_z(90^\circ)
+  \]</div>
+  <div class="prose">
+    <h3>Worked example: Log</h3>
+    <p>Go backwards. The angle comes from the trace and the axis from the antisymmetric part:</p>
+  </div>
+  <div class="eq">\[
+    \theta = \arccos\frac{\operatorname{tr}\mathbf{R}-1}{2} = \arccos\frac{1-1}{2} = \frac{\pi}{2},
+    \qquad
+    \boldsymbol\omega^\wedge = \frac{\theta}{2\sin\theta}\big(\mathbf{R}-\mathbf{R}^\top\big)
+    = \frac{\pi}{4}\begin{bmatrix}0&-2&0\\2&0&0\\0&0&0\end{bmatrix}
+    \;\Rightarrow\; \boldsymbol\omega = (0,0,\tfrac{\pi}{2})
+  \]</div>
+  <div class="trap"><b>Trap</b>
+    <p>That formula divides by $\sin\theta$, which is zero at $\theta=0$ and at $\theta=\pi$. Near 0,
+    use the Taylor form $\boldsymbol\omega^\wedge\approx\tfrac12(\mathbf{R}-\mathbf{R}^\top)$. Near $\pi$ it is worse, because
+    $\mathbf{R}-\mathbf{R}^\top$ itself goes to zero: for $\mathbf{R}_x(180^\circ)=\mathrm{diag}(1,-1,-1)$ it is exactly zero,
+    and the axis has to come from the symmetric part instead. At $\theta=\pi$ Rodrigues' formula gives
+    $\mathbf{R}=2\mathbf{a}\mathbf{a}^\top-\mathbf{I}$ for the unit axis $\mathbf{a}$, so
+    $\tfrac12(\mathbf{R}+\mathbf{I})=\mathbf{a}\mathbf{a}^\top$. Take the column with the largest diagonal entry, normalise it to
+    get $\mathbf{a}$, and fix its sign with whatever is left of $\mathbf{R}-\mathbf{R}^\top$. The
+    <a href="#code">reference code</a> handles both cases.</p>
+  </div>
+  <div class="prose">
+    <h3>Two facts to carry away</h3>
+    <ul>
+      <li><strong>For small angles, $\mathrm{Exp}(\boldsymbol\omega) \approx \mathbf{I} + \boldsymbol\omega^\wedge$.</strong>
+      That is &ldquo;adding a correction&rdquo;. It is correct to first order, and Step&nbsp;5 showed what
+      the second-order error does over many steps. Point-to-plane ICP linearises this way to build
+      its Jacobian, then applies the step it solves for by composing.</li>
+      <li><strong>The angle between two rotations</strong> is $\|\mathrm{Log}(\mathbf{R}_1^\top\mathbf{R}_2)\| = \|\mathbf{R}_2\ominus\mathbf{R}_1\|$.
+      That is what a rotation error <em>is</em>. From the trace it is
+      $\arccos\big((\operatorname{tr}(\mathbf{R}_1^\top\mathbf{R}_2)-1)/2\big)$; clip the argument to $[-1,1]$ first, because
+      round-off can push it just outside.</li>
+    </ul>
+  </div>
+<pre><code>from scipy.spatial.transform import Rotation as Rot
+import numpy as np
+
+R = Rot.from_rotvec([0, 0, np.pi/2]).as_matrix()     <span class="c"># Exp</span>
+print(np.round(R, 3))                                <span class="c"># [[0,-1,0],[1,0,0],[0,0,1]]</span>
+print(Rot.from_matrix(R).as_rotvec())                <span class="c"># Log: [0, 0, 1.5708]</span>
+
+R1 = Rot.from_rotvec([0, 0, np.radians(30)]).as_matrix()
+R2 = Rot.from_rotvec([0, 0, np.radians(50)]).as_matrix()
+print(np.degrees(np.linalg.norm(Rot.from_matrix(R1.T @ R2).as_rotvec())))   <span class="c"># 20.0</span></code></pre>
+  <div class="else"><b>Read elsewhere</b>
+    <ul>
+      <li><em>Modern Robotics</em> &sect;3.2.3 and Fig.&nbsp;3.11, which derives exp from a point
+      spinning about an axis. Videos: <a href="https://youtu.be/v_KBHaG0mas">Exponential Coordinates of Rotation, part 1</a>
+      (2&nbsp;min) and <a href="https://youtu.be/WHn9xJl43nY">part 2</a> (4&nbsp;min).</li>
+      <li>Sol&agrave; et al. &sect;II-D and Example&nbsp;4 give the same ODE argument, written for a general Lie group.</li>
+      <li>SciPy <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.transform.Rotation.html"><code>Rotation</code></a>:
+      <code>from_rotvec</code> is Exp and <code>as_rotvec</code> is Log. Its quaternions are scalar-last, like the TUM files.</li>
+    </ul>
+  </div>
+  <div class="try"><h4>Try it</h4>
+    <details><summary>Work out $\mathrm{Exp}\big((\pi,0,0)\big)$ with Rodrigues' formula. Then say why $\mathrm{Log}$ of the result is ambiguous.</summary>
+      <div class="ans"><p>$\theta=\pi$, so $\sin\theta=0$ and $1-\cos\theta=2$. That gives $\mathbf{I}+2\mathbf{K}^2$ with $\mathbf{K}=\hat{\mathbf{x}}^\wedge$, and
+      $\mathbf{K}^2=\mathrm{diag}(0,-1,-1)$, so the result is $\mathrm{diag}(1,-1,-1)$. Turning $\pi$ about $+x$ and $\pi$ about $-x$ give
+      this same matrix, so $\mathrm{Log}$ has to pick one of $(\pm\pi,0,0)$, and the antisymmetric part cannot tell them apart.</p></div></details>
+    <details><summary>A robot's estimated yaw is 30&deg; and its true yaw is 50&deg;, both about $z$. What is the rotation error, and in which direction is it?</summary>
+      <div class="ans"><p>$\mathrm{Log}(\mathbf{R}_{30}^\top\mathbf{R}_{50}) = (0,0,20^\circ)$. The true orientation is the estimate turned a further 20&deg;
+      about $+z$, measured in the estimate's frame.</p></div></details>
+  </div>
+</section>
+
+<!-- ================================================================ 8 -->
+<section id="s8">
+  <div class="sec-head">
+    <p class="eyebrow">Step 8 &middot; 12 min</p>
+    <h2>Poses: SE(3), and what a twist is</h2>
+  </div>
+  <p class="slides"><b>Slides</b>L03 &ldquo;SE(3): poses&rdquo; &middot; &ldquo;Frames and transform trees&rdquo; &middot; &ldquo;A twist&rdquo;</p>
+  <div class="eq">\[
+    \mathbf{T} = \begin{bmatrix}\mathbf{R} & \mathbf{t}\\ \mathbf{0}^\top & 1\end{bmatrix},
+    \qquad
+    \mathbf{T}_1\mathbf{T}_2 = \begin{bmatrix}\mathbf{R}_1\mathbf{R}_2 & \mathbf{R}_1\mathbf{t}_2+\mathbf{t}_1\\ \mathbf{0}^\top & 1\end{bmatrix},
+    \qquad
+    \mathbf{T}^{-1} = \begin{bmatrix}\mathbf{R}^\top & -\mathbf{R}^\top\mathbf{t}\\ \mathbf{0}^\top & 1\end{bmatrix}
+  \]</div>
+  <div class="prose">
+    <p>SE(3) is a group under matrix multiplication and a 6-dimensional manifold. Course convention:
+    $\mathbf{T}_{wc}$ maps points <em>from</em> $c$ <em>into</em> $w$, so the subscripts cancel when
+    adjacent: $\mathbf{T}_{wb}\mathbf{T}_{bl}=\mathbf{T}_{wl}$.</p>
+    <h3>Worked example: a lidar on a robot</h3>
+    <p>The robot base is at $(2,1,0)$ in the world, turned 90&deg; left, so it faces world $+y$.
+    The lidar is mounted 0.5&nbsp;m ahead of the base centre and 0.3&nbsp;m up, not rotated. It sees a
+    point 10&nbsp;m straight ahead. Where is that point in the world?</p>
+  </div>
+  <div class="eq">\[
+    \mathbf{T}_{wb} = \left[\,\mathbf{R}_z(90^\circ)\ \middle|\ (2,1,0)\,\right],\quad
+    \mathbf{T}_{bl} = \left[\,\mathbf{I}\ \middle|\ (0.5,0,0.3)\,\right]
+  \]</div>
+  <div class="eq">\[
+    \mathbf{T}_{wl} = \mathbf{T}_{wb}\mathbf{T}_{bl} =\left[\,\mathbf{R}_z(90^\circ)\ \middle|\ \mathbf{R}_z(90^\circ)(0.5,0,0.3)+(2,1,0)\,\right] = \left[\,\mathbf{R}_z(90^\circ)\ \middle|\ (2,\,1.5,\,0.3)\,\right]
+  \]</div>
+  <div class="eq">\[
+    \mathbf{p}_w = \mathbf{T}_{wl}\,(10,0,0) = \mathbf{R}_z(90^\circ)(10,0,0) + (2,1.5,0.3) = (0,10,0)+(2,1.5,0.3) = (2,\ 11.5,\ 0.3)
+  \]</div>
+  <div class="prose">
+    <p>The point is ten metres along world $+y$, the way the robot faces. Two checks:</p>
+    <ul>
+      <li><strong>Order:</strong> the wrong product, $\mathbf{T}_{bl}\mathbf{T}_{wb}$, has translation
+      $(2.5,1,0.3)$. It moves the lidar 0.5&nbsp;m along <em>world</em> $x$ instead of along the robot's
+      heading.</li>
+      <li><strong>Inverse:</strong> $\mathbf{T}_{wl}^{-1}$ has translation $-\mathbf{R}_z(-90^\circ)(2,1.5,0.3) = (-1.5,\,2,\,-0.3)$.
+      Applying it to $(2,11.5,0.3)$ gives $(11.5,-2,0.3)+(-1.5,2,-0.3)=(10,0,0)$, back where we started.</li>
+    </ul>
+
+    <h3>The tangent space of SE(3): twists</h3>
+    <p>A velocity on SE(3) is a <strong>twist</strong>, $\boldsymbol\xi = (\mathbf{v},\boldsymbol\omega)\in\mathbb{R}^6$:
+    a linear velocity and an angular velocity, with translation first in this course.
+    The hat map gives a $4\times4$ matrix, and $\exp$ of it is where you are after one second of moving
+    with that twist:</p>
+  </div>
+  <div class="eq">\[
+    \boldsymbol\xi^\wedge = \begin{bmatrix}\boldsymbol\omega^\wedge & \mathbf{v}\\ \mathbf{0}^\top & 0\end{bmatrix},
+    \qquad
+    \mathrm{Exp}(\boldsymbol\xi) = \begin{bmatrix}\mathrm{Exp}(\boldsymbol\omega) & \mathbf{V}\mathbf{v}\\ \mathbf{0}^\top & 1\end{bmatrix},
+    \qquad
+    \mathbf{V} = \mathbf{I} + \frac{1-\cos\theta}{\theta^2}\boldsymbol\omega^\wedge + \frac{\theta-\sin\theta}{\theta^3}\big(\boldsymbol\omega^\wedge\big)^2
+  \]</div>
+  <div class="prose">
+    <p>The translation is $\mathbf{V}\mathbf{v}$ rather than $\mathbf{v}$ because the body keeps
+    turning while it moves, so $\mathbf{v}$, fixed in the body frame, keeps pointing somewhere new.
+    A car makes this concrete.</p>
+    <h3>Worked example: one second of a turning car</h3>
+    <p>Drive forward at 1&nbsp;m/s while turning left at 90&deg;/s: $\mathbf{v}=(1,0,0)$,
+    $\boldsymbol\omega=(0,0,\pi/2)$. The car follows a circle of radius
+    $\|\mathbf{v}\|/\|\boldsymbol\omega\| = 2/\pi = 0.637$&nbsp;m, and after one second it has gone a
+    quarter of the way round.</p>
+  </div>
+  <figure>
+    <svg id="fig-twist" viewBox="0 0 520 380" role="img"
+      aria-label="Top view. A car starts at the origin facing plus x and drives a copper quarter circle to (0.64, 0.64), ending facing plus y. A teal arrow shows v, one metre along x, ending at a rose point. A dashed chord joins start and end, 0.90 m long."></svg>
+    <figcaption>The <b>teal arrow</b> is $\mathbf{v}$, a velocity. The car does not end at its tip.
+    The <b>copper arc</b> is $\mathrm{Exp}(\boldsymbol\xi)$ traced over the second: it ends at
+    $(0.637,\,0.637)$ facing $+y$, which is $\mathbf{V}\mathbf{v}$. The chord from start to
+    end is 0.90&nbsp;m long and points 45&deg; away from $\mathbf{v}$.</figcaption>
+  </figure>
+  <div class="prose">
+    <p>You can check it with the formula: $\theta=\pi/2$, $\frac{1-\cos\theta}{\theta}=0.637$ and
+    $\frac{\theta-\sin\theta}{\theta}=0.363$. With $\mathbf{K}\mathbf{v}=(0,1,0)$ and
+    $\mathbf{K}^2\mathbf{v}=(-1,0,0)$, $\mathbf{V}\mathbf{v} = (1,0,0) + 0.637\,(0,1,0) - 0.363\,(1,0,0) = (0.637,\,0.637,\,0)$.
+    The circle and the matrix agree.</p>
+    <h3>Log on SE(3)</h3>
+    <p>$\mathrm{Log}$ runs the same steps backwards. Take $\boldsymbol\omega$ from the rotation block with the
+    SO(3) Log from Step&nbsp;7, then undo $\mathbf{V}$ on the translation, $\mathbf{v}=\mathbf{V}^{-1}\mathbf{t}$, with</p>
+  </div>
+  <div class="eq">\[
+    \mathbf{V}^{-1} = \mathbf{I} - \tfrac12\boldsymbol\omega^\wedge + \frac{1}{\theta^2}\Big(1 - \frac{\theta}{2}\cot\frac{\theta}{2}\Big)\big(\boldsymbol\omega^\wedge\big)^2
+  \]</div>
+  <div class="prose">
+    <p>$\mathbf{V}$ and $\mathbf{V}^{-1}$ both turn into $0/0$ as $\theta\to0$. Below a small threshold, switch to their
+    Taylor series: $\mathbf{V}\approx\mathbf{I}+\tfrac12\boldsymbol\omega^\wedge+\tfrac16(\boldsymbol\omega^\wedge)^2$ and
+    $\mathbf{V}^{-1}\approx\mathbf{I}-\tfrac12\boldsymbol\omega^\wedge+\tfrac1{12}(\boldsymbol\omega^\wedge)^2$. Above it, write
+    $1-\cos\theta$ as $2\sin^2(\theta/2)$. The two expressions are equal, but the first cancels in floating point: at
+    $\theta=10^{-7}$ it loses two percent, enough to put a visible error in the translation. The
+    <a href="#code">reference code</a> does both.</p>
+  </div>
+  <div class="trap"><b>Trap</b>
+    <p>Much of the literature orders twists rotation first, $(\boldsymbol\omega,\mathbf{v})$.
+    That includes <em>Modern Robotics</em> and GTSAM. Swapping the
+    order gives no error message. It silently swaps the blocks of every adjoint and covariance. See
+    the <a href="#notation">notation table</a>.</p>
+  </div>
+  <div class="else"><b>Read elsewhere</b>
+    <ul>
+      <li><em>Modern Robotics</em> &sect;3.3.1&ndash;3.3.3. Fig.&nbsp;3.18 and Example&nbsp;3.23 cover
+      the twist of a car. Videos: <a href="https://youtu.be/vlb3P7arbkU">Homogeneous Transformation Matrices</a>
+      (6&nbsp;min), <a href="https://youtu.be/mvGZtO_ruj0">Twists part 1</a> (5&nbsp;min),
+      <a href="https://youtu.be/VTv0qmLNvjg">part 2</a> (3&nbsp;min), and
+      <a href="https://youtu.be/1jYMvm1U2D0">Exponential Coordinates of Rigid-Body Motion</a> (5&nbsp;min).
+      The book orders twists $(\boldsymbol\omega,\mathbf{v})$.</li>
+      <li>F. Dellaert, <a href="https://raw.githubusercontent.com/borglab/gtsam/develop/doc/LieGroups.pdf">Lie Groups for Beginners</a>,
+      &sect;1. A planar robot with constant velocity, drawn as many small composed steps that trace a circle.</li>
+    </ul>
+  </div>
+  <div class="try"><h4>Try it</h4>
+    <details><summary>The same car keeps the same twist for two seconds. Where is it, and which way does it face?</summary>
+      <div class="ans"><p>Half way round a circle of radius $2/\pi$, at $(0,\ 4/\pi)=(0,\ 1.273)$ m, facing $-x$. It has driven 2&nbsp;m and ended up 1.27&nbsp;m from the start.</p></div></details>
+    <details><summary>A twist is $\boldsymbol\xi=(0.2,\,0,\,0,\ 0,\,0,\,0)$. Where is $\mathrm{Exp}(\boldsymbol\xi)$?</summary>
+      <div class="ans"><p>With $\boldsymbol\omega=\mathbf{0}$, $\mathbf{V}=\mathbf{I}$, so it is a pure translation of 0.2&nbsp;m along $x$. Without rotation,
+      velocity and displacement agree, which is why the difference is easy to overlook.</p></div></details>
+  </div>
+</section>
+
+<!-- ================================================================ 9 -->
+<section id="s9">
+  <div class="sec-head">
+    <p class="eyebrow">Step 9 &middot; 10 min</p>
+    <h2>Uncertainty lives in the tangent space</h2>
+  </div>
+  <p class="slides"><b>Slides</b>L03 &ldquo;Uncertainty lives in the tangent space&rdquo;</p>
+  <div class="prose">
+    <p>An estimator should report &ldquo;my best pose is $\bar{\mathbf{T}}$, and here is how unsure I
+    am&rdquo;. The course writes that as:</p>
+  </div>
+  <div class="eq">\[
+    \mathbf{T} = \bar{\mathbf{T}}\,\mathrm{Exp}(\boldsymbol\xi),
+    \qquad
+    \boldsymbol\xi \sim \mathcal{N}(\mathbf{0},\boldsymbol\Sigma),
+    \qquad
+    \boldsymbol\Sigma = \begin{bmatrix}\boldsymbol\Sigma_{vv} & \boldsymbol\Sigma_{v\omega}\\ \boldsymbol\Sigma_{\omega v} & \boldsymbol\Sigma_{\omega\omega}\end{bmatrix}\in\mathbb{R}^{6\times6}
+  \]</div>
+  <div class="prose">
+    <p>The mean is a pose on the manifold. The noise is an ordinary Gaussian on six ordinary
+    numbers, in the tangent space at the mean. Every sample
+    $\bar{\mathbf{T}}\,\mathrm{Exp}(\boldsymbol\xi)$ is a valid pose. The two alternatives show why the course
+    does it this way.</p>
+    <ul>
+      <li><strong>A Gaussian on the matrix entries:</strong> a sample from it has entries nudged
+      independently, so it is not a rotation at all: it fails the column test from Step&nbsp;3. Most
+      directions in 12-number space point off the manifold.</li>
+      <li><strong>A Gaussian on $(x,y,\theta)$:</strong> this is closer, since every sample is at least a
+      pose. It still puts probability where the robot cannot be, as the next figure shows.</li>
+    </ul>
+    <p>The figure simulates 400 robots, each driving 1&nbsp;m along $x$ in 40 small steps. Each starts with a
+    slightly wrong heading and picks up a little more heading error at every step. Fig.&nbsp;1 of the
+    &ldquo;banana distribution&rdquo; paper shows the same effect for a differential-drive robot. Fit each model to the simulated robots, then draw new samples
+    from the model and see where they land.</p>
+  </div>
+  <figure>
+    <div class="widget">
+      <svg id="banana-svg" viewBox="0 0 380 465" role="img"
+        aria-label="Simulated end positions of robots driving one metre with heading noise form a curved banana shape. Samples from a Gaussian fitted in x, y, theta spill inside the curve; samples from a Gaussian in the tangent space follow the curve."></svg>
+      <div class="panel">
+        <div class="ctl"><label for="b-sigma">heading uncertainty <output id="b-sigma-o">25&deg;</output></label>
+          <input type="range" id="b-sigma" min="5" max="45" step="1" value="25"></div>
+        <div class="radios" role="radiogroup" aria-label="Model to sample from">
+          <label for="b-none"><input type="radio" name="b-model" id="b-none" value="none"> simulated robots only</label>
+          <label for="b-xy"><input type="radio" name="b-model" id="b-xy" value="xy" checked> Gaussian on $(x, y, \theta)$</label>
+          <label for="b-tan"><input type="radio" name="b-model" id="b-tan" value="tan"> Gaussian on the tangent space</label>
+        </div>
+        <div class="readout ro-plain" id="b-readout" aria-live="polite"></div>
+        <p class="hint">Grey dots: where the simulated robots ended. Coloured dots: fresh samples
+        from the fitted model. At 5&deg; the two models look the same. Push the slider up and
+        compare them.</p>
+      </div>
+    </div>
+    <figcaption>Heading error curves the cloud into a <b>banana</b>: a robot that drifted left also
+    ended a little short. The <b>rose</b> $(x,y,\theta)$ Gaussian cannot bend, so it fills in the inside of
+    the curve, where no robot went. The <b>teal</b> tangent-space Gaussian is just as simple, a mean and
+    a $3\times3$ covariance, but it is bent by $\mathrm{Exp}$, so it follows the banana.</figcaption>
+  </figure>
+  <div class="prose">
+    <p>In 3D the covariance is $6\times6$. In the course's $(\mathbf{v},\boldsymbol\omega)$ ordering, the
+    top-left $3\times3$ block is position uncertainty in metres squared, expressed in the frame of
+    $\bar{\mathbf{T}}$. The bottom-right block is orientation uncertainty in radians squared, and the
+    off-diagonal blocks say how the two are correlated. The bend in the banana is that correlation, between sideways position and heading.</p>
+  </div>
+  <div class="trap"><b>Trap</b>
+    <p>GTSAM's <code>Pose3</code> orders its tangent space $(\boldsymbol\omega,\mathbf{v})$. A
+    covariance written as <code>diag(0.01, 0.01, 0.01, 0.001, 0.001, 0.001)</code> means small rotation
+    noise in this course and small translation noise in GTSAM. Swap the two $3\times3$ blocks, and the
+    off-diagonal blocks with them, wherever the two conventions meet.</p>
+  </div>
+  <div class="else"><b>Read elsewhere</b>
+    <ul>
+      <li>Sol&agrave; et al. &sect;II-H and Fig.&nbsp;10: an uncertainty ellipse drawn on the tangent plane and wrapped onto the manifold.</li>
+      <li>Long, Wolfe, Mashner &amp; Chirikjian, <a href="https://www.roboticsproceedings.org/rss08/p34.pdf">The Banana Distribution is Gaussian</a>
+      (RSS 2012). Fig.&nbsp;1(a) shows the banana from a real differential-drive model. Fig.&nbsp;4 shows the
+      same samples in exponential coordinates, where they form an ellipse.</li>
+      <li>GTSAM blog, <a href="https://gtsam.org/2021/02/23/uncertainties-part2.html">uncertainties part 2</a>,
+      section on Gaussians on manifolds, which also compares right- and left-multiplied noise.</li>
+    </ul>
+  </div>
+  <div class="try"><h4>Try it</h4>
+    <details><summary>Your SLAM system reports a $6\times6$ covariance in $(\mathbf{v},\boldsymbol\omega)$ order. Which diagonal entry is the yaw variance?</summary>
+      <div class="ans"><p>The last one, zero-indexed entry <code>[5, 5]</code>, for rotation about the body $z$ axis. In GTSAM's order it would be <code>[2, 2]</code>.</p></div></details>
+    <details><summary>Why can't you just store a $9\times9$ covariance over the entries of $\mathbf{R}$?</summary>
+      <div class="ans"><p>Only 3 of those 9 directions stay on the manifold. A $9\times9$ covariance either gives probability to matrices that fail
+      the rotation test or, if you force it onto the manifold, is singular in six directions. Both are useless to a filter. The $3\times3$
+      tangent covariance describes only the three directions a rotation can move in.</p></div></details>
+  </div>
+</section>
+
+<!-- ================================================================ 10 -->
+<section id="s10">
+  <div class="sec-head">
+    <p class="eyebrow">Step 10 &middot; 10 min</p>
+    <h2>Moving uncertainty between frames: the adjoint</h2>
+  </div>
+  <p class="slides"><b>Slides</b>L03 &ldquo;Moving uncertainty between frames&rdquo; &middot; &ldquo;Half a degree, in centimetres&rdquo; &middot; &ldquo;Chains, and the edge that drifts&rdquo;</p>
+  <div class="prose">
+    <p>A tangent vector is always expressed in <em>some</em> frame. The same small motion looks
+    different from somewhere else. Turn your wrist slightly and your fingertips move sideways. The
+    <strong>adjoint</strong> converts a twist from one frame into another:</p>
+  </div>
+  <div class="eq">\[
+    \mathbf{T}\,\mathrm{Exp}(\boldsymbol\xi) = \mathrm{Exp}\big(\mathrm{Ad}_{\mathbf{T}}\,\boldsymbol\xi\big)\,\mathbf{T},
+    \qquad
+    \mathrm{Ad}_{\mathbf{T}} = \begin{bmatrix}\mathbf{R} & \mathbf{t}^\wedge\mathbf{R}\\ \mathbf{0} & \mathbf{R}\end{bmatrix}
+    \quad\text{for } \boldsymbol\xi=(\mathbf{v},\boldsymbol\omega)
+  \]</div>
+  <div class="prose">
+    <p>The top-right block $\mathbf{t}^\wedge\mathbf{R}$ is the <strong>lever arm</strong>. It turns rotation
+    in one frame into translation in the other, and it grows with the offset $\mathbf{t}$ between them.</p>
+    <h3>Worked example: base yaw error, seen at the sensor</h3>
+    <p>A sensor sits 2&nbsp;m ahead of the base, not rotated: $\mathbf{T}_{bs} = [\,\mathbf{I}\mid(2,0,0)\,]$.
+    The base pose has a small yaw error, $\mathbf{T}_{wb} = \bar{\mathbf{T}}_{wb}\,\mathrm{Exp}(\boldsymbol\delta)$ with
+    $\boldsymbol\delta = (0,0,0,\ 0,0,\delta\psi)$. What does that do to the sensor pose?</p>
+  </div>
+  <div class="eq">\[
+    \bar{\mathbf{T}}_{wb}\,\mathrm{Exp}(\boldsymbol\delta)\,\mathbf{T}_{bs}
+    = \bar{\mathbf{T}}_{wb}\mathbf{T}_{bs}\;\mathbf{T}_{bs}^{-1}\mathrm{Exp}(\boldsymbol\delta)\mathbf{T}_{bs}
+    = \bar{\mathbf{T}}_{ws}\,\mathrm{Exp}\big(\mathrm{Ad}_{\mathbf{T}_{bs}}^{-1}\boldsymbol\delta\big)
+  \]</div>
+  <div class="eq">\[
+    \mathrm{Ad}_{\mathbf{T}_{bs}}^{-1} = \mathrm{Ad}_{\mathbf{T}_{sb}} = \begin{bmatrix}\mathbf{I} & (-\mathbf{t})^\wedge\\ \mathbf{0} & \mathbf{I}\end{bmatrix},
+    \qquad
+    \mathbf{v}_s = (-\mathbf{t})\times\boldsymbol\omega = (-2,0,0)\times(0,0,\delta\psi) = (0,\ 2\,\delta\psi,\ 0)
+  \]</div>
+  <div class="prose">
+    <p>The sensor turns by the same $\delta\psi$ and also slides sideways by $2\,\delta\psi$. For covariances
+    the rule is $\boldsymbol\Sigma_s = \mathrm{Ad}_{\mathbf{T}_{bs}}^{-1}\,\boldsymbol\Sigma_b\,\mathrm{Ad}_{\mathbf{T}_{bs}}^{-\top}$,
+    so $\sigma_{y,s} = 2\,\sigma_\psi$. With $\sigma_\psi = 0.5^\circ = 8.73\times10^{-3}$&nbsp;rad, the sensor's
+    sideways uncertainty is 1.7&nbsp;cm.</p>
+  </div>
+  <figure>
+    <svg id="fig-lever" viewBox="0 0 700 240" role="img"
+      aria-label="A wedge of angular uncertainty spreading from the robot base. At the sensor, 2 m out, it is plus or minus 1.7 cm wide; at a point 20 m beyond the sensor it is plus or minus 19 cm."></svg>
+    <figcaption>The same half degree at the base, measured further out. The wedge angle is drawn ten
+    times too large. A point 20&nbsp;m beyond the sensor is 22&nbsp;m from the base. It picks up
+    $20\times8.73\times10^{-3}\approx17$&nbsp;cm through the sensor's own rotation, plus the sensor's
+    1.7&nbsp;cm slide. One angle causes both, so they add to about <b>19&nbsp;cm</b>, before the sensor's
+    own noise.</figcaption>
+  </figure>
+  <div class="prose">
+    <h3>Chains: why odometry drifts even with a perfect sensor</h3>
+    <p>Odometry chains many relative poses: each step is measured from the previous one, and each
+    step's uncertainty is carried forward through the adjoint of everything after it. A heading error
+    early on acts as a lever arm for every metre that follows. Suppose each metre of driving adds
+    $0.1^\circ$ of independent heading noise. After $N$ metres the heading has wandered by
+    $0.1^\circ\sqrt{N}$, and the sideways position error is
+    $\sigma_\psi\sqrt{\sum_{j=1}^{N} j^2} \approx \sigma_\psi\sqrt{N^3/3}$:</p>
+  </div>
+  <div class="tablewrap" style="max-width:560px;"><table>
+    <thead><tr><th>Distance driven</th><th>Heading &sigma;</th><th>Sideways position &sigma;</th></tr></thead>
+    <tbody>
+      <tr><td>10 m</td><td class="num">0.32&deg;</td><td class="num">3.4 cm</td></tr>
+      <tr><td>50 m</td><td class="num">0.71&deg;</td><td class="num">36 cm</td></tr>
+      <tr><td>100 m</td><td class="num">1.0&deg;</td><td class="num">1.02 m</td></tr>
+      <tr><td>200 m</td><td class="num">1.4&deg;</td><td class="num">2.86 m</td></tr>
+    </tbody>
+  </table></div>
+  <div class="prose">
+    <p>Doubling the distance multiplies position error by almost three ($2^{1.5}$), even though nothing
+    about the sensor changed. The growth comes from integrating the steps, so a better sensor
+    only slows it. Only an observation of something fixed, such as a
+    loop closure, removes it.</p>
+    <p>In code the adjoint is four lines. The <a href="#code">reference implementation</a> has it,
+    along with a numerical check of the identity that defines it.</p>
+  </div>
+  <div class="else"><b>Read elsewhere</b>
+    <ul>
+      <li>Sol&agrave; et al. &sect;II-F and Fig.&nbsp;7: the adjoint as two paths to the same pose, one
+      perturbing on the left and one on the right. Example&nbsp;6 is the SE(3) adjoint, in the same
+      translation-first order as this course.</li>
+      <li><em>Modern Robotics</em> Fig.&nbsp;3.15: the same motion applied in the fixed frame and in the body frame lands in two different places.</li>
+      <li>GTSAM blog, <a href="https://gtsam.org/2021/02/23/uncertainties-part3.html">uncertainties part 3: adjoints and covariances</a>,
+      which covers the covariance of composed, inverted and relative poses.</li>
+      <li>E. Eade, <a href="https://ethaneade.com/lie.pdf">Lie Groups for 2D and 3D Transformations</a>, &sect;8.2: two pages on transforming a covariance with the adjoint. Eade perturbs on the <em>left</em>, so his formula has the adjoint on the other side.</li>
+    </ul>
+  </div>
+  <div class="try"><h4>Try it</h4>
+    <details><summary>A lidar is mounted 1.2&nbsp;m from the base, whose yaw &sigma; is 0.2&deg;. Roughly how uncertain is a return 40&nbsp;m out?</summary>
+      <div class="ans"><p>$0.2^\circ = 3.49\times10^{-3}$&nbsp;rad. The sensor itself: $1.2\times3.49\times10^{-3}\approx4$&nbsp;mm. The return:
+      $40\times3.49\times10^{-3}\approx14$&nbsp;cm through the rotation, so about 14.4&nbsp;cm in total. At long range the lever arm
+      to the target dominates, and the mounting offset barely matters.</p></div></details>
+    <details><summary>If $\mathbf{t}=\mathbf{0}$, what does the adjoint do?</summary>
+      <div class="ans"><p>$\mathrm{Ad}_{\mathbf{T}} = \mathrm{diag}(\mathbf{R},\mathbf{R})$. It only re-expresses both halves of the twist along rotated
+      axes. No rotation turns into translation, because there is no lever arm.</p></div></details>
+  </div>
+</section>
+
+<!-- ================================================================ 11 -->
+<section id="s11">
+  <div class="sec-head">
+    <p class="eyebrow">Step 11 &middot; 8 min</p>
+    <h2>Optimising on the manifold: unwrap, solve, wrap back</h2>
+  </div>
+  <p class="slides"><b>Slides</b>L03 &ldquo;PnP, framed properly&rdquo; &middot; &ldquo;Why we optimise on the manifold&rdquo;</p>
+  <div class="prose">
+    <p>Every pose optimiser in this course, including PnP, ICP, bundle adjustment and the pose graph,
+    runs the same three-line loop. You have already run it once, on headings, in Step&nbsp;5:</p>
+    <ol>
+      <li><strong>Unwrap.</strong> Write the cost as a function of a small twist around the current estimate,
+      $f(\bar{\mathbf{T}}\oplus\boldsymbol\xi)$, and linearise it in $\boldsymbol\xi$:
+      $\mathbf{r}(\bar{\mathbf{T}}\oplus\boldsymbol\xi)\approx\mathbf{r}(\bar{\mathbf{T}})+\mathbf{J}\boldsymbol\xi$.</li>
+      <li><strong>Solve</strong> for the best $\boldsymbol\xi$ in the tangent space, where it is six unconstrained
+      numbers: $\mathbf{J}^\top\mathbf{J}\,\boldsymbol\xi = -\mathbf{J}^\top\mathbf{r}$.</li>
+      <li><strong>Wrap back</strong> by composing: $\bar{\mathbf{T}}\leftarrow\bar{\mathbf{T}}\,\mathrm{Exp}(\boldsymbol\xi)$. Repeat until $\boldsymbol\xi$ is tiny.</li>
+    </ol>
+    <p>Averaging rotations is the smallest non-trivial case. The residual of measurement $i$ is
+    $\mathbf{R}_i\ominus\bar{\mathbf{R}}$, its Jacobian is approximately the identity, and the Gauss&ndash;Newton step
+    is just the mean of the unwrapped residuals:</p>
+  </div>
+<pre><code>import numpy as np
+from scipy.spatial.transform import Rotation as Rot
+
+def mean_rotation(Rs, iters=20):
+    R = Rs[0]
+    for _ in range(iters):
+        xi = np.mean([Rot.from_matrix(R.T @ Ri).as_rotvec() for Ri in Rs], axis=0)  <span class="c"># unwrap + solve</span>
+        R = R @ Rot.from_rotvec(xi).as_matrix()                                     <span class="c"># wrap back</span>
+        if np.linalg.norm(xi) < 1e-10:
+            break
+    return R</code></pre>
+  <div class="prose">
+    <p>Three properties follow from doing it this way:</p>
+    <ul>
+      <li><strong>The unknowns are unconstrained.</strong> The solver works with six free numbers, not
+      twelve matrix entries tied together by six equations.</li>
+      <li><strong>Every iterate is a valid pose.</strong> Composing never leaves the group, so there is no
+      re-orthogonalising, and the estimate never drifts off the manifold.</li>
+      <li><strong>No singularities.</strong> The tangent space is always taken at the current estimate, so
+      the problem is always near its origin, far from any seam. No Euler-angle singularity can appear.</li>
+    </ul>
+  </div>
+  <div class="uses"><b>Example</b>
+    <p>Point-to-plane ICP linearises $\mathbf{R}\approx\mathbf{I}+\boldsymbol\omega^\wedge$ to get a $6\times6$
+    system in $(\mathbf{t},\boldsymbol\omega)$, which is step 1. Solving it is step 2. Applying the result with
+    $\mathrm{Exp}$, rather than adding it, is step 3. GTSAM runs the same loop for a whole pose graph and calls
+    step 3 <code>retract</code>.</p>
+  </div>
+  <div class="else"><b>Read elsewhere</b>
+    <ul>
+      <li>J.&nbsp;L. Blanco, <a href="http://ingmec.ual.es/~jlblanco/papers/jlblanco2010geometry3D_techrep.pdf">A tutorial on SE(3) transformation parameterizations and on-manifold optimization</a>,
+      &sect;10.1&ndash;10.2, titled &ldquo;Optimization solutions are made for Euclidean spaces&rdquo; and &ldquo;An elegant solution: to optimize on the manifold&rdquo;.</li>
+      <li>Sol&agrave; et al. Fig.&nbsp;11: motion integration as a chain of $\oplus$ steps.</li>
+      <li>F. Dellaert, <a href="https://raw.githubusercontent.com/borglab/gtsam/develop/doc/math.pdf">Derivatives and Differentials</a>,
+      &sect;1: how GTSAM sets up $h(a\oplus\xi)\approx h(a)+H_a\xi$.</li>
+    </ul>
+  </div>
+  <div class="try"><h4>Try it</h4>
+    <details><summary>An optimiser adds its step to the rotation matrix and then projects the result back onto SO(3) with an SVD. What goes wrong compared with composing?</summary>
+      <div class="ans"><p>The projection returns the nearest rotation to $\bar{\mathbf{R}}+\Delta$, which is not the rotation the step
+      described. The mismatch is second order in the step, like the gap in Step&nbsp;5's figure. Near convergence it is harmless. For large
+      early steps it shortens and bends them, so the solver takes more iterations and can stall. Composing applies exactly the
+      step that was solved for.</p></div></details>
+    <details><summary>Averaging headings 350&deg;, 10&deg;, 20&deg; converged in one step. Would a set of 3D rotations?</summary>
+      <div class="ans"><p>Usually not. In 2D all rotations commute, so the unwrapped residuals simply shift by the step. In 3D they do not
+      commute, the Jacobian is only approximately the identity, and it takes a few iterations. That is why the function above loops.</p></div></details>
+  </div>
+</section>
+
+<!-- ================================================================ reference -->
+<section id="sheet">
+  <div class="sec-head">
+    <p class="eyebrow">Reference</p>
+    <h2>Cheat sheet</h2>
+  </div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Symbol</th><th>Name</th><th>What it is</th><th>In the reference code</th></tr></thead>
+    <tbody>
+      <tr><td>$\mathrm{SO}(3)$</td><td>rotation group</td><td>$3\times3$, $\mathbf{R}^\top\mathbf{R}=\mathbf{I}$, $\det=+1$. 3 DoF.</td><td class="mono">R.T @ R ≈ I, det(R) ≈ 1</td></tr>
+      <tr><td>$\mathrm{SE}(3)$</td><td>pose group</td><td>$4\times4$, $[\mathbf{R}\mid\mathbf{t}]$. 6 DoF.</td><td class="mono">T1 @ T2, inv_se3(T)</td></tr>
+      <tr><td>$\mathfrak{so}(3)$</td><td>Lie algebra of SO(3)</td><td>Tangent space at $\mathbf{I}$: skew $3\times3$ matrices, one per $\boldsymbol\omega\in\mathbb{R}^3$.</td><td class="mono">hat(w)</td></tr>
+      <tr><td>$\mathfrak{se}(3)$</td><td>Lie algebra of SE(3)</td><td>Tangent space at $\mathbf{I}$: twists $\boldsymbol\xi=(\mathbf{v},\boldsymbol\omega)\in\mathbb{R}^6$.</td><td class="mono">xi = (v, omega)</td></tr>
+      <tr><td>$(\cdot)^\wedge,\ (\cdot)^\vee$</td><td>hat, vee</td><td>Vector to matrix and back. $\boldsymbol\omega^\wedge\mathbf{x}=\boldsymbol\omega\times\mathbf{x}$.</td><td class="mono">hat, vee</td></tr>
+      <tr><td>$\mathrm{Exp},\ \mathrm{Log}$</td><td>exponential, logarithm</td><td>Tangent vector to group element and back. &ldquo;Move with this velocity for one second.&rdquo;</td><td class="mono">exp_so3, log_so3, exp_se3, log_se3</td></tr>
+      <tr><td>$\bar{\mathbf{T}}\oplus\boldsymbol\xi$</td><td>plus</td><td>$\bar{\mathbf{T}}\,\mathrm{Exp}(\boldsymbol\xi)$. Apply a correction in the body frame.</td><td class="mono">T_bar @ exp_se3(xi)</td></tr>
+      <tr><td>$\mathbf{T}_2\ominus\mathbf{T}_1$</td><td>minus</td><td>$\mathrm{Log}(\mathbf{T}_1^{-1}\mathbf{T}_2)$. The difference, as a twist.</td><td class="mono">log_se3(inv_se3(T1) @ T2)</td></tr>
+      <tr><td>$\mathrm{Ad}_{\mathbf{T}}$</td><td>adjoint</td><td>$6\times6$, moves a twist or covariance between frames. $\begin{bmatrix}\mathbf{R}&\mathbf{t}^\wedge\mathbf{R}\\ \mathbf{0}&\mathbf{R}\end{bmatrix}$.</td><td class="mono">adjoint(T)</td></tr>
+      <tr><td>$\boldsymbol\Sigma$</td><td>pose covariance</td><td>$6\times6$ on $\boldsymbol\xi$, where $\mathbf{T}=\bar{\mathbf{T}}\,\mathrm{Exp}(\boldsymbol\xi)$.</td><td class="mono">translation block first</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="code">
+  <div class="sec-head">
+    <p class="eyebrow">Reference</p>
+    <h2>Reference code: Exp, Log and the adjoint in numpy</h2>
+    <p>Every formula from Steps 6 to 10, in this course's conventions: twists ordered $(\mathbf{v},\boldsymbol\omega)$,
+    corrections applied on the right.</p>
+  </div>
+  <div class="prose">
+    <p>The code is written to be read. Each extra branch covers a place where the textbook formula goes wrong
+    in floating point: small angles, where $1-\cos\theta$ cancels, and angles near $\pi$, where
+    $\mathbf{R}-\mathbf{R}^\top$ vanishes. It was checked against a brute-force matrix exponential at angles from
+    0 to $\pi$, including $10^{-12}$ and $\pi-10^{-7}$. Every round trip agrees to better than $10^{-12}$. The last
+    lines reproduce the car from Step&nbsp;8, the 180&deg; rotation from Step&nbsp;7, and the identity that defines the
+    adjoint in Step&nbsp;10.</p>
+  </div>
+<pre><code>import numpy as np
+
+def hat(w):
+    """3-vector -&gt; skew-symmetric matrix, so hat(w) @ x == np.cross(w, x)."""
+    return np.array([[0.0, -w[2], w[1]],
+                     [w[2], 0.0, -w[0]],
+                     [-w[1], w[0], 0.0]])
+
+def vee(W):
+    """Skew-symmetric matrix -&gt; 3-vector."""
+    return np.array([W[2, 1], W[0, 2], W[1, 0]])
+
+def exp_so3(w):
+    """Axis-angle vector -&gt; rotation matrix (Rodrigues' formula)."""
+    th = np.linalg.norm(w)
+    W = hat(w)
+    if th &lt; 1e-8:                                <span class="c"># Taylor: sin(th)/th -&gt; 1, (1 - cos th)/th^2 -&gt; 1/2</span>
+        return np.eye(3) + W + 0.5 * W @ W
+    <span class="c"># 2 sin^2(th/2) is 1 - cos(th) without the cancellation at small th</span>
+    return np.eye(3) + (np.sin(th) / th) * W + (2 * np.sin(th / 2)**2 / th**2) * W @ W
+
+def log_so3(R):
+    """Rotation matrix -&gt; axis-angle vector, angle in [0, pi]."""
+    u = vee(R - R.T) / 2                         <span class="c"># = sin(th) * axis</span>
+    th = np.arctan2(np.linalg.norm(u), (np.trace(R) - 1) / 2)   <span class="c"># accurate near 0 and pi</span>
+    if th &lt; 1e-8:
+        return u                                 <span class="c"># sin(th) ~ th</span>
+    if np.pi - th &lt; 1e-6:                        <span class="c"># u has vanished: use the symmetric part</span>
+        B = ((R + R.T) / 2 + np.eye(3)) / 2      <span class="c"># = axis axis^T at th = pi</span>
+        k = np.argmax(np.diag(B))
+        axis = B[:, k] / np.linalg.norm(B[:, k])
+        if axis @ u &lt; 0:                         <span class="c"># keep whatever sign u still carries</span>
+            axis = -axis
+        return th * axis
+    return (th / np.sin(th)) * u
+
+def exp_se3(xi):
+    """Twist xi = (v, omega), translation first -&gt; 4x4 pose."""
+    v, w = xi[:3], xi[3:]
+    th = np.linalg.norm(w)
+    W = hat(w)
+    if th &lt; 1e-8:
+        V = np.eye(3) + 0.5 * W + W @ W / 6
+    else:
+        V = np.eye(3) + (2 * np.sin(th / 2)**2 / th**2) * W + ((th - np.sin(th)) / th**3) * W @ W
+    T = np.eye(4)
+    T[:3, :3] = exp_so3(w)
+    T[:3, 3] = V @ v
+    return T
+
+def log_se3(T):
+    """4x4 pose -&gt; twist (v, omega)."""
+    w = log_so3(T[:3, :3])
+    th = np.linalg.norm(w)
+    W = hat(w)
+    if th &lt; 1e-8:
+        V_inv = np.eye(3) - 0.5 * W + W @ W / 12
+    else:
+        half = th / 2                            <span class="c"># th sin(th) / (2 (1 - cos th)) = half cot(half)</span>
+        V_inv = np.eye(3) - 0.5 * W + ((1 - half / np.tan(half)) / th**2) * W @ W
+    return np.concatenate([V_inv @ T[:3, 3], w])
+
+def inv_se3(T):
+    """Closed-form pose inverse."""
+    Ti = np.eye(4)
+    Ti[:3, :3] = T[:3, :3].T
+    Ti[:3, 3] = -T[:3, :3].T @ T[:3, 3]
+    return Ti
+
+def adjoint(T):
+    """6x6 adjoint for (v, omega): T @ exp_se3(xi) == exp_se3(adjoint(T) @ xi) @ T."""
+    R, t = T[:3, :3], T[:3, 3]
+    A = np.zeros((6, 6))
+    A[:3, :3] = R
+    A[:3, 3:] = hat(t) @ R
+    A[3:, 3:] = R
+    return A
+
+
+xi = np.array([1.0, 0, 0, 0, 0, np.pi / 2])        <span class="c"># the turning car from Step 8</span>
+print(np.round(exp_se3(xi)[:3, 3], 3))              <span class="c"># [0.637 0.637 0.   ]</span>
+print(np.allclose(log_se3(exp_se3(xi)), xi))        <span class="c"># True</span>
+
+R = exp_so3(np.array([np.pi, 0, 0]))               <span class="c"># the 180-degree case from Step 7</span>
+print(np.allclose(exp_so3(log_so3(R)), R))          <span class="c"># True</span>
+
+T = exp_se3(np.array([0.3, -0.2, 0.5, 0.1, 0.7, -0.4]))
+d = np.array([0.05, 0.02, -0.01, 0.03, -0.02, 0.04])
+print(np.allclose(T @ exp_se3(d), exp_se3(adjoint(T) @ d) @ T))   <span class="c"># True</span></code></pre>
+  <div class="prose">
+    <p>To see the lever arm from Step&nbsp;10 in numbers, put a sensor 2&nbsp;m ahead of the base and push a small base yaw
+    through the inverse adjoint:</p>
+  </div>
+<pre><code>T_bs = np.eye(4); T_bs[:3, 3] = [2.0, 0, 0]
+delta = np.array([0, 0, 0, 0, 0, 1e-3])             <span class="c"># 1 mrad of base yaw</span>
+print(np.linalg.inv(adjoint(T_bs)) @ delta)         <span class="c"># [0. 0.002 0. 0. 0. 0.001]: 2 mm sideways at the sensor</span></code></pre>
+</section>
+
+<section id="notation">
+  <div class="sec-head">
+    <p class="eyebrow">Reference</p>
+    <h2>The same ideas, in other people's notation</h2>
+    <p>Every source below is correct. They disagree on two arbitrary choices, and mixing them gives
+    wrong answers with no error.</p>
+  </div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Source</th><th>Twist order</th><th>Noise multiplies on</th><th>Also note</th></tr></thead>
+    <tbody>
+      <tr><td><strong>This course</strong> (the L03 slides)</td><td>$(\mathbf{v},\boldsymbol\omega)$</td><td>right: $\bar{\mathbf{T}}\,\mathrm{Exp}(\boldsymbol\xi)$</td><td>TUM quaternions are scalar-last.</td></tr>
+      <tr><td>Sol&agrave; et al., <em>micro Lie theory</em></td><td>$(\boldsymbol\rho,\boldsymbol\theta)$, translation first. Matches the course.</td><td>right by default; left is also defined</td><td>Tangent vectors are called $\boldsymbol\tau$. Exp/Log act on vectors, exp/log on matrices.</td></tr>
+      <tr><td><em>Modern Robotics</em></td><td>$(\boldsymbol\omega,\mathbf{v})$</td><td>both, as space and body twists</td><td>The adjoint's blocks sit in swapped positions.</td></tr>
+      <tr><td>GTSAM <code>Pose3</code></td><td>$(\boldsymbol\omega,\mathbf{v})$</td><td>right</td><td>Exp is called <code>Expmap</code> or <code>Retract</code>.</td></tr>
+      <tr><td>Barfoot, <em>State Estimation for Robotics</em></td><td>$(\boldsymbol\rho,\boldsymbol\phi)$, translation first</td><td>left: $\mathrm{Exp}(\boldsymbol\xi)\,\bar{\mathbf{T}}$</td><td>Uses a &ldquo;curly hat&rdquo; for the $6\times6$ adjoint of the algebra.</td></tr>
+      <tr><td>Eade, <em>Lie Groups for 2D and 3D</em></td><td>$(\mathbf{u},\boldsymbol\omega)$, translation first</td><td>left</td><td>Compact formula sheet.</td></tr>
+      <tr><td>SciPy <code>Rotation</code></td><td>rotations only</td><td>not applicable</td><td>Quaternions are scalar-last by default.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="reading">
+  <div class="sec-head">
+    <p class="eyebrow">Reference</p>
+    <h2>Where to read more</h2>
+    <p>In the order to try them. If you read only one, read Sol&agrave; &sect;II.</p>
+  </div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Resource</th><th>Format</th><th>Best for</th></tr></thead>
+    <tbody>
+      <tr><td>Sol&agrave;, Deray &amp; Atchuthan, <a href="https://arxiv.org/abs/1812.01537"><em>A micro Lie theory for state estimation in robotics</em></a></td><td>Paper, 17 pp.</td><td>All of Steps 4&ndash;11. &sect;II-A to II-H is the core, and App.&nbsp;D is an SE(3) formula sheet. Ideas are drawn on a circle or a sphere before the general case.</td></tr>
+      <tr><td>Joan Sol&agrave;, <a href="https://www.youtube.com/watch?v=QR1p0Rabuww">Lie theory for the roboticist</a></td><td>Talk, 37 min</td><td>The first author presenting the same material as a talk. A <a href="https://www.youtube.com/watch?v=nHOcoIyJj2o">longer version</a> runs 1&nbsp;h&nbsp;37&nbsp;min.</td></tr>
+      <tr><td>Lynch &amp; Park, <a href="http://hades.mech.northwestern.edu/images/2/25/MR-v2.pdf"><em>Modern Robotics</em></a>, ch.&nbsp;3, and <a href="http://hades.mech.northwestern.edu/index.php/Modern_Robotics_Videos">its videos</a></td><td>Book and 2&ndash;6 min videos</td><td>Steps 3, 6, 7, 8: rotation matrices, angular velocity, exponential coordinates and twists, one short video per section.</td></tr>
+      <tr><td>3Blue1Brown, <a href="https://www.youtube.com/watch?v=mH0oCDa74tE">Group theory and the monster</a></td><td>Video, 22 min</td><td>Step 2, if &ldquo;group&rdquo; still feels abstract.</td></tr>
+      <tr><td>GTSAM blog, <a href="https://gtsam.org/2021/02/23/uncertainties-part2.html">uncertainties part 2</a> and <a href="https://gtsam.org/2021/02/23/uncertainties-part3.html">part 3</a></td><td>Blog, with figures</td><td>Steps 9&ndash;10, from the team that writes GTSAM.</td></tr>
+      <tr><td>F. Dellaert, <a href="https://raw.githubusercontent.com/borglab/gtsam/develop/doc/LieGroups.pdf">Lie Groups for Beginners</a></td><td>Notes, 21 pp.</td><td>SO(2), SE(2), SO(3) and SE(3) worked one after another, starting from a planar robot.</td></tr>
+      <tr><td>Long et al., <a href="https://www.roboticsproceedings.org/rss08/p34.pdf">The Banana Distribution is Gaussian</a></td><td>Paper, 8 pp.</td><td>Step 9, with a real robot model.</td></tr>
+      <tr><td>E. Eade, <a href="https://ethaneade.com/lie.pdf">Lie Groups for 2D and 3D Transformations</a></td><td>Notes, 25 pp.</td><td>Formulas and Jacobians to check your own code against. Left-perturbation convention.</td></tr>
+      <tr><td>J.&nbsp;L. Blanco, <a href="http://ingmec.ual.es/~jlblanco/papers/jlblanco2010geometry3D_techrep.pdf">SE(3) parameterizations and on-manifold optimization</a></td><td>Tech report, 68 pp.</td><td>Step 11, and uncertainty propagation for every rotation representation.</td></tr>
+      <tr><td>T. Barfoot, <a href="https://asrl.utias.utoronto.ca/~tdb/bib/barfoot_ser24.pdf"><em>State Estimation for Robotics</em></a>, ch.&nbsp;8</td><td>Book, free author copy</td><td>The rigorous version: &sect;8.1 matrix Lie groups, &sect;8.3 uncertainty, compounding and fusing poses.</td></tr>
+      <tr><td><a href="https://pypose.org/tutorials/beginner/lietensor_tutorial.html">PyPose LieTensor tutorial</a></td><td>Code tutorial</td><td>Exp, Log, Inv and Adj on GPU tensors, if you want to experiment in PyTorch.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<footer>ROB 498/599 Special Topics: 3D Robot Perception &middot; University of Michigan Robotics &middot; Fall 2026<br>
+A companion to L03. Questions go to Piazza.</footer>
+</main>
+</div>
+
+<script>
+window.MathJax = {
+  tex:{inlineMath:[['$','$'],['\\(','\\)']], displayMath:[['\\[','\\]']]},
+  svg:{fontCache:'global'},
+  options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+
+<script>
+(function(){
+"use strict";
+var NS = "http://www.w3.org/2000/svg";
+var DEG = Math.PI / 180;
+
+function E(p, tag, a, txt){
+  var e = document.createElementNS(NS, tag);
+  if (a) for (var k in a) e.setAttribute(k, a[k]);
+  if (txt != null) e.textContent = txt;
+  if (p) p.appendChild(e);
+  return e;
+}
+function clear(s){ while (s.firstChild) s.removeChild(s.firstChild); }
+function f1(v){ return (+v).toFixed(1); }
+function L(p, x1, y1, x2, y2, cls, w){
+  return E(p, "line", {x1:f1(x1), y1:f1(y1), x2:f1(x2), y2:f1(y2), "class":cls, "stroke-width":w || 1.2});
+}
+function C(p, x, y, r, cls){ return E(p, "circle", {cx:f1(x), cy:f1(y), r:r, "class":cls}); }
+function T(p, x, y, s, cls, anchor){
+  return E(p, "text", {x:f1(x), y:f1(y), "class":"t " + (cls || ""), "text-anchor":anchor || "start"}, s);
+}
+function PL(p, pts, cls, w, closed){
+  return E(p, closed ? "polygon" : "polyline",
+    {points: pts.map(function(q){ return f1(q[0]) + "," + f1(q[1]); }).join(" "),
+     "class":cls, "stroke-width":w == null ? 1.2 : w});
+}
+function arrow(p, x1, y1, x2, y2, cls, w, h){
+  w = w || 1.6; h = h || 8;
+  var g = E(p, "g", {"class":cls});
+  var dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+  if (len < 1e-6) return g;
+  var ux = dx / len, uy = dy / len, bx = x2 - ux * h, by = y2 - uy * h;
+  E(g, "line", {x1:f1(x1), y1:f1(y1), x2:f1(bx + ux), y2:f1(by + uy), "stroke-width":w});
+  E(g, "polygon", {points:[x2, y2, bx - uy * h * 0.42, by + ux * h * 0.42,
+    bx + uy * h * 0.42, by - ux * h * 0.42].map(f1).join(" "), "stroke-width":0.5});
+  return g;
+}
+function arcPts(cx, cy, r, a0, a1, n){
+  var out = [];
+  n = n || 48;
+  for (var i = 0; i <= n; i++){
+    var a = a0 + (a1 - a0) * i / n;
+    out.push([cx + r * Math.cos(a), cy - r * Math.sin(a)]);
+  }
+  return out;
+}
+function arcArrow(p, cx, cy, r, a0, a1, cls, w){
+  var pts = arcPts(cx, cy, r, a0, a1, 40);
+  if (Math.abs(a1 - a0) < 0.02) return;
+  PL(p, pts.slice(0, -3), cls.replace("a-", "s-"), w || 1.4);
+  var q = pts[pts.length - 4], e = pts[pts.length - 1];
+  arrow(p, q[0], q[1], e[0], e[1], cls, w || 1.4, 8);
+}
+function sub(a, b){ return [a[0]-b[0], a[1]-b[1], a[2]-b[2]]; }
+function dot(a, b){ return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]; }
+function cross(a, b){ return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]; }
+function norm(a){ var n = Math.hypot(a[0], a[1], a[2]); return [a[0]/n, a[1]/n, a[2]/n]; }
+function mv(M, v){ return [dot(M[0], v), dot(M[1], v), dot(M[2], v)]; }
+function mm(A, B){
+  var out = [];
+  for (var i = 0; i < 3; i++){
+    out.push([]);
+    for (var j = 0; j < 3; j++) out[i].push(A[i][0]*B[0][j] + A[i][1]*B[1][j] + A[i][2]*B[2][j]);
+  }
+  return out;
+}
+
+/* ---------------------------------------------------------- order matters */
+function figOrder(){
+  var svg = document.getElementById("fig-order"); if (!svg) return;
+  var d = norm([1, -0.75, 0.62]), ex = norm([-d[1], d[0], 0]), ey = cross(d, ex), s = 50;
+  var hx = 0.85, hy = 0.55, hz = 0.2;
+  var I = [[1,0,0],[0,1,0],[0,0,1]];
+  var Rx = [[1,0,0],[0,0,-1],[0,1,0]], Ry = [[0,0,1],[0,1,0],[-1,0,0]];
+  var faces = [
+    {n:[0,0,1],  k:"top",   c:[[hx,hy,hz],[-hx,hy,hz],[-hx,-hy,hz],[hx,-hy,hz]]},
+    {n:[0,0,-1], k:"bot",   c:[[hx,hy,-hz],[hx,-hy,-hz],[-hx,-hy,-hz],[-hx,hy,-hz]]},
+    {n:[1,0,0],  k:"front", c:[[hx,hy,hz],[hx,-hy,hz],[hx,-hy,-hz],[hx,hy,-hz]]},
+    {n:[-1,0,0], k:"xside", c:[[-hx,hy,hz],[-hx,hy,-hz],[-hx,-hy,-hz],[-hx,-hy,hz]]},
+    {n:[0,1,0],  k:"yside", c:[[hx,hy,hz],[hx,hy,-hz],[-hx,hy,-hz],[-hx,hy,hz]]},
+    {n:[0,-1,0], k:"yside", c:[[hx,-hy,hz],[-hx,-hy,hz],[-hx,-hy,-hz],[hx,-hy,-hz]]}];
+  function scr(v, cx, cy){ return [cx + s * dot(v, ex), cy - s * dot(v, ey)]; }
+  function box(R, cx, cy){
+    faces.forEach(function(f){
+      if (dot(mv(R, f.n), d) <= 1e-6) return;
+      PL(svg, f.c.map(function(v){ return scr(mv(R, v), cx, cy); }), "face face-" + f.k, 1, true);
+    });
+    // an off-centre dot on the top face shows which way the book points
+    if (dot(mv(R, [0, 0, 1]), d) > 1e-6){
+      var c = scr(mv(R, [0.6*hx, 0, hz]), cx, cy);
+      C(svg, c[0], c[1], 3.6, "f-ink");
+    }
+  }
+  var rows = [
+    {y:92,  title:"x first, then y:   R = Ry(90°) Rx(90°)", mats:[I, Rx, mm(Ry, Rx)], steps:["90° about x", "90° about y"]},
+    {y:252, title:"y first, then x:   R = Rx(90°) Ry(90°)", mats:[I, Ry, mm(Rx, Ry)], steps:["90° about y", "90° about x"]}];
+  var cols = [110, 360, 610];
+  rows.forEach(function(r){
+    T(svg, 14, r.y - 64, r.title, "t-ink");
+    r.mats.forEach(function(M, i){ box(M, cols[i], r.y); });
+    for (var i = 0; i < 2; i++){
+      arrow(svg, cols[i] + 82, r.y, cols[i + 1] - 82, r.y, "a-soft", 1.2, 7);
+      T(svg, (cols[i] + cols[i + 1]) / 2, r.y - 9, r.steps[i], "", "middle");
+    }
+  });
+  T(svg, 610, 162, "top faces −y", "t-grp", "middle");
+  T(svg, 610, 322, "top faces +x", "t-grp", "middle");
+  var o = [695, 168];
+  [["x", [1,0,0]], ["y", [0,1,0]], ["z", [0,0,1]]].forEach(function(a){
+    var e = scr(a[1], 0, 0), k = 0.5;
+    arrow(svg, o[0], o[1], o[0] + e[0] * k, o[1] + e[1] * k, "a-soft", 1.1, 6);
+    T(svg, o[0] + e[0] * k * 1.45, o[1] + e[1] * k * 1.45 + 4, a[0], "t-sm", "middle");
+  });
+}
+
+/* ---------------------------------------------------------- square */
+function figSquare(){
+  var svg = document.getElementById("fig-square"); if (!svg) return;
+  var names = ["r0  do nothing", "r90", "r180", "r270"];
+  [90, 270, 450, 630].forEach(function(cx, i){
+    var cy = 54, h = 30;
+    E(svg, "rect", {x:cx - h, y:cy - h, width:2*h, height:2*h, "class":"s-ink", "stroke-width":1.4});
+    var a = (135 + 90 * i) * DEG, rr = h * Math.SQRT2 - 7;
+    C(svg, cx + rr * Math.cos(a), cy - rr * Math.sin(a), 5, "f-grp");
+    if (i > 0) arcArrow(svg, cx, cy, 14, 0, 90 * i * DEG * 0.999, "a-soft", 1.1);
+    T(svg, cx, 112, names[i], "t-ink", "middle");
+  });
+}
+
+/* ---------------------------------------------------------- frame */
+function figFrame(){
+  var svg = document.getElementById("fig-frame"); if (!svg) return;
+  function zdot(x, y, cls){ C(svg, x, y, 6, cls.replace("f-", "s-")).setAttribute("stroke-width", 1.2); C(svg, x, y, 1.8, cls); }
+  var o1 = [110, 150];
+  arrow(svg, o1[0], o1[1], o1[0] + 90, o1[1], "a-ink", 1.8);
+  arrow(svg, o1[0], o1[1], o1[0], o1[1] - 90, "a-ink", 1.8);
+  zdot(o1[0], o1[1], "f-ink");
+  T(svg, o1[0] + 98, o1[1] + 5, "x", "t-m t-ink");
+  T(svg, o1[0] - 4, o1[1] - 98, "y", "t-m t-ink", "end");
+  T(svg, o1[0] - 12, o1[1] + 20, "z", "t-m t-ink", "end");
+  T(svg, o1[0] + 20, 206, "before", "", "start");
+  arrow(svg, 250, 110, 330, 110, "a-soft", 1.3, 8);
+  T(svg, 290, 98, "Rz(90°)", "t-ink", "middle");
+  var o2 = [470, 150];
+  arrow(svg, o2[0], o2[1], o2[0] + 90, o2[1], "a-soft", 1, 6).setAttribute("opacity", ".35");
+  arrow(svg, o2[0], o2[1], o2[0], o2[1] - 90, "a-grp", 2);
+  arrow(svg, o2[0], o2[1], o2[0] - 90, o2[1], "a-grp", 2);
+  zdot(o2[0], o2[1], "f-grp");
+  T(svg, o2[0] + 10, o2[1] - 84, "x′ = column 1 = (0, 1, 0)", "t-grp");
+  T(svg, o2[0] - 94, o2[1] + 26, "y′ = column 2 = (−1, 0, 0)", "t-grp");
+  T(svg, o2[0] + 14, o2[1] - 10, "z′ = column 3 = (0, 0, 1)", "t-grp");
+  T(svg, o2[0] + 20, 206, "after", "", "start");
+}
+
+/* ---------------------------------------------------------- globe */
+function figGlobe(){
+  var svg = document.getElementById("fig-globe"); if (!svg) return;
+  var cx = 210, cy = 172, R = 132, e = 24 * DEG, ce = Math.cos(e), se = Math.sin(e);
+  function tilt(v){ return [v[0], v[1]*ce - v[2]*se, v[2]*ce + v[1]*se]; }
+  function sph(phi, lam){ return [Math.cos(phi)*Math.sin(lam), Math.sin(phi), Math.cos(phi)*Math.cos(lam)]; }
+  function scr(v){ var t = tilt(v); return [cx + R*t[0], cy - R*t[1], t[2]]; }
+  E(svg, "circle", {cx:cx, cy:cy, r:R, "class":"f-ground"});
+  function curve(fn, n){
+    var seg = [];
+    for (var i = 0; i <= n; i++){
+      var p = scr(fn(i / n));
+      if (p[2] > 0) seg.push(p);
+      else { if (seg.length > 1) PL(svg, seg, "s-rule", 1); seg = []; }
+    }
+    if (seg.length > 1) PL(svg, seg, "s-rule", 1);
+  }
+  [-60, -30, 0, 30, 60].forEach(function(la){
+    curve(function(u){ return sph(la*DEG, u * 2 * Math.PI); }, 120);
+  });
+  for (var lo = 0; lo < 180; lo += 20){
+    (function(lo){ curve(function(u){ return sph(-Math.PI/2 + u*Math.PI*2, lo*DEG); }, 160); })(lo);
+  }
+  E(svg, "circle", {cx:cx, cy:cy, r:R, "class":"s-ink", "stroke-width":1.4});
+  var pole = scr([0,1,0]);
+  C(svg, pole[0], pole[1], 5, "f-bad");
+  L(svg, pole[0] + 8, pole[1] - 4, 390, 40, "s-bad", 0.9);
+  T(svg, 396, 36, "pole: every longitude", "t-bad");
+  T(svg, 396, 51, "names this one point", "t-bad");
+
+  var phi = 12 * DEG, lam = -38 * DEG, P = sph(phi, lam);
+  var Ev = [Math.cos(lam), 0, -Math.sin(lam)];
+  var Nv = [-Math.sin(phi)*Math.sin(lam), Math.cos(phi), -Math.sin(phi)*Math.cos(lam)];
+  var a = 0.5;
+  function pp(u, v){ return scr([P[0] + a*(u*Ev[0] + v*Nv[0]), P[1] + a*(u*Ev[1] + v*Nv[1]), P[2] + a*(u*Ev[2] + v*Nv[2])]); }
+  PL(svg, [pp(-1,-1), pp(1,-1), pp(1,1), pp(-1,1)], "plane", 1.3, true);
+  for (var k = -0.5; k <= 0.51; k += 0.5){
+    var g1 = pp(k, -1), g2 = pp(k, 1), g3 = pp(-1, k), g4 = pp(1, k);
+    L(svg, g1[0], g1[1], g2[0], g2[1], "s-tan", 0.6);
+    L(svg, g3[0], g3[1], g4[0], g4[1], "s-tan", 0.6);
+  }
+  var Ps = scr(P);
+  C(svg, Ps[0], Ps[1], 5, "f-grp");
+  var corner = pp(1, -1);
+  L(svg, corner[0] + 4, corner[1] + 2, 390, 250, "s-tan", 0.9);
+  T(svg, 396, 250, "tangent plane: a flat map", "t-tan");
+  T(svg, 396, 265, "that is right near the point", "t-tan");
+  T(svg, 396, 280, "and wrong far from it", "t-tan");
+  T(svg, 396, 160, "sphere: stored as (x, y, z),", "t-ink");
+  T(svg, 396, 175, "but only 2 directions to move", "t-ink");
+}
+
+/* ---------------------------------------------------------- circle explorer */
+function circleWidget(){
+  var svg = document.getElementById("circle-svg"); if (!svg) return;
+  var mIn = document.getElementById("c-mean"), tIn = document.getElementById("c-tau");
+  var cx = 200, cy = 200, r = 128;
+  function num(v){ var s = (Math.abs(v) < 0.0005 ? 0 : v).toFixed(3); return s.replace("-", "−"); }
+  function mat(el, M){
+    el.innerHTML = "";
+    [M[0][0], M[0][1], M[1][0], M[1][1]].forEach(function(v){
+      var sp = document.createElement("span"); sp.textContent = num(v); el.appendChild(sp);
+    });
+  }
+  function P(a, rad){ return [cx + rad * Math.cos(a), cy - rad * Math.sin(a)]; }
+  function render(){
+    var a = +mIn.value * DEG, tau = +tIn.value;
+    document.getElementById("c-mean-o").textContent = (+mIn.value) + "°";
+    document.getElementById("c-tau-o").textContent = tau.toFixed(2) + " (" + Math.round(tau / DEG) + "°)";
+    clear(svg);
+    L(svg, cx - 190, cy, cx + 190, cy, "s-rule", 1);
+    L(svg, cx, cy - 190, cx, cy + 190, "s-rule", 1);
+    E(svg, "circle", {cx:cx, cy:cy, r:r, "class":"s-ink", "stroke-width":1.6});
+    var I = P(0, r);
+    C(svg, I[0], I[1], 3.2, "f-soft");
+    T(svg, I[0] + 7, I[1] + 17, "I", "t-m t-faint");
+
+    var tx = -Math.sin(a), ty = Math.cos(a), Rb = P(a, r), Lh = 230;
+    L(svg, Rb[0] - Lh*tx, Rb[1] + Lh*ty, Rb[0] + Lh*tx, Rb[1] - Lh*ty, "s-tan", 1.2);
+    var N = [Rb[0] + tau*r*tx, Rb[1] - tau*r*ty];
+    L(svg, cx, cy, N[0], N[1], "s-bad dash", 1.1);
+    var b = a + tau, Cp = P(b, r);
+    if (Math.abs(tau) > 0.02){
+      PL(svg, arcPts(cx, cy, r, a, b, 48), "s-grp", 3);
+      arcArrow(svg, cx, cy, r + 13, a, b, "a-grp", 1.2);
+      arrow(svg, Rb[0], Rb[1], N[0], N[1], "a-tan", 2, 9);
+    }
+    L(svg, cx, cy, Rb[0], Rb[1], "s-soft", 0.8);
+    C(svg, N[0], N[1], 5.5, "f-bad");
+    C(svg, Cp[0], Cp[1], 5.5, "f-grp");
+    C(svg, Rb[0], Rb[1], 5, "f-ink");
+
+    function lab(pt, s, cls, push){
+      var dx = pt[0] - cx, dy = pt[1] - cy, n = Math.hypot(dx, dy) || 1;
+      var x = pt[0] + dx / n * push, y = pt[1] + dy / n * push + 4;
+      T(svg, x, y, s, cls, dx > 12 ? "start" : (dx < -12 ? "end" : "middle"));
+    }
+    var Ri = P(a, r - 26);
+    T(svg, Ri[0], Ri[1] + 5, "R̄", "t-m t-ink", "middle");
+    lab(N, "add", "t-bad t-b", 14);
+    lab(Cp, "compose", "t-grp t-b", 26);
+    var mid = [Rb[0] + tau*r*tx*0.5, Rb[1] - tau*r*ty*0.5];
+    T(svg, mid[0] + Math.cos(a)*16, mid[1] - Math.sin(a)*16 + 4, "τ", "t-m t-tan", Math.cos(a) >= 0 ? "start" : "end");
+
+    var c = Math.cos(a), s = Math.sin(a);
+    mat(document.getElementById("c-add-m"), [[c - tau*s, -s - tau*c], [s + tau*c, c - tau*s]]);
+    document.getElementById("c-add-d").textContent =
+      "det = " + (1 + tau*tau).toFixed(3) + "   column length = " + Math.sqrt(1 + tau*tau).toFixed(3);
+    mat(document.getElementById("c-cmp-m"), [[Math.cos(b), -Math.sin(b)], [Math.sin(b), Math.cos(b)]]);
+    document.getElementById("c-cmp-d").textContent = "det = 1.000   column length = 1.000";
+  }
+  mIn.addEventListener("input", render);
+  tIn.addEventListener("input", render);
+  render();
+}
+
+/* ---------------------------------------------------------- heading mean */
+function figMean(){
+  var svg = document.getElementById("fig-mean"); if (!svg) return;
+  var cx = 160, cy = 192, r = 130, lx = 405;
+  function P(deg, rad){ return [cx + rad*Math.cos(deg*DEG), cy - rad*Math.sin(deg*DEG)]; }
+  function Yl(res){ return 262 - 5*res; }      // the tangent line, straightened out
+  L(svg, cx - 150, cy, cx + 150, cy, "s-rule", 1);
+  L(svg, cx, cy - 150, cx, cy + 150, "s-rule", 1);
+  E(svg, "circle", {cx:cx, cy:cy, r:r, "class":"s-ink", "stroke-width":1.6});
+
+  L(svg, lx, Yl(-12), lx, Yl(42), "s-tan", 1.6);
+  T(svg, lx, Yl(42) - 20, "tangent line at 350°,", "t-tan", "middle");
+  T(svg, lx, Yl(42) - 6, "straightened out", "t-tan", "middle");
+  [[350, 0], [10, 20], [20, 30]].forEach(function(m){
+    var p = P(m[0], r), y = Yl(m[1]);
+    L(svg, p[0] + 6, p[1], lx - 6, y, "s-tan dot", 1.3);
+    C(svg, p[0], p[1], 4.5, "f-ink");
+    C(svg, lx, y, 4, "f-tan");
+    T(svg, lx + 12, y + 4, m[0] + "° → " + m[1] + "°", "t-tan");
+  });
+  var ym = Yl(50/3);
+  E(svg, "rect", {x:lx - 5, y:f1(ym - 5), width:10, height:10, "class":"f-tan"});
+  T(svg, lx + 12, ym + 4, "average: 16.7°", "t-tan t-b");
+
+  // wrap back: a curve from the average down to the copper tick on the circle
+  var end = P(20/3, r + 24), c1 = [352, 222], pts = [];
+  for (var i = 0; i <= 30; i++){
+    var u = i/30, a = (1-u)*(1-u), b = 2*u*(1-u), c = u*u;
+    pts.push([a*(lx - 9) + b*c1[0] + c*end[0], a*ym + b*c1[1] + c*end[1]]);
+  }
+  PL(svg, pts.slice(0, -2), "s-grp", 1.5);
+  var q = pts[pts.length - 4];
+  arrow(svg, q[0], q[1], end[0], end[1], "a-grp", 1.5, 8);
+  T(svg, 352, 220, "Exp", "t-grp t-b", "middle");
+  var t0 = P(20/3, r - 10), t1 = P(20/3, r + 18);
+  L(svg, t0[0], t0[1], t1[0], t1[1], "s-grp", 3.5);
+  var ml = P(20/3, r - 22);
+  T(svg, ml[0], ml[1] + 4, "mean: 6.7°", "t-grp t-b", "end");
+
+  var nv = P(380/3, r);
+  L(svg, cx, cy, nv[0], nv[1], "s-bad dash", 1.1);
+  C(svg, nv[0], nv[1], 6.5, "f-bad");
+  L(svg, nv[0] - 3, nv[1] - 8, 70, 44, "s-bad", 0.8);
+  T(svg, 14, 36, "(350 + 10 + 20) / 3 = 126.7°", "t-bad t-b", "start");
+}
+
+/* ---------------------------------------------------------- spin field */
+function figSpin(){
+  var svg = document.getElementById("fig-spin"); if (!svg) return;
+  var cx = 170, cy = 150, S = 50;
+  L(svg, cx - 140, cy, cx + 140, cy, "s-rule", 1);
+  L(svg, cx, cy - 135, cx, cy + 135, "s-rule", 1);
+  T(svg, cx + 140, cy - 8, "x", "t-m t-faint", "end");
+  T(svg, cx + 8, cy - 124, "y", "t-m t-faint");
+  [1, 2].forEach(function(rad){
+    E(svg, "circle", {cx:cx, cy:cy, r:rad*S, "class":"s-rule dash", "stroke-width":1});
+    for (var k = 0; k < 8; k++){
+      var a = k * 45 * DEG, x = rad*Math.cos(a), y = rad*Math.sin(a);
+      var vx = -y, vy = x, sc = 0.42 * S;
+      var hi = (rad === 2 && k === 0);
+      if (hi) continue;
+      arrow(svg, cx + S*x, cy - S*y, cx + S*x + sc*vx, cy - S*y - sc*vy, "a-tan", 1.3, 7);
+      C(svg, cx + S*x, cy - S*y, 2.4, "f-ink");
+    }
+  });
+  var px = cx + 2*S, py = cy;
+  arrow(svg, px, py, px, py - 0.84*S, "a-tan", 2.6, 10);
+  C(svg, px, py, 4.5, "f-ink");
+  E(svg, "circle", {cx:cx, cy:cy, r:8, "class":"s-ink", "stroke-width":1.4});
+  C(svg, cx, cy, 2.6, "f-ink");
+  T(svg, 350, 285, "⊙ is ω, out of the page", "t-sm");
+  T(svg, px + 12, py + 18, "x = (1, 0, 0)", "t-ink");
+  T(svg, px + 8, py - 44, "ω × x = (0, 1, 0)", "t-tan t-b");
+  T(svg, 350, 250, "speed grows with", "");
+  T(svg, 350, 265, "distance from the axis", "");
+}
+
+/* ---------------------------------------------------------- twist */
+function figTwist(){
+  var svg = document.getElementById("fig-twist"); if (!svg) return;
+  var S = 280, ox = 92, oy = 330;
+  function X(x){ return ox + S*x; } function Y(y){ return oy - S*y; }
+  [0.5, 1].forEach(function(v){
+    L(svg, X(v), Y(-0.05), X(v), Y(1.08), "s-rule", 0.8);
+    L(svg, X(-0.15), Y(v), X(1.35), Y(v), "s-rule", 0.8);
+    T(svg, X(v), Y(-0.05) + 16, v + " m", "t-sm t-faint", "middle");
+    T(svg, X(-0.15) - 4, Y(v) + 4, v + " m", "t-sm t-faint", "end");
+  });
+  var r = 2 / Math.PI, pts = [];
+  for (var i = 0; i <= 60; i++){ var th = (Math.PI/2) * i/60; pts.push([X(r*Math.sin(th)), Y(r*(1 - Math.cos(th)))]); }
+  PL(svg, pts, "s-grp", 3);
+  L(svg, X(0), Y(0), X(r), Y(r), "s-grp dash", 1.3);
+  T(svg, X(r*0.5) - 12, Y(r*0.5) - 6, "0.90 m", "t-grp", "end");
+  arrow(svg, X(0), Y(0), X(1), Y(0), "a-tan", 2.2, 10);
+  T(svg, X(0.55), Y(0) - 16, "v: 1 m/s along the body's x", "t-tan", "middle");
+  C(svg, X(1), Y(0), 6, "f-bad");
+  T(svg, X(1) + 12, Y(0) + 5, "not here", "t-bad t-b");
+  function car(x, y, hd, cls){
+    var p = [[16, 0], [-9, 8], [-9, -8]].map(function(q){
+      return [x + q[0]*Math.cos(hd) - q[1]*Math.sin(hd), y - (q[0]*Math.sin(hd) + q[1]*Math.cos(hd))];
+    });
+    PL(svg, p, cls, 1, true);
+  }
+  car(X(0), Y(0), 0, "f-ink");
+  car(X(r), Y(r), Math.PI/2, "f-grp");
+  T(svg, X(r) + 16, Y(r) - 4, "Exp(ξ): (0.64, 0.64) m", "t-grp t-b");
+  T(svg, X(r) + 16, Y(r) + 12, "facing +y", "t-grp");
+  T(svg, X(0) - 12, Y(0) - 12, "start", "t-ink", "end");
+  T(svg, X(0.72), Y(0.28), "ω = 90°/s", "t-tan");
+}
+
+/* ---------------------------------------------------------- banana */
+function bananaWidget(){
+  var svg = document.getElementById("banana-svg"); if (!svg) return;
+  var sIn = document.getElementById("b-sigma"), out = document.getElementById("b-readout");
+  var radios = document.querySelectorAll('input[name="b-model"]');
+  var S = 230, ox = 82, oy = 230;
+  function X(x){ return ox + S*x; } function Y(y){ return oy - S*y; }
+
+  function rng(seed){
+    return function(){
+      seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+      var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function gauss(r){ var u = 0; while (u === 0) u = r(); return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*r()); }
+  function wrap(a){ return Math.atan2(Math.sin(a), Math.cos(a)); }
+  function exp2(v){
+    var w = v[2];
+    if (Math.abs(w) < 1e-9) return [v[0], v[1], 0];
+    var s = Math.sin(w), c1 = 1 - Math.cos(w);
+    return [(s*v[0] - c1*v[1]) / w, (c1*v[0] + s*v[1]) / w, w];
+  }
+  function log2(p){
+    var w = wrap(p[2]);
+    if (Math.abs(w) < 1e-9) return [p[0], p[1], 0];
+    var s = Math.sin(w), c1 = 1 - Math.cos(w), k = w / (2*c1);
+    return [k*(s*p[0] + c1*p[1]), k*(-c1*p[0] + s*p[1]), w];
+  }
+  function comp(a, b){
+    var c = Math.cos(a[2]), s = Math.sin(a[2]);
+    return [a[0] + c*b[0] - s*b[1], a[1] + s*b[0] + c*b[1], a[2] + b[2]];
+  }
+  function inv(a){
+    var c = Math.cos(a[2]), s = Math.sin(a[2]);
+    return [-(c*a[0] + s*a[1]), -(-s*a[0] + c*a[1]), -a[2]];
+  }
+  function chol3(A){
+    var Lm = [[0,0,0],[0,0,0],[0,0,0]];
+    for (var i = 0; i < 3; i++) for (var j = 0; j <= i; j++){
+      var s = A[i][j];
+      for (var k = 0; k < j; k++) s -= Lm[i][k]*Lm[j][k];
+      if (i === j) Lm[i][i] = Math.sqrt(Math.max(s, 1e-12)); else Lm[i][j] = s / Lm[j][j];
+    }
+    return Lm;
+  }
+  function stats(vs){
+    var n = vs.length, m = [0,0,0], Cv = [[0,0,0],[0,0,0],[0,0,0]];
+    vs.forEach(function(v){ for (var i = 0; i < 3; i++) m[i] += v[i] / n; });
+    vs.forEach(function(v){
+      for (var i = 0; i < 3; i++) for (var j = 0; j < 3; j++) Cv[i][j] += (v[i]-m[i])*(v[j]-m[j]) / n;
+    });
+    return {m:m, C:Cv};
+  }
+  function draws(st, seed, M){
+    var r = rng(seed), Lm = chol3(st.C), outp = [];
+    for (var i = 0; i < M; i++){
+      var z = [gauss(r), gauss(r), gauss(r)];
+      outp.push([st.m[0] + Lm[0][0]*z[0],
+                 st.m[1] + Lm[1][0]*z[0] + Lm[1][1]*z[1],
+                 st.m[2] + Lm[2][0]*z[0] + Lm[2][1]*z[1] + Lm[2][2]*z[2]]);
+    }
+    return outp;
+  }
+
+  function render(){
+    var sig = +sIn.value;
+    document.getElementById("b-sigma-o").textContent = sig + "°";
+    var mode = "xy";
+    for (var q = 0; q < radios.length; q++) if (radios[q].checked) mode = radios[q].value;
+
+    // most of the heading error is there from the start; a little more accrues on the way
+    var r = rng(7), N = 40, ds = 1 / N, sStep = 0.25*sig*DEG / Math.sqrt(N), robots = [];
+    for (var i = 0; i < 400; i++){
+      var x = 0, y = 0, h = sig*DEG*gauss(r);
+      for (var k = 0; k < N; k++){
+        h += sStep * gauss(r);
+        var dd = ds * (1 + 0.08*gauss(r));
+        x += dd*Math.cos(h); y += dd*Math.sin(h);
+      }
+      robots.push([x, y, h]);
+    }
+
+    clear(svg);
+    [-0.5, 0, 0.5].forEach(function(v){
+      L(svg, X(-0.12), Y(v), X(1.2), Y(v), "s-rule", v === 0 ? 1 : 0.7);
+      T(svg, X(-0.12) - 4, Y(v) + 4, (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v) + " m", "t-sm t-faint", "end");
+    });
+    [0, 0.5, 1].forEach(function(v){
+      L(svg, X(v), Y(-0.9), X(v), Y(0.9), "s-rule", 0.7);
+      T(svg, X(v), Y(-0.9) + 16, v + " m", "t-sm t-faint", "middle");
+    });
+    L(svg, X(0), Y(0), X(1), Y(0), "s-soft dash", 1.2);
+    PL(svg, [[X(0)+12, Y(0)], [X(0)-7, Y(0)+7], [X(0)-7, Y(0)-7]], "f-ink", 1, true);
+
+    var g = E(svg, "g", {opacity: mode === "none" ? "0.75" : "0.45"});
+    robots.forEach(function(p){ C(g, X(p[0]), Y(p[1]), 1.8, "f-soft"); });
+
+    var model = [], meanPt = null, text;
+    if (mode === "xy"){
+      var st = stats(robots);
+      model = draws(st, 11, 400);
+      meanPt = st.m;
+      var cxx = st.C[0][0], cxy = st.C[0][1], cyy = st.C[1][1];
+      var tr2 = (cxx + cyy) / 2, det = cxx*cyy - cxy*cxy, disc = Math.sqrt(Math.max(tr2*tr2 - det, 0));
+      var l1 = tr2 + disc, l2 = Math.max(tr2 - disc, 0), ang = 0.5*Math.atan2(2*cxy, cxx - cyy), ell = [];
+      for (var j = 0; j <= 64; j++){
+        var u = 2*Math.PI*j/64, ax = 2*Math.sqrt(l1)*Math.cos(u), ay = 2*Math.sqrt(l2)*Math.sin(u);
+        ell.push([X(st.m[0] + ax*Math.cos(ang) - ay*Math.sin(ang)), Y(st.m[1] + ax*Math.sin(ang) + ay*Math.cos(ang))]);
+      }
+      PL(svg, ell, "s-bad dash", 1.3);
+    } else if (mode === "tan"){
+      var Tb = [1, 0, 0];
+      for (var it = 0; it < 10; it++){
+        var xs = robots.map(function(p){ return log2(comp(inv(Tb), p)); });
+        var mu = stats(xs).m;
+        Tb = comp(Tb, exp2(mu));
+      }
+      var xi = robots.map(function(p){ return log2(comp(inv(Tb), p)); });
+      var st2 = stats(xi);
+      st2.m = [0, 0, 0];
+      model = draws(st2, 11, 400).map(function(v){ return comp(Tb, exp2(v)); });
+      meanPt = Tb;
+    }
+    var cls = mode === "xy" ? "f-bad" : "f-tan";
+    var g2 = E(svg, "g", {opacity:"0.7"});
+    model.forEach(function(p){ C(g2, X(p[0]), Y(p[1]), 1.9, cls); });
+    if (meanPt) C(svg, X(meanPt[0]), Y(meanPt[1]), 5.5, "f-grp");
+
+    if (mode === "none"){
+      text = "400 simulated robots. Each started with a heading error and drove 1 m in 40 steps, gaining a little more error at every step.";
+    } else {
+      var far = 0;
+      model.forEach(function(p){
+        var best = 1e9;
+        for (var m = 0; m < robots.length; m++){
+          var dx = p[0] - robots[m][0], dy = p[1] - robots[m][1], d2 = dx*dx + dy*dy;
+          if (d2 < best) best = d2;
+        }
+        if (best > 0.04*0.04) far++;
+      });
+      text = (mode === "xy" ? "Gaussian on (x, y, θ): " : "Gaussian on the tangent space: ") +
+        Math.round(100*far/model.length) + "% of its samples land more than 4 cm from every simulated robot.";
+    }
+    out.textContent = text;
+  }
+  sIn.addEventListener("input", render);
+  for (var q = 0; q < radios.length; q++) radios[q].addEventListener("change", render);
+  render();
+}
+
+/* ---------------------------------------------------------- lever arm */
+function figLever(){
+  var svg = document.getElementById("fig-lever"); if (!svg) return;
+  var bx = 50, by = 118, sx = 170, px = 650, half = 5 * DEG;
+  var hs = (sx - bx)*Math.tan(half), hp = (px - bx)*Math.tan(half);
+  PL(svg, [[bx, by], [px + 12, by - (px + 12 - bx)*Math.tan(half)], [px + 12, by + (px + 12 - bx)*Math.tan(half)]], "f-grp-soft", 0, true);
+  L(svg, bx, by, px + 12, by - (px + 12 - bx)*Math.tan(half), "s-grp dash", 1.1);
+  L(svg, bx, by, px + 12, by + (px + 12 - bx)*Math.tan(half), "s-grp dash", 1.1);
+  L(svg, bx, by, px + 12, by, "s-ink", 1);
+  E(svg, "path", {d:"M " + (bx + 40) + " " + by + " A 40 40 0 0 0 " + f1(bx + 40*Math.cos(half)) + " " + f1(by - 40*Math.sin(half)), "class":"s-grp", "stroke-width":1.4});
+  L(svg, sx, by - hs, sx, by + hs, "s-tan", 3);
+  L(svg, px, by - hp, px, by + hp, "s-tan", 3);
+  C(svg, bx, by, 5.5, "f-ink");
+  C(svg, sx, by, 4.5, "f-tan");
+  C(svg, px, by, 4.5, "f-tan");
+  E(svg, "path", {d:"M 400 " + (by - 8) + " l 6 16 M 408 " + (by - 8) + " l 6 16", "class":"s-ink", "stroke-width":1.2});
+  T(svg, bx - 4, by + 26, "base", "t-ink", "start");
+  T(svg, bx + 48, by - 12, "σψ = 0.5°", "t-grp");
+  T(svg, sx, by - hs - 22, "sensor: ±1.7 cm", "t-tan t-b", "middle");
+  T(svg, px, by - hp - 12, "point: ±19 cm", "t-tan t-b", "end");
+  L(svg, bx, 205, sx, 205, "s-soft", 1);
+  L(svg, sx, 205, px, 205, "s-soft", 1);
+  [bx, sx, px].forEach(function(x){ L(svg, x, 199, x, 211, "s-soft", 1); });
+  T(svg, (bx + sx)/2, 225, "2 m", "", "middle");
+  T(svg, (sx + px)/2, 225, "20 m further (not to scale)", "", "middle");
+}
+
+function boot(){
+  [figOrder, figSquare, figFrame, figGlobe, circleWidget, figMean, figSpin, figTwist, bananaWidget, figLever]
+    .forEach(function(fn){ try { fn(); } catch (err) { if (window.console) console.error(fn.name, err); } });
+}
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+else boot();
+})();
+</script>

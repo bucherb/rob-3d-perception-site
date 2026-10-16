@@ -1,0 +1,329 @@
+<title>3D Perception Labs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+
+<style>
+:root{
+  --ground:#F5F7F6; --surface:#FFFFFF; --surface-2:#EDF1F0;
+  --ink:#16232A; --ink-soft:#55676F; --ink-faint:#84969C;
+  --rule:#DCE3E2; --rule-strong:#C3CFCD;
+  --accent:#0E7C86; --accent-soft:#E0EFEF;
+  --accent-2:#B4652A; --accent-2-soft:#F4E8DC;
+  --muted:#8A9498; --muted-soft:#E7EAEA;
+  --shadow:0 1px 2px rgba(22,35,42,.05), 0 8px 24px -16px rgba(22,35,42,.18);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#101619; --surface:#172024; --surface-2:#1D282C;
+    --ink:#E4EBE9; --ink-soft:#A3B3B8; --ink-faint:#7D8F95;
+    --rule:#2A373C; --rule-strong:#3B4B50;
+    --accent:#4FBCC4; --accent-soft:#123336;
+    --accent-2:#DFA160; --accent-2-soft:#33261A;
+    --muted:#7D8B90; --muted-soft:#222D31;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -16px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#101619; --surface:#172024; --surface-2:#1D282C;
+  --ink:#E4EBE9; --ink-soft:#A3B3B8; --ink-faint:#7D8F95;
+  --rule:#2A373C; --rule-strong:#3B4B50;
+  --accent:#4FBCC4; --accent-soft:#123336;
+  --accent-2:#DFA160; --accent-2-soft:#33261A;
+  --muted:#7D8B90; --muted-soft:#222D31;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -16px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Source Serif 4", Georgia, serif;font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased;}
+.shell{max-width:1240px;margin:0 auto;padding:0 28px 96px;
+  display:grid;grid-template-columns:196px minmax(0,1fr);gap:0 56px;align-items:start;}
+.rail{position:sticky;top:0;padding:44px 0;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11.5px;line-height:1.5;display:flex;flex-direction:column;gap:2px;max-height:100vh;overflow-y:auto;}
+.rail a{color:var(--ink-soft);text-decoration:none;padding:5px 8px 5px 10px;
+  border-left:2px solid transparent;display:flex;gap:8px;transition:color .15s,border-color .15s;}
+.rail a:hover,.rail a:focus-visible{color:var(--accent);border-left-color:var(--accent);}
+.rail a .n{color:var(--ink-faint);min-width:22px;}
+.rail .rail-head{text-transform:uppercase;letter-spacing:.12em;color:var(--ink-faint);
+  padding:14px 0 6px 10px;font-size:10px;}
+main{padding:44px 0 0;min-width:0;}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--accent);margin:0 0 10px;}
+h1{font-family:"IBM Plex Sans Condensed","Arial Narrow",sans-serif;font-weight:700;
+  font-size:clamp(38px,6vw,62px);line-height:1.02;letter-spacing:-.015em;margin:0 0 18px;text-wrap:balance;}
+h2{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:clamp(24px,3.2vw,32px);
+  line-height:1.12;letter-spacing:-.01em;margin:0 0 6px;text-wrap:balance;}
+h3{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:19px;line-height:1.25;margin:0 0 6px;text-wrap:balance;}
+h4{font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:600;font-size:11.5px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 10px;}
+p{margin:0 0 16px;} .prose{max-width:66ch;}
+.lede{font-size:20px;line-height:1.55;color:var(--ink-soft);max-width:62ch;margin-bottom:26px;}
+a{color:var(--accent);} strong{font-weight:600;}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.88em;
+  background:var(--surface-2);padding:1px 5px;border-radius:2px;}
+section{padding:52px 0;border-top:1px solid var(--rule);}
+section:first-of-type{border-top:none;}
+.sec-head{margin-bottom:28px;max-width:68ch;}
+.sec-head p{color:var(--ink-soft);margin-bottom:0;}
+.masthead{padding:0 0 44px;border:none;}
+.mast-meta{display:flex;flex-wrap:wrap;gap:0 28px;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11.5px;color:var(--ink-faint);letter-spacing:.06em;text-transform:uppercase;
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:12px 0;margin-top:28px;}
+.mast-meta span b{color:var(--ink-soft);font-weight:500;}
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);border-radius:3px;background:var(--surface);margin-bottom:8px;}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:15px;}
+th{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink-faint);font-weight:500;text-align:left;
+  padding:12px 14px;border-bottom:1px solid var(--rule-strong);background:var(--surface-2);white-space:nowrap;}
+td{padding:11px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.45;}
+tr:last-child td{border-bottom:none;}
+td.num,th.num{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
+  font-size:13px;color:var(--ink-soft);white-space:nowrap;}
+tbody tr:hover td{background:var(--surface-2);}
+.note{border-left:2px solid var(--accent);background:var(--accent-soft);padding:16px 20px;
+  border-radius:0 3px 3px 0;margin:24px 0;font-size:15.5px;max-width:72ch;}
+.note p:last-child{margin-bottom:0;} .note h4{color:var(--accent);margin-bottom:8px;}
+.warn{border-left-color:var(--accent-2);background:var(--accent-2-soft);}
+.warn h4{color:var(--accent-2);}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:20px 22px;}
+.card p:last-child{margin-bottom:0;} .card p{font-size:15.5px;color:var(--ink-soft);}
+.card ol{margin:10px 0 0;padding-left:22px;display:flex;flex-direction:column;gap:8px;font-size:15.5px;color:var(--ink-soft);}
+.card ol strong{color:var(--ink);}
+ul.plain{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:9px;}
+ul.plain li{padding-left:18px;position:relative;font-size:15.5px;line-height:1.5;}
+ul.plain li::before{content:"";position:absolute;left:0;top:.62em;width:6px;height:6px;background:var(--accent);border-radius:1px;}
+ul.dash{margin:0 0 16px;padding-left:22px;display:flex;flex-direction:column;gap:7px;}
+ul.dash li{line-height:1.5;}
+ol.steps{margin:0 0 16px;padding-left:22px;display:flex;flex-direction:column;gap:8px;}
+ol.steps li{line-height:1.5;}
+
+/* lab-specific */
+.labhead{background:var(--surface);border:1px solid var(--rule);border-top:3px solid var(--accent);
+  border-radius:0 0 3px 3px;padding:24px 26px;margin-bottom:26px;box-shadow:var(--shadow);}
+.labhead .lh-top{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:10px;}
+.labhead .lh-id{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;
+  color:var(--accent);letter-spacing:.08em;}
+.labhead .lh-dates{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-faint);
+  margin-left:auto;letter-spacing:.06em;}
+.labhead h2{margin-bottom:10px;}
+.labhead .lh-goal{color:var(--ink-soft);font-size:16px;margin:0;max-width:68ch;}
+.part{margin:0 0 30px;}
+.part-head{display:flex;align-items:baseline;gap:12px;padding-bottom:9px;margin-bottom:14px;
+  border-bottom:1px solid var(--rule);flex-wrap:wrap;}
+.part-head h3{margin:0;}
+.pts{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--accent-2);background:var(--accent-2-soft);
+  padding:3px 8px;border-radius:2px;white-space:nowrap;margin-left:auto;font-weight:500;}
+.task{margin:0 0 16px;padding-left:0;}
+.task .tid{font-family:"IBM Plex Mono",monospace;font-size:12.5px;font-weight:600;color:var(--ink);
+  margin-right:8px;}
+.task .tpts{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-faint);}
+.task p{margin:5px 0 0;font-size:15.5px;}
+.eq{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:14px;line-height:1.75;
+  background:var(--surface-2);border:1px solid var(--rule);border-radius:3px;
+  padding:14px 18px;margin:12px 0;overflow-x:auto;white-space:pre;color:var(--ink);}
+.deliv{background:var(--surface);border:1px solid var(--rule-strong);border-radius:3px;
+  padding:18px 22px;margin:24px 0 0;}
+.deliv h4{color:var(--accent);}
+.deliv ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:15px;}
+footer{border-top:1px solid var(--rule);padding:28px 0 0;font-family:"IBM Plex Mono",monospace;
+  font-size:11.5px;color:var(--ink-faint);letter-spacing:.04em;line-height:1.7;}
+a:focus-visible,.rail a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px;}
+@media (max-width:980px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:0;padding:0 20px 72px;}
+  .rail{position:static;max-height:none;padding:24px 0 20px;flex-direction:row;flex-wrap:wrap;gap:4px;
+    border-bottom:1px solid var(--rule);}
+  .rail .rail-head{display:none;}
+  .rail a{border-left:none;border:1px solid var(--rule);border-radius:2px;padding:5px 9px;}
+  .rail a:hover,.rail a:focus-visible{border-color:var(--accent);}
+  main{padding-top:32px;}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
+pre{background:var(--surface-2);border:1px solid var(--rule);border-radius:3px;
+  padding:12px 14px;overflow-x:auto;max-width:100%;}
+pre code{background:none;border:0;padding:0;font-size:13px;}
+</style>
+
+<div class="shell">
+<nav class="rail" aria-label="Contents">
+  <a href="../index.html">&larr; Course site</a>
+  <div class="rail-head">General</div>
+  <a href="#howto"><span class="n">00</span>How labs work</a>
+  <a href="#env"><span class="n">01</span>Environment</a>
+  <a href="#starter"><span class="n">02</span>Starter code</a>
+  <div class="rail-head">Lab 1</div>
+  <a href="#lab1"><span class="n">L1</span>Overview</a>
+  <a href="#l1b"><span class="n">B</span>Segmentation</a>
+  <a href="#l1c"><span class="n">C</span>Splatting</a>
+  <a href="#l1d"><span class="n">D</span>Feed-forward</a>
+  <a href="#l1e"><span class="n">E</span>Downstream task</a>
+</nav>
+
+<main>
+
+<header class="masthead">
+  <p class="eyebrow">ROB 498 / 599 &middot; Fall 2026</p>
+  <h1>3D Perception Labs</h1>
+  <p class="lede">One assignment on real 3D data: compare 3D representations against a task a robot actually has to do.</p>
+  <div class="mast-meta">
+    <span><b>Lab 1</b> Oct 7 &ndash; Nov 20</span>
+    <span><b>Worth</b> 100 pts &middot; 30% of grade</span>
+  </div>
+</header>
+
+<section id="howto">
+  <div class="sec-head">
+    <p class="eyebrow">00 &mdash; How labs work</p>
+    <h2>Read this once before the lab</h2>
+  </div>
+  <div class="prose">
+    <p>The lab is implemented in Python and evaluated on real data. It compares 3D representations against a task a robot actually has to do.</p>
+    <p>The starter repository provides the conventions, the evaluation metrics, and the deliverable file formats; what it leaves out is every function you are graded on. Read <code>rob498/se3.py</code> before you write anything. It fixes the pose, twist, and quaternion conventions that the lab and every grading script assume, and it provides the SE(3) exponential, logarithm, and adjoint, so you never write your own. Use them rather than a pose helper from another library: a convention mismatch fails silently and shows up only in your numbers.</p>
+    <p>The lab is worth 100 points and 30% of your course grade. It is graded on one principle: <strong>a working pipeline with an honest evaluation beats a broken pipeline with an optimistic one.</strong> Reporting that your method failed, with evidence for why, earns most of the credit. Reporting a number you did not actually measure earns none of it.</p>
+  </div>
+
+  <div class="cols">
+    <div class="card">
+      <h3>What you submit</h3>
+      <p>A <code>.zip</code> on <a href="https://umich.instructure.com/courses/866572/assignments">Canvas</a> containing your code, plus a report PDF submitted separately so it can be annotated. Page limits are firm; appendices do not extend them. Include a <code>README.md</code> stating exactly how to reproduce each number in your report.</p>
+    </div>
+    <div class="card">
+      <h3>What you may use</h3>
+      <p>Standard scientific Python, PyTorch, Open3D, and the specific libraries named in the lab. You may <strong>not</strong> import a library that implements the core algorithm you were asked to write. Use one to check your answer and say so in the report.</p>
+    </div>
+    <div class="card">
+      <h3>Collaboration</h3>
+      <p>Discuss freely. Write and code alone. If you discussed a problem with someone, name them at the top of your report &mdash; this costs you nothing and its absence, when we can see it, costs a lot.</p>
+    </div>
+    <div class="card">
+      <h3>Generative AI</h3>
+      <p>Permitted, per the course policy. You are responsible for everything you submit: if you cannot explain a line of your code in office hours, it does not count as yours. Note in your README where you used it substantially.</p>
+    </div>
+  </div>
+
+  <div class="note">
+    <h4>Reporting numbers</h4>
+    <p>Every quantitative claim needs the conditions attached: which sequence, how many trials, what seed, what hardware. A table row that reads <code>VGGT: 0.03</code> is worth nothing. One that reads <code>VGGT, eval scene, 64 views, Sim(3)-aligned, 5 random view subsets, median ATE 0.031 m (IQR 0.024&ndash;0.049), 41 s mean, A40</code> is worth full marks even if the number is bad.</p>
+  </div>
+</section>
+
+<section id="env">
+  <div class="sec-head">
+    <p class="eyebrow">01 &mdash; Environment</p>
+    <h2>Compute and data</h2>
+  </div>
+  <div class="prose">
+    <p>The lab needs a GPU with at least 16&nbsp;GB of memory; use the course allocation on Great Lakes. Colab will not carry a 3DGS fit or a long VGGT forward pass, and you will lose a day discovering that.</p>
+    <p>One conda environment covers the lab: <code>conda env create -f environment.yml &amp;&amp; conda activate rob498</code>. The lab ships a <code>data/</code> fetch script. Run it the day the lab is released, not the night before it is due &mdash; the Lab 1 ScanNet++ subset requires you to have accepted the dataset terms, which takes time to approve.</p>
+    <ul class="plain">
+      <li><strong>Lab 1:</strong> a ScanNet++ subset, plus held-out views and a ground-truth mesh for the evaluation scene.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="starter">
+  <div class="sec-head">
+    <p class="eyebrow">02 &mdash; Starter code</p>
+    <h2>Scaffolding, not solutions</h2>
+  </div>
+  <div class="prose">
+    <p>The lab comes with a starter repository: the <code>rob498</code> package
+    (SE(3) conventions, evaluation metrics, deliverable file formats, summary tables), the lab
+    modules, contract tests, and a runner CLI. It is on GitHub &rarr;
+    <a href="https://github.com/bucherb/rob-3d-perception-lab"><strong>bucherb/rob-3d-perception-lab</strong></a>. Clone it and follow its
+    README, which takes you from a fresh clone to a passing <code>pytest</code>:</p>
+    <pre><code>git clone https://github.com/bucherb/rob-3d-perception-lab.git
+cd rob-3d-perception-lab</code></pre>
+    <p>The algorithms are not in it. Every function you are graded on raises
+    <code>NotImplementedError</code> with its part number and point value in the docstring.
+    The split follows the policy above: bookkeeping, data structures and evaluation are
+    provided, and the algorithms are not.</p>
+    <p>Two things in there are worth reading before you write any code. The
+    <code>rob498/se3.py</code> docstring fixes the conventions the lab and every grading
+    script assume &mdash; poses map child to parent, twists are ordered <code>(v, omega)</code>
+    with translation first, quaternions are scalar-last &mdash; and the module provides
+    <code>exp_se3</code>, <code>log_se3</code>, and <code>adjoint</code> so you do not write them. And
+    <code>lab1/tests/test_contracts.py</code> checks those conventions against your code: it cannot
+    tell you your segmenter is any good, but it will tell you that your poses are in the wrong
+    convention, or that your deliverable files will not parse &mdash; which is
+    where people lose points on work they actually did.</p>
+    <p>Tests for functions you have not written yet skip rather than fail, so
+    <code>pytest lab1/tests -v</code> stays useful from the first day to the last.</p>
+  </div>
+</section>
+
+<!-- ===================== LAB 1 ===================== -->
+<section id="lab1">
+  <div class="labhead">
+    <div class="lh-top">
+      <span class="lh-id">LAB 1</span>
+      <span class="lh-dates">Out Oct 7 &middot; Due Fri Nov 20, 11:59pm</span>
+    </div>
+    <h2>Representations, compared honestly</h2>
+    <p class="lh-goal">Build the same scene three ways &mdash; a learned point-cloud segmenter, a per-scene Gaussian splat, and a feed-forward transformer reconstruction &mdash; then evaluate all three on a robot task rather than on rendering quality. The ranking will change. Your job is to explain why.</p>
+  </div>
+
+  <div class="note warn">
+    <h4>The trap in this lab</h4>
+    <p>It is easy to produce three pipelines and a table of PSNR values and conclude that the highest number wins. That submission fails Part E, which is 40 of the lab's 100 points. The question is not which representation reconstructs best. It is which one a robot can <em>use</em>, and those are different questions with different answers.</p>
+  </div>
+
+  <div class="part" id="l1b">
+    <div class="part-head"><h3>Part B &mdash; Learned segmentation</h3><span class="pts">25 pts</span></div>
+    <div class="task"><span class="tid">B1</span><span class="tpts">12 pts</span><p>Train a sparse-convolution network (MinkowskiNet) or a point transformer (PTv3) for semantic segmentation on the provided ScanNet++ subset. Report overall mIoU and per-class IoU. You may start from released weights; if you do, say so and report both fine-tuned and zero-shot numbers.</p></div>
+    <div class="task"><span class="tid">B2</span><span class="tpts">7 pts</span><p>Ablate voxel size over at least 2 cm, 5 cm, and 10 cm. Plot mIoU and inference latency against voxel size. Identify which classes degrade fastest as resolution coarsens and explain what they have in common.</p></div>
+    <div class="task"><span class="tid">B3</span><span class="tpts">6 pts</span><p>Your downstream task in Part E cares about a small subset of classes. Report IoU restricted to those, and comment on whether mIoU was a good proxy for what you actually needed.</p></div>
+  </div>
+
+  <div class="part" id="l1c">
+    <div class="part-head"><h3>Part C &mdash; Per-scene optimization</h3><span class="pts">20 pts</span></div>
+    <div class="task"><span class="tid">C1</span><span class="tpts">8 pts</span><p>Fit a 3D Gaussian Splatting model to the evaluation scene. Report PSNR, SSIM, and LPIPS on the held-out views, the final Gaussian count, wall-clock fit time, and peak GPU memory.</p></div>
+    <div class="task"><span class="tid">C2</span><span class="tpts">6 pts</span><p>Extract a surface or occupancy estimate from your splats. Document the procedure precisely: opacity threshold, how you treat anisotropic Gaussians, and how you handle the floaters that a splat fit always produces. Show the extracted surface against the ground-truth mesh.</p></div>
+    <div class="task"><span class="tid">C3</span><span class="tpts">6 pts</span><p>Report accuracy and completeness of that surface against ground truth, at the fixed threshold the lab sets (default 0.05&nbsp;m, <code>--recon-threshold</code>) &mdash; the same one used for the feed-forward geometry in Part D3, so splat and feed-forward numbers are comparable within this lab. Comment on the relationship between your PSNR and your geometric accuracy. They are not the same ordering, and the gap is the finding.</p></div>
+  </div>
+
+  <div class="part" id="l1d">
+    <div class="part-head"><h3>Part D &mdash; Feed-forward reconstruction</h3><span class="pts">15 pts</span></div>
+    <div class="task"><span class="tid">D1</span><span class="tpts">5 pts</span><p>Run VGGT on the same images, supplying no poses and no intrinsics. Report wall-clock time and peak memory, and note how these scale as you vary the number of input views.</p></div>
+    <div class="task"><span class="tid">D2</span><span class="tpts">5 pts</span><p>Compare the recovered camera poses against ground truth after Sim(3) alignment. Report ATE and mean rotation error. Note the scale factor you had to apply and what that means for a robot that needs metric distances.</p></div>
+    <div class="task"><span class="tid">D3</span><span class="tpts">5 pts</span><p>Evaluate the predicted geometry against the ground-truth mesh with the same accuracy and completeness metrics, at the same threshold, as Part C3. Identify the regions where it fails and characterize them &mdash; textureless, specular, thin structure, or beyond the view distribution.</p></div>
+  </div>
+
+  <div class="part" id="l1e">
+    <div class="part-head"><h3>Part E &mdash; The downstream task</h3><span class="pts">40 pts</span></div>
+    <p class="prose">The task is <strong>collision checking</strong>: given a position in the room, would the robot hit something there? You answer it once from the ground-truth mesh, which gives the right answers, and then once from each representation you built. The representation a robot should trust is the one whose answers agree with the ground truth, and above all the one that does not call a collision free.</p>
+    <div class="card" style="margin-bottom:20px;">
+      <h3>How the collision check works</h3>
+      <p><strong>The robot is a sphere</strong> of radius <code>--robot-radius</code> (default 0.15&nbsp;m). A configuration is just the sphere&rsquo;s centre, a point in the room, and it is <em>in collision</em> if the sphere touches the scene. That is the same question as &ldquo;is the scene within <em>r</em> of this point?&rdquo;, so every representation only has to answer one query: is anything within <em>r</em> of <em>x</em>? Use the same <em>r</em> everywhere.</p>
+      <ol>
+        <li><strong>Sample configurations</strong> (provided). <code>downstream.sample_task_configurations(scene, n=2000, seed=..., robot_radius_m=r)</code> gives you the 2,000 positions to test. It samples the room and keeps only positions some camera actually saw, so the inside of a cabinet or the space behind a wall is never scored. Report the seed and the radius.</li>
+        <li><strong>Label them from ground truth</strong> (E1). <code>label_ground_truth_occupancy</code>: a configuration is in collision when its unsigned distance to the ground-truth mesh is at most <em>r</em>. Do not test inside versus outside; a scanned room is not watertight, so that test fails.</li>
+        <li><strong>Write one occupancy query per representation</strong> (E2). Each is a subclass of <code>OccupancyQuery</code> in <code>lab1/downstream.py</code>, with <code>is_occupied(points)</code> and <code>memory_mb()</code>: the segmented sensor cloud from Part&nbsp;B, the splats from Part&nbsp;C, the VGGT reconstruction from Part&nbsp;D (after fixing its scale), and a TSDF as the baseline. Each class&rsquo;s docstring says what the query means for that representation and where the traps are.</li>
+        <li><strong>Evaluate them identically.</strong> <code>evaluate_representations</code> runs every query on the same points and reports false-positive and false-negative rates, query latency and memory. It is provided and you should not change it.</li>
+      </ol>
+    </div>
+    <div class="task"><span class="tid">E1</span><span class="tpts">8 pts</span><p>Define your metric formally before you run anything, and state what a false negative and a false positive each cost a robot that relies on your collision check. They are not symmetric, and your evaluation should reflect that.</p></div>
+    <div class="task"><span class="tid">E2</span><span class="tpts">18 pts</span><p>Evaluate all three representations on that metric. Hold the query procedure fixed across representations so the comparison is about the representation and not your query code.</p></div>
+    <div class="task"><span class="tid">E3</span><span class="tpts">10 pts</span><p><strong>Find the flip.</strong> Identify at least one case where the representation that scored best on reconstruction fidelity scores worse on the task, and explain the mechanism. If you genuinely cannot find one, say so and show the evidence &mdash; a well-supported negative result earns full credit here; an unsupported claim that no flip exists earns none.</p></div>
+    <div class="task"><span class="tid">E4</span><span class="tpts">4 pts</span><p>Write a one-paragraph recommendation: which representation for which robot task, and under what compute budget. Write it as if to an engineer who has to pick one by Friday.</p></div>
+  </div>
+
+  <div class="deliv">
+    <h4>Lab 1 deliverables</h4>
+    <ul>
+      <li>Report PDF, <strong>8 pages maximum</strong>.</li>
+      <li>One summary table with representations as rows and columns for fidelity, memory, build time, query latency, and your task metric. This table is the centre of the report; build everything else around it.</li>
+      <li>Code archive with the exact configs and seeds used for each run.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  ROB 498 / 599 Special Topics: 3D Robot Perception &middot; University of Michigan Robotics &middot; Fall 2026<br>
+  Lab specifications may be clarified during the term; corrections are announced on Piazza and dated in the changelog
+</footer>
+
+</main>
+</div>
+
