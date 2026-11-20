@@ -1,0 +1,58 @@
+[
+  {
+    "file": "dice-noncommutative.png",
+    "slot": "Step 1, reason 1: the order of rotations matters",
+    "description": "Two dice given the same two quarter turns in opposite orders (paths A and B) finish with different faces showing.",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Non-commutative_rotation_of_dice.png",
+    "download_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Non-commutative_rotation_of_dice.png",
+    "author": "Guy vandegrift",
+    "license": "CC0",
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "credit": "Image: Guy vandegrift, Wikimedia Commons, CC0",
+    "width": 884,
+    "height": 1247,
+    "bytes": 152043
+  },
+  {
+    "file": "gimbal-lock-plane.gif",
+    "slot": "Step 1, reason 3: gimbal lock",
+    "description": "Animation of an aircraft model in three nested gimbals getting into gimbal lock.",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Gimbal_Lock_Plane.gif",
+    "download_url": "https://upload.wikimedia.org/wikipedia/commons/4/49/Gimbal_Lock_Plane.gif",
+    "author": "Drummyfish",
+    "license": "CC0",
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "credit": "Animation: Drummyfish, Wikimedia Commons, CC0",
+    "width": 200,
+    "height": 200,
+    "bytes": 1750313
+  },
+  {
+    "file": "rotation-decomposition.svg",
+    "slot": "Step 7: Rodrigues' formula",
+    "description": "A vector v split into components along and perpendicular to a rotation axis u, with the perpendicular part turned through theta to give R(v).",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Rotation_decomposition.svg",
+    "download_url": "https://upload.wikimedia.org/wikipedia/commons/b/be/Rotation_decomposition.svg",
+    "author": "Giacomo Alessandroni",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "credit": "Image: Giacomo Alessandroni, Wikimedia Commons, CC BY-SA 4.0",
+    "width": 424,
+    "height": 535,
+    "bytes": 27089
+  },
+  {
+    "file": "exp-map-sphere.svg",
+    "slot": "Step 7: the exponential map on a sphere",
+    "description": "The exponential map at a point p of a sphere, carrying vectors in the tangent plane onto the sphere.",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Exponential_map_of_the_sphere.svg",
+    "download_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Exponential_map_of_the_sphere.svg",
+    "author": "Christian1985",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "credit": "Image: Christian1985, Wikimedia Commons, CC BY-SA 3.0",
+    "width": 470,
+    "height": 400,
+    "bytes": 24241
+  }
+]
